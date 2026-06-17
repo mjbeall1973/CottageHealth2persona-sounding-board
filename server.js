@@ -1,0 +1,390 @@
+// server.js — Persona Sounding Board (hosted version)
+// Serves the tool, gates it behind a shared password, calls the Anthropic API to
+// generate persona reactions, can pull copy from a URL or a PDF, and logs every
+// evaluation to a central SQLite database so usage can be tracked across the team.
+
+require("dotenv").config();
+const path = require("path");
+const crypto = require("crypto");
+const express = require("express");
+const multer = require("multer");
+const Database = require("better-sqlite3");
+const Anthropic = require("@anthropic-ai/sdk");
+const pdfParse = require("pdf-parse");
+
+const { PERSONAS } = require("./personas");
+const { BRAND_VOICE } = require("./brand-voice");
+
+// ---------- config ----------
+const PORT = process.env.PORT || 3000;
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+const LOGIN_PASSWORD = process.env.LOGIN_PASSWORD || "cottage2026";
+const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, "evaluations.db");
+const MAX_SOURCE_CHARS = 16000; // cap text pulled from URLs/PDFs before sending to the model
+
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.warn("\n[!] ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key.\n");
+}
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// ---------- database ----------
+const db = new Database(DB_PATH);
+db.pragma("journal_mode = WAL");
+db.exec(`
+  CREATE TABLE IF NOT EXISTS evaluations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    user TEXT,
+    atype TEXT,
+    source TEXT,
+    copy_preview TEXT,
+    image_preview TEXT,
+    persona_id TEXT,
+    persona_name TEXT,
+    score INTEGER,
+    verdict TEXT,
+    fix TEXT
+  );
+`);
+const insertRow = db.prepare(`
+  INSERT INTO evaluations
+    (ts, run_id, user, atype, source, copy_preview, image_preview, persona_id, persona_name, score, verdict, fix)
+  VALUES (@ts, @run_id, @user, @atype, @source, @copy_preview, @image_preview, @persona_id, @persona_name, @score, @verdict, @fix)
+`);
+
+// ---------- app ----------
+const app = express();
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+
+// ---------- auth (shared-password sign-in) ----------
+function sign(value) {
+  return crypto.createHmac("sha256", SESSION_SECRET).update(value).digest("hex");
+}
+function makeToken(email) {
+  const payload = Buffer.from(email || "user").toString("base64url");
+  return payload + "." + sign(payload);
+}
+function verifyToken(token) {
+  if (!token || token.indexOf(".") < 0) return null;
+  const [payload, sig] = token.split(".");
+  if (sign(payload) !== sig) return null;
+  try { return Buffer.from(payload, "base64url").toString("utf8"); } catch (e) { return null; }
+}
+function getCookie(req, name) {
+  const raw = req.headers.cookie || "";
+  const hit = raw.split(";").map(s => s.trim()).find(s => s.startsWith(name + "="));
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
+}
+function requireAuth(req, res, next) {
+  const email = verifyToken(getCookie(req, "pb_auth"));
+  if (!email) {
+    if (req.path.startsWith("/api/")) return res.status(401).json({ error: "Not signed in." });
+    return res.redirect("/login.html");
+  }
+  req.userEmail = email;
+  next();
+}
+
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body || {};
+  if (!password || password !== LOGIN_PASSWORD) {
+    return res.status(401).json({ error: "Incorrect password." });
+  }
+  const token = makeToken((email || "").trim() || "user");
+  res.setHeader("Set-Cookie",
+    `pb_auth=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${60 * 60 * 24 * 30}`);
+  res.json({ ok: true });
+});
+app.post("/api/logout", (req, res) => {
+  res.setHeader("Set-Cookie", "pb_auth=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0");
+  res.json({ ok: true });
+});
+
+// login page + its assets must be reachable without auth
+app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
+
+// everything else requires sign-in
+app.use(requireAuth);
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.use(express.static(path.join(__dirname, "public")));
+
+// ---------- config for the frontend ----------
+app.get("/api/config", (req, res) => {
+  res.json({ personas: PERSONAS, brandVoice: BRAND_VOICE, user: req.userEmail });
+});
+
+// ---------- source extraction: URL ----------
+function decodeEntities(s) {
+  return (s || "")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&#39;|&rsquo;|&lsquo;|&apos;/g, "'").replace(/&quot;|&ldquo;|&rdquo;/g, '"')
+    .replace(/&mdash;/g, "—").replace(/&ndash;/g, "–");
+}
+function htmlToText(html) {
+  let h = html;
+  // pull a few useful hints first
+  const titleMatch = h.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const descMatch = h.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i);
+  const ogImg = h.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']*)["']/i);
+  const ogImgAlt = h.match(/<meta[^>]+property=["']og:image:alt["'][^>]+content=["']([^"']*)["']/i);
+
+  // collect image alt text as visual hints
+  const alts = [];
+  const imgRe = /<img[^>]+alt=["']([^"']+)["'][^>]*>/gi;
+  let m;
+  while ((m = imgRe.exec(h)) && alts.length < 12) {
+    const a = m[1].trim();
+    if (a && a.length > 2) alts.push(a);
+  }
+
+  // strip non-content elements, then all tags
+  h = h.replace(/<script[\s\S]*?<\/script>/gi, " ")
+       .replace(/<style[\s\S]*?<\/style>/gi, " ")
+       .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+       .replace(/<!--[\s\S]*?-->/g, " ")
+       .replace(/<header[\s\S]*?<\/header>/gi, " ")
+       .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
+       .replace(/<nav[\s\S]*?<\/nav>/gi, " ");
+  const text = decodeEntities(h.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+
+  return {
+    title: titleMatch ? decodeEntities(titleMatch[1].replace(/\s+/g, " ").trim()) : "",
+    description: descMatch ? decodeEntities(descMatch[1].trim()) : "",
+    text,
+    imageHints: alts.map(decodeEntities),
+    ogImage: ogImg ? ogImg[1] : "",
+    ogImageAlt: ogImgAlt ? decodeEntities(ogImgAlt[1]) : ""
+  };
+}
+
+app.post("/api/extract-url", async (req, res) => {
+  let { url } = req.body || {};
+  if (!url) return res.status(400).json({ error: "No URL provided." });
+  url = url.trim();
+  if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 15000);
+    const resp = await fetch(url, {
+      signal: ctrl.signal,
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; PersonaSoundingBoard/2.0; +https://cottagehealth.org)",
+        "Accept": "text/html,application/xhtml+xml,application/pdf,*/*"
+      }
+    });
+    clearTimeout(timeout);
+    if (!resp.ok) return res.status(502).json({ error: `Could not load that page (HTTP ${resp.status}).` });
+
+    const ctype = (resp.headers.get("content-type") || "").toLowerCase();
+
+    // URL points straight at a PDF
+    if (ctype.includes("application/pdf") || url.toLowerCase().endsWith(".pdf")) {
+      const buf = Buffer.from(await resp.arrayBuffer());
+      const parsed = await pdfParse(buf);
+      const text = (parsed.text || "").replace(/\s+\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+      return res.json({
+        sourceLabel: `PDF at ${url}`,
+        copy: text.slice(0, MAX_SOURCE_CHARS),
+        image: "",
+        truncated: text.length > MAX_SOURCE_CHARS
+      });
+    }
+
+    const html = await resp.text();
+    const ex = htmlToText(html);
+    let copy = "";
+    if (ex.title) copy += ex.title + "\n\n";
+    if (ex.description) copy += ex.description + "\n\n";
+    copy += ex.text;
+    copy = copy.slice(0, MAX_SOURCE_CHARS);
+
+    let image = "";
+    if (ex.ogImageAlt) image = ex.ogImageAlt;
+    else if (ex.imageHints.length) image = "Images on the page include: " + ex.imageHints.slice(0, 6).join("; ") + ".";
+    else if (ex.ogImage) image = "Page has a primary social-share image (no alt text provided).";
+
+    res.json({
+      sourceLabel: ex.title ? `Web page: ${ex.title}` : `Web page: ${url}`,
+      copy,
+      image,
+      truncated: (ex.text || "").length > MAX_SOURCE_CHARS
+    });
+  } catch (e) {
+    const msg = e && e.name === "AbortError" ? "The page took too long to respond." : (e && e.message) || "Fetch failed.";
+    res.status(502).json({ error: "Couldn't read that URL: " + msg });
+  }
+});
+
+// ---------- source extraction: PDF upload ----------
+app.post("/api/extract-pdf", upload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No PDF uploaded." });
+  try {
+    const parsed = await pdfParse(req.file.buffer);
+    let text = (parsed.text || "").replace(/\s+\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+    const truncated = text.length > MAX_SOURCE_CHARS;
+    text = text.slice(0, MAX_SOURCE_CHARS);
+    const thin = text.length < 40;
+    res.json({
+      sourceLabel: `PDF: ${req.file.originalname}`,
+      pages: parsed.numpages || null,
+      copy: text,
+      image: thin ? "This PDF has little or no extractable text — it may be image-based (a scan or a designed graphic). Describe the visual in the image box for a better read." : "",
+      truncated,
+      thin
+    });
+  } catch (e) {
+    res.status(422).json({ error: "Couldn't read that PDF: " + ((e && e.message) || "parse failed") });
+  }
+});
+
+// ---------- evaluation ----------
+function buildPrompt(p, atype, copy, img) {
+  return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
+
+REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
+
+PERSONA — ${p.name}, ${p.role}.
+Background: ${p.blurb}
+What moves you: ${p.motivations.join("; ")}.
+What turns you off: ${p.objections.join("; ")}.
+Tone you respond to: ${p.tone}
+For images, you lean into: ${p.imgYes.join("; ")}. You dislike: ${p.imgNo.join("; ")}.
+
+${BRAND_VOICE.promptSummary}
+
+ASSET TYPE: ${atype}
+COPY: """${copy || "(none provided)"}"""
+IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
+
+Judge how well THIS asset would land with YOU specifically. Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
+{"score": <integer 0-10, how well it resonates with you>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>"}`;
+}
+
+function parseModelJSON(text) {
+  if (!text) return null;
+  let t = String(text).replace(/```json/gi, "").replace(/```/g, "").trim();
+  try { const o = JSON.parse(t); if (o && typeof o === "object") return o; } catch (e) {}
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  return null;
+}
+
+async function evaluateOne(persona, atype, copy, img) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const msg = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 600,
+        messages: [{ role: "user", content: buildPrompt(persona, atype, copy, img) }]
+      });
+      const text = (msg.content || []).map(b => b.text || "").join("");
+      const d = parseModelJSON(text);
+      if (d) {
+        return {
+          score: Math.max(0, Math.min(10, parseInt(d.score, 10) || 0)),
+          headline: d.headline || "",
+          resonates: Array.isArray(d.resonates) ? d.resonates.filter(Boolean).slice(0, 3) : [],
+          fallsFlat: Array.isArray(d.fallsFlat) ? d.fallsFlat.filter(Boolean).slice(0, 3) : [],
+          fix: d.fix || "",
+          verdict: d.verdict || "",
+          raw: null
+        };
+      }
+      if (attempt === 1) return { error: true, raw: (text || "").slice(0, 500) };
+    } catch (e) {
+      if (attempt === 1) return { error: true, raw: (e && e.message) || "API error" };
+    }
+  }
+  return { error: true, raw: "No response." };
+}
+
+app.post("/api/evaluate", async (req, res) => {
+  const { atype, copy, img, personaIds, source } = req.body || {};
+  const cleanCopy = (copy || "").trim();
+  const cleanImg = (img || "").trim();
+  if (!cleanCopy && !cleanImg) return res.status(400).json({ error: "Add some copy or describe a visual first." });
+
+  const ids = Array.isArray(personaIds) && personaIds.length ? personaIds : PERSONAS.map(p => p.id);
+  const chosen = PERSONAS.filter(p => ids.includes(p.id));
+  if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
+
+  const results = {};
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg); }));
+
+  // log every persona reaction
+  const runId = crypto.randomUUID();
+  const ts = new Date().toISOString();
+  const user = (req.userEmail || "user");
+  const tx = db.transaction(() => {
+    chosen.forEach(p => {
+      const r = results[p.id] || {};
+      insertRow.run({
+        ts, run_id: runId, user,
+        atype: atype || "Other",
+        source: source || "paste",
+        copy_preview: cleanCopy.slice(0, 160),
+        image_preview: cleanImg.slice(0, 160),
+        persona_id: p.id, persona_name: p.name,
+        score: (r && !r.error && typeof r.score === "number") ? r.score : null,
+        verdict: (r && r.verdict) || "",
+        fix: (r && r.fix) || ""
+      });
+    });
+  });
+  tx();
+
+  res.json({ runId, results, personas: chosen.map(p => ({ id: p.id, name: p.name, role: p.role, color: p.color })) });
+});
+
+// ---------- usage stats ----------
+app.get("/api/stats", (req, res) => {
+  const totalRuns = db.prepare("SELECT COUNT(DISTINCT run_id) n FROM evaluations").get().n;
+  const users = db.prepare("SELECT COUNT(DISTINCT user) n FROM evaluations").get().n;
+  const overall = db.prepare("SELECT AVG(score) a FROM evaluations WHERE score IS NOT NULL").get().a;
+
+  const byPersona = PERSONAS.map(p => {
+    const row = db.prepare("SELECT AVG(score) a, COUNT(score) n FROM evaluations WHERE persona_id=? AND score IS NOT NULL").get(p.id);
+    return { id: p.id, name: p.name, color: p.color, avg: row.a, n: row.n };
+  });
+
+  const byAsset = db.prepare(`
+    SELECT atype, AVG(score) a, COUNT(DISTINCT run_id) n
+    FROM evaluations WHERE score IS NOT NULL GROUP BY atype ORDER BY n DESC
+  `).all().map(r => ({ atype: r.atype, avg: r.a, n: r.n }));
+
+  const bySource = db.prepare(`
+    SELECT source, COUNT(DISTINCT run_id) n FROM evaluations GROUP BY source ORDER BY n DESC
+  `).all();
+
+  const recent = db.prepare(`
+    SELECT run_id, ts, user, atype, source, avg_score, copy_preview FROM (
+      SELECT run_id, MIN(ts) ts, MAX(user) user, MAX(atype) atype, MAX(source) source,
+             AVG(score) avg_score, MAX(copy_preview) copy_preview
+      FROM evaluations GROUP BY run_id
+    ) ORDER BY ts DESC LIMIT 40
+  `).all();
+
+  res.json({ totalRuns, users, overall, byPersona, byAsset, bySource, recent });
+});
+
+// ---------- CSV export ----------
+app.get("/api/export.csv", (req, res) => {
+  const rows = db.prepare("SELECT * FROM evaluations ORDER BY ts DESC").all();
+  const head = ["timestamp", "run_id", "user", "asset_type", "source", "persona", "persona_score", "verdict", "fix", "copy_preview", "image_preview"];
+  const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const lines = [head.join(",")];
+  rows.forEach(r => lines.push([r.ts, r.run_id, r.user, r.atype, r.source, r.persona_name, r.score, r.verdict, r.fix, r.copy_preview, r.image_preview].map(q).join(",")));
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", 'attachment; filename="persona-sounding-board-log.csv"');
+  res.send(lines.join("\n"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Persona Sounding Board running on http://localhost:${PORT}`);
+  console.log(`Model: ${MODEL} · DB: ${DB_PATH}`);
+});

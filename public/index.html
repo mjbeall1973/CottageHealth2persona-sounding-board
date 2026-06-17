@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona Sounding Board — Cottage Health Foundation</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f7f8fa; --card:#ffffff; --ink:#1c2430; --muted:#5d6675; --line:#e4e8ee;
+  --brand:#0a5b73; --brand-2:#0d7d96; --brand-soft:#e6f1f4; --accent:#b8862f;
+  --good:#1f8a52; --warn:#c0641a; --bad:#b23b3b;
+  --shadow:0 1px 3px rgba(20,30,45,.06),0 6px 20px rgba(20,30,45,.05);
+  --radius:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:14px 18px 48px}
+.brandbar{display:flex;align-items:center;gap:18px;padding:16px 18px;margin:4px 0 6px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.brandbar .logo svg{height:48px;width:auto;display:block}
+.brandbar .bdiv{width:1px;align-self:stretch;background:var(--line);margin:2px 0}
+.brandbar .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
+.brandbar h1{font-size:21px;margin:1px 0 0;letter-spacing:-.2px;font-weight:700;color:var(--ink)}
+.brandbar .who{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+.brandbar .who a{color:var(--brand);cursor:pointer}
+.sub{color:var(--muted);font-size:14px;max-width:820px;margin:10px 2px 0}
+.tabs{display:flex;gap:6px;margin:18px 0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{padding:9px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.panel{display:none}.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:760px){.grid2{grid-template-columns:360px 1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 12px}
+label.fld{display:block;font-size:13px;font-weight:600;margin:0 0 5px;color:var(--ink)}
+.hint{font-size:12px;color:var(--muted);font-weight:400}
+select,textarea,input[type=text],input[type=url]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;color:var(--ink);background:#fff;resize:vertical}
+textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.field{margin-bottom:14px}
+/* source selector */
+.seg{display:flex;gap:6px;background:#eef1f5;border-radius:10px;padding:4px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:none;padding:8px 6px;border-radius:8px;font:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:#fff;color:var(--brand);box-shadow:var(--shadow)}
+.srcpanel{display:none}.srcpanel.on{display:block}
+.inline{display:flex;gap:8px}
+.inline input{flex:1}
+.srcnote{font-size:12px;border-radius:8px;padding:8px 10px;margin-top:8px;display:none}
+.srcnote.show{display:block}
+.srcnote.ok{background:#eaf6ef;color:var(--good);border:1px solid #cde9d8}
+.srcnote.err{background:#fdeceb;color:var(--bad);border:1px solid #f3cfcd}
+.srcnote.work{background:#f1f4f8;color:var(--muted);border:1px solid var(--line)}
+.pers-toggles{display:flex;flex-direction:column;gap:8px}
+.ptog{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:.12s}
+.ptog:hover{border-color:var(--brand)}.ptog input{margin-top:3px}
+.ptog .pn{font-weight:600;font-size:13.5px}.ptog .pd{font-size:12px;color:var(--muted)}
+.swatch{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.btn{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:.12s}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:default;filter:none}
+.btn.secondary{background:#eef1f5;color:var(--ink);margin-top:8px}
+.btn.small{width:auto;padding:9px 14px;font-size:13px}
+.results{display:flex;flex-direction:column;gap:14px}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:48px 18px;border:1px dashed var(--line);border-radius:var(--radius)}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
+.spinner.light{border-color:#fff;border-top-color:transparent}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.rhead{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.rhead .nm{font-weight:700;font-size:15px}.rhead .rl{font-size:12px;color:var(--muted)}
+.score{margin-left:auto;text-align:center;min-width:64px}
+.score .num{font-size:24px;font-weight:800;line-height:1}.score .lab{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.verdict{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+.rbody{padding:14px 16px}
+.quote{font-style:italic;color:var(--ink);font-size:14.5px;margin:0 0 12px;padding-left:12px;border-left:3px solid var(--brand-soft)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.cols{grid-template-columns:1fr}}
+.cols h4{font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 6px}
+.cols .good h4{color:var(--good)}.cols .bad h4{color:var(--bad)}
+.cols ul{margin:0;padding-left:16px;font-size:13.5px}.cols li{margin-bottom:4px}
+.fix{margin-top:12px;font-size:13.5px;background:#fbf6ea;border:1px solid #efe2c4;border-radius:10px;padding:10px 12px}
+.fix b{color:var(--accent)}
+.bar{height:6px;border-radius:4px;background:#eef1f5;overflow:hidden;margin-top:6px}.bar > i{display:block;height:100%}
+.aggregate{background:var(--brand);color:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.aggregate .big{font-size:13px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
+.aggregate .row{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
+.aggregate .pill{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font-size:13px}
+.actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pref{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:720px){.pref{grid-template-columns:1fr 1fr}}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.pcard .top{display:flex;align-items:center;gap:10px;margin-bottom:4px}.pcard .pname{font-weight:700;font-size:16px}.pcard .prole{font-size:12px;color:var(--muted)}
+.pcard .blurb{font-size:13.5px;margin:8px 0 12px}.pcard h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:12px 0 5px}
+.pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
+.tone{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:8px 10px;font-weight:500}
+.chk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.chk .yes h5{color:var(--good)}.chk .no h5{color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.stat .v{font-size:26px;font-weight:800;color:var(--brand);line-height:1}.stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.chartcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.chartcard h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 12px}
+.hbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.hbar .track{height:14px;background:#eef1f5;border-radius:7px;overflow:hidden}
+.hbar .track > i{display:block;height:100%;border-radius:7px}
+.hbar .val{text-align:right;font-weight:700}
+table.log{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+table.log th,table.log td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.log th{background:#f1f4f8;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+table.log tr:last-child td{border-bottom:none}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+.note{font-size:12.5px;color:var(--muted);background:#f1f4f8;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:16px}
+.bvhead{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.bvhead .one{font-size:15px;font-weight:600;color:var(--brand)}.bvhead .sum{font-size:13.5px;color:var(--muted);margin-top:8px}
+.bvgrid{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:720px){.bvgrid{grid-template-columns:1fr 1fr}}
+.bvcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.bvcard .bt{display:flex;align-items:center;gap:10px}.bvcard .bn{font-weight:700;font-size:15px}.bvcard .bs{margin-left:auto;font-weight:800;font-size:20px;color:var(--brand)}
+.bvcard .spec{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}.bvcard .bnote{font-size:13.5px;margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
+.foot{font-size:12px;color:var(--muted);margin-top:22px;text-align:center}.foot b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brandbar">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="img" aria-label="Cottage Health">
+        <g>
+          <path d="M137.0 76.2 L178.2 49.7 L172.0 41.1 L134.1 72.2 Z" fill="#97c73a"/><path d="M132.4 70.2 L168.4 37.0 L160.8 29.6 L128.8 66.7 Z" fill="#8ec444"/><path d="M126.7 65.0 L156.5 26.1 L147.7 20.2 L122.6 62.2 Z" fill="#85c24f"/><path d="M120.3 61.0 L142.9 17.5 L133.2 13.1 L115.7 58.9 Z" fill="#7dc05a"/><path d="M113.3 58.0 L128.0 11.3 L117.8 8.7 L108.4 56.8 Z" fill="#74bd65"/><path d="M105.8 56.4 L112.3 7.8 L101.8 7.0 L100.8 56.0 Z" fill="#6bbb6f"/><path d="M98.2 56.0 L96.2 7.1 L85.7 8.1 L93.2 56.5 Z" fill="#63b97a"/><path d="M90.7 57.0 L80.3 9.1 L70.1 12.0 L85.8 58.3 Z" fill="#5ab785"/><path d="M83.4 59.3 L64.9 13.9 L55.3 18.4 L78.9 61.4 Z" fill="#52b490"/><path d="M76.6 62.7 L50.6 21.2 L41.9 27.4 L72.5 65.6 Z" fill="#49b29a"/><path d="M70.5 67.3 L37.7 30.9 L30.3 38.5 L67.0 70.9 Z" fill="#40b0a5"/><path d="M65.3 72.9 L26.7 42.7 L20.7 51.4 L62.5 77.0 Z" fill="#38adb0"/><path d="M61.2 79.3 L18.0 56.2 L13.5 65.8 L59.1 83.8 Z" fill="#2fabbb"/><path d="M58.2 86.3 L11.6 71.0 L8.9 81.2 L56.9 91.1 Z" fill="#26a9c5"/><path d="M56.5 93.7 L8.0 86.7 L7.0 97.2 L56.0 98.7 Z" fill="#1ea7d0"/><path d="M56.0 101.3 L7.0 102.8 L8.0 113.3 L56.5 106.3 Z" fill="#1ea7d0"/><path d="M56.9 108.9 L8.9 118.8 L11.6 129.0 L58.2 113.7 Z" fill="#26a9c5"/><path d="M59.1 116.2 L13.5 134.2 L18.0 143.8 L61.2 120.7 Z" fill="#2fabbb"/><path d="M62.5 123.0 L20.7 148.6 L26.7 157.3 L65.3 127.1 Z" fill="#38adb0"/><path d="M67.0 129.1 L30.3 161.5 L37.7 169.1 L70.5 132.7 Z" fill="#40b0a5"/><path d="M72.5 134.4 L41.9 172.6 L50.6 178.8 L76.6 137.3 Z" fill="#49b29a"/><path d="M78.9 138.6 L55.3 181.6 L64.9 186.1 L83.4 140.7 Z" fill="#52b490"/><path d="M85.8 141.7 L70.1 188.0 L80.3 190.9 L90.7 143.0 Z" fill="#5ab785"/><path d="M93.2 143.5 L85.7 191.9 L96.2 192.9 L98.2 144.0 Z" fill="#63b97a"/><path d="M100.8 144.0 L101.8 193.0 L112.3 192.2 L105.8 143.6 Z" fill="#6bbb6f"/><path d="M108.4 143.2 L117.8 191.3 L128.0 188.7 L113.3 142.0 Z" fill="#74bd65"/><path d="M115.7 141.1 L133.2 186.9 L142.9 182.5 L120.3 139.0 Z" fill="#7dc05a"/><path d="M122.6 137.8 L147.7 179.8 L156.5 173.9 L126.7 135.0 Z" fill="#85c24f"/><path d="M128.8 133.3 L160.8 170.4 L168.4 163.0 L132.4 129.8 Z" fill="#8ec444"/><path d="M134.1 127.8 L172.0 158.9 L178.2 150.3 L137.0 123.8 Z" fill="#97c73a"/>
+        </g>
+        <text x="212" y="98" font-family="Helvetica Neue, Arial, sans-serif" font-size="86" font-weight="400" fill="#2b2b2b" letter-spacing="-1">Cottage</text>
+        <text x="212" y="178" font-family="Helvetica Neue, Arial, sans-serif" font-size="86" font-weight="300" fill="#2b2b2b" letter-spacing="-1">Health</text>
+      </svg>
+    </div>
+    <div class="bdiv"></div>
+    <div>
+      <div class="eyebrow">Foundation Marketing Tool</div>
+      <h1>Persona Sounding Board</h1>
+    </div>
+    <div class="who"><span id="whoName"></span><br><a id="logout">Sign out</a></div>
+  </div>
+  <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, or <b>upload a PDF</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="eval">Evaluate</button>
+    <button class="tab" data-tab="ref">The 6 personas</button>
+    <button class="tab" data-tab="brand">Brand voice</button>
+    <button class="tab" data-tab="usage">Usage log</button>
+  </div>
+
+  <!-- EVAL -->
+  <section class="panel active" id="eval">
+    <div class="grid2">
+      <div class="card">
+        <h2>Your asset</h2>
+        <div class="field">
+          <label class="fld" for="atype">Asset type</label>
+          <select id="atype">
+            <option>Email / appeal letter</option><option>Direct mail piece</option><option>Social media post</option>
+            <option>Website / landing page</option><option>Brochure / case statement</option><option>Event invitation</option>
+            <option>Newsletter</option><option>Ad / billboard</option><option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="fld">Where's the content?</label>
+          <div class="seg" id="srcseg">
+            <button data-src="paste" class="on">Paste text</button>
+            <button data-src="url">From URL</button>
+            <button data-src="pdf">From PDF</button>
+          </div>
+
+          <div class="srcpanel on" id="src-paste">
+            <span class="hint">Type or paste the copy below.</span>
+          </div>
+
+          <div class="srcpanel" id="src-url">
+            <div class="inline">
+              <input type="url" id="urlInput" placeholder="https://example.org/campaign-page">
+              <button class="btn small" id="fetchUrl" style="white-space:nowrap">Pull copy</button>
+            </div>
+            <div class="srcnote" id="urlNote"></div>
+          </div>
+
+          <div class="srcpanel" id="src-pdf">
+            <div class="inline">
+              <input type="file" id="pdfInput" accept="application/pdf" style="padding:8px">
+              <button class="btn small" id="extractPdf" style="white-space:nowrap">Extract</button>
+            </div>
+            <div class="srcnote" id="pdfNote"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="fld" for="copy">Copy <span class="hint">(headline + body — auto-filled from URL/PDF, edit freely)</span></label>
+          <textarea id="copy" rows="7" placeholder="Paste the headline and body copy here..."></textarea>
+        </div>
+        <div class="field">
+          <label class="fld" for="img">Image / visual concept <span class="hint">(describe it, or paste alt text)</span></label>
+          <textarea id="img" rows="3" placeholder="e.g. Aerial photo of the hospital at golden hour with a smiling nurse in the foreground..."></textarea>
+        </div>
+        <div class="field">
+          <label class="fld">Test against</label>
+          <div class="pers-toggles" id="toggles"></div>
+        </div>
+        <button class="btn" id="run">Get reactions</button>
+        <button class="btn secondary" id="clear">Clear</button>
+      </div>
+
+      <div>
+        <div id="agg"></div>
+        <div id="resultActions" class="actbar" style="display:none">
+          <button class="btn small secondary" id="copySummary">Copy summary</button>
+          <button class="btn small secondary" id="downloadReport">Download report</button>
+        </div>
+        <div class="results" id="results">
+          <div class="empty">Add copy (paste, pull from a URL, or upload a PDF), pick your personas, then hit <b>Get reactions</b>.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="ref"><div class="pref" id="prefList"></div></section>
+  <section class="panel" id="brand"><div id="bvBody"></div></section>
+  <section class="panel" id="usage">
+    <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
+    <div class="stats" id="stats"></div>
+    <div class="chartcard" id="personaChart" style="display:none"><h3>Average fit score by persona</h3><div id="personaBars"></div></div>
+    <div class="chartcard" id="assetChart" style="display:none"><h3>Average fit score by asset type</h3><div id="assetBars"></div></div>
+    <div class="toolbar"><button class="btn small" id="exportCsv">Export CSV</button><button class="btn small secondary" id="refreshLog">Refresh</button></div>
+    <div id="logTable"></div>
+  </section>
+
+  <div class="foot"><b>Persona Sounding Board</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
+</div>
+
+<script>
+let PERSONAS = [], BRAND_VOICE = null, LAST = null;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function esc(s){return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function scoreColor(n){ if(n>=8)return "var(--good)"; if(n>=5)return "var(--warn)"; return "var(--bad)"; }
+function verdictColor(v){ v=(v||"").toLowerCase(); if(v.includes("love"))return "var(--good)"; if(v.includes("interest"))return "#2e8b57"; if(v.includes("lukewarm"))return "var(--warn)"; return "var(--bad)"; }
+
+async function boot(){
+  let cfg;
+  try{ cfg = await (await fetch("/api/config")).json(); }
+  catch(e){ document.body.innerHTML="<p style='padding:40px;font-family:sans-serif'>Couldn't load the tool. Please refresh.</p>"; return; }
+  PERSONAS = cfg.personas; BRAND_VOICE = cfg.brandVoice;
+  $("#whoName").textContent = cfg.user || "";
+  buildToggles(); buildRef();
+}
+
+function buildToggles(){
+  $("#toggles").innerHTML = PERSONAS.map(p=>`
+    <label class="ptog"><input type="checkbox" value="${p.id}" checked>
+      <span><span class="pn"><span class="swatch" style="background:${p.color}"></span>${esc(p.name)}</span>
+      <span class="pd">${esc(p.role)}</span></span></label>`).join("");
+}
+function buildRef(){
+  $("#prefList").innerHTML = PERSONAS.map(p=>`
+    <div class="pcard">
+      <div class="top"><span class="swatch" style="background:${p.color};width:12px;height:12px"></span>
+        <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
+      <div class="blurb">${esc(p.blurb)}</div>
+      <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
+      <h5>What turns them off</h5><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
+      <h5>Tone that works</h5><div class="tone">${esc(p.tone)}</div>
+      <h5>Image checklist</h5>
+      <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
+        <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
+    </div>`).join("");
+}
+function renderBrand(){
+  const cards=BRAND_VOICE.dimensions.map(d=>`
+    <div class="bvcard"><div class="bt"><span class="bn">${esc(d.name)}</span><span class="bs">${d.score}</span></div>
+      <div class="spec">${esc(d.spectrum)}</div><p class="bnote">${esc(d.note)}</p>
+      <div class="chips">${d.words.map(w=>`<span class="chip">${esc(w)}</span>`).join("")}</div></div>`).join("");
+  $("#bvBody").innerHTML=`<div class="bvhead"><div class="one">${esc(BRAND_VOICE.oneLine)}</div><div class="sum">${esc(BRAND_VOICE.summary)}</div></div><div class="bvgrid">${cards}</div>`;
+}
+
+/* tabs */
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active"));
+  $$(".panel").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active"); $("#"+t.dataset.tab).classList.add("active");
+  if(t.dataset.tab==="usage") renderUsage();
+  if(t.dataset.tab==="brand") renderBrand();
+}));
+
+/* source selector */
+$("#srcseg").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-src]"); if(!b) return;
+  $$("#srcseg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  $$(".srcpanel").forEach(x=>x.classList.remove("on")); $("#src-"+b.dataset.src).classList.add("on");
+});
+function srcNote(el, kind, msg){ el.className="srcnote show "+kind; el.innerHTML=msg; }
+
+$("#fetchUrl").addEventListener("click", async ()=>{
+  const url=$("#urlInput").value.trim(); const note=$("#urlNote");
+  if(!url){ srcNote(note,"err","Enter a URL first."); return; }
+  const btn=$("#fetchUrl"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner light"></span>';
+  srcNote(note,"work","Reading the page…");
+  try{
+    const r=await fetch("/api/extract-url",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})});
+    const j=await r.json();
+    if(!r.ok){ srcNote(note,"err",esc(j.error||"Couldn't read that URL.")); }
+    else{
+      $("#copy").value=j.copy||"";
+      if(j.image) $("#img").value=j.image;
+      $("#copy").dataset.source="url";
+      srcNote(note,"ok",`Pulled ${(j.copy||"").length.toLocaleString()} characters from <b>${esc(j.sourceLabel||url)}</b>${j.truncated?" (trimmed to fit)":""}. Review the copy box, then get reactions.`);
+    }
+  }catch(e){ srcNote(note,"err","Network error — try again."); }
+  btn.disabled=false; btn.textContent=old;
+});
+
+$("#extractPdf").addEventListener("click", async ()=>{
+  const f=$("#pdfInput").files[0]; const note=$("#pdfNote");
+  if(!f){ srcNote(note,"err","Choose a PDF first."); return; }
+  const btn=$("#extractPdf"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner light"></span>';
+  srcNote(note,"work","Reading the PDF…");
+  try{
+    const fd=new FormData(); fd.append("file",f);
+    const r=await fetch("/api/extract-pdf",{method:"POST",body:fd});
+    const j=await r.json();
+    if(!r.ok){ srcNote(note,"err",esc(j.error||"Couldn't read that PDF.")); }
+    else{
+      $("#copy").value=j.copy||"";
+      if(j.image) $("#img").value=j.image;
+      $("#copy").dataset.source="pdf";
+      if(j.thin) srcNote(note,"err",esc(j.image||"Little text found — this PDF may be image-based. Describe the visual instead."));
+      else srcNote(note,"ok",`Extracted ${(j.copy||"").length.toLocaleString()} characters${j.pages?` from ${j.pages} page(s)`:""}${j.truncated?", trimmed to fit":""}. Review the copy box, then get reactions.`);
+    }
+  }catch(e){ srcNote(note,"err","Upload failed — try again."); }
+  btn.disabled=false; btn.textContent=old;
+});
+
+/* evaluate */
+async function run(){
+  const atype=$("#atype").value, copy=$("#copy").value.trim(), img=$("#img").value.trim();
+  const sel=$$(".ptog input:checked").map(c=>c.value);
+  const source=$("#copy").dataset.source||"paste";
+  if(!copy && !img){ alert("Add some copy or describe a visual first."); return; }
+  if(!sel.length){ alert("Pick at least one persona."); return; }
+
+  const btn=$("#run"); btn.disabled=true; btn.innerHTML='<span class="spinner light"></span>Asking the room...';
+  $("#agg").innerHTML=""; $("#resultActions").style.display="none";
+  const chosen=PERSONAS.filter(p=>sel.includes(p.id));
+  $("#results").innerHTML = chosen.map(p=>`<div class="rcard" id="r-${p.id}">
+      <div class="rhead"><span class="swatch" style="background:${p.color};width:12px;height:12px"></span>
+        <div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div>
+        <div class="score"><div class="num" style="color:var(--muted)">·</div><div class="lab">thinking</div></div></div>
+      <div class="rbody"><div class="quote">…</div></div></div>`).join("");
+
+  try{
+    const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({atype,copy,img,personaIds:sel,source})});
+    const j=await r.json();
+    if(!r.ok){ alert(j.error||"Evaluation failed."); }
+    else{
+      chosen.forEach(p=>renderCard(p,j.results[p.id]));
+      renderAggregate(chosen,j.results);
+      LAST={atype,copy,img,chosen,results:j.results,ts:new Date()};
+      $("#resultActions").style.display="flex";
+    }
+  }catch(e){ alert("Network error — try again."); }
+  btn.disabled=false; btn.textContent="Get reactions";
+}
+
+function renderCard(p,d){
+  const el=$("#r-"+p.id); if(!el) return;
+  if(!d || d.error){
+    const txt=(d&&d.raw)?String(d.raw).trim():"";
+    el.querySelector(".rbody").innerHTML = txt
+      ? `<p class="quote">${esc(txt.slice(0,500))}</p><div class="hint" style="font-size:11px">(Couldn't score this one — shown as plain text. Try again.)</div>`
+      : `<div class="quote">No response came back. Please try again.</div>`;
+    el.querySelector(".score").innerHTML=`<div class="num" style="color:var(--muted)">—</div><div class="lab">n/a</div>`;
+    return;
+  }
+  const score=Math.max(0,Math.min(10,parseInt(d.score,10)||0));
+  el.querySelector(".score").innerHTML=`<div class="num" style="color:${scoreColor(score)}">${score}</div><div class="lab">/ 10</div>`;
+  const res=(d.resonates||[]).filter(Boolean), flat=(d.fallsFlat||[]).filter(Boolean);
+  el.querySelector(".rbody").innerHTML=`
+    <p class="quote">&ldquo;${esc(d.headline||"")}&rdquo;</p>
+    <div style="margin:-4px 0 12px"><span class="verdict" style="background:${verdictColor(d.verdict)};color:#fff">${esc(d.verdict||"")}</span>
+      <div class="bar"><i style="width:${score*10}%;background:${scoreColor(score)}"></i></div></div>
+    <div class="cols"><div class="good"><h4>Resonates</h4><ul>${res.length?res.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div>
+      <div class="bad"><h4>Falls flat</h4><ul>${flat.length?flat.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div></div>
+    ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}`;
+}
+
+function renderAggregate(chosen,results){
+  const scored=chosen.map(p=>({p,d:results[p.id]})).filter(x=>x.d&&!x.d.error&&!isNaN(parseInt(x.d.score,10)));
+  if(!scored.length) return;
+  const avg=(scored.reduce((s,x)=>s+(parseInt(x.d.score,10)||0),0)/scored.length).toFixed(1);
+  const sorted=[...scored].sort((a,b)=>(b.d.score||0)-(a.d.score||0));
+  const top=sorted[0], low=sorted[sorted.length-1];
+  $("#agg").innerHTML=`<div class="aggregate"><div class="big">Room read &middot; average fit ${avg}/10</div>
+    <div class="row"><div class="pill">Strongest with <b>${esc(top.p.name)}</b> (${top.d.score})</div>
+      <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div></div>`;
+}
+
+/* share: copy + download */
+function summaryText(){
+  if(!LAST) return "";
+  const lines=[];
+  lines.push("PERSONA SOUNDING BOARD — "+LAST.ts.toLocaleString());
+  lines.push("Asset type: "+LAST.atype);
+  if(LAST.copy) lines.push("\nCOPY TESTED:\n"+LAST.copy.slice(0,500)+(LAST.copy.length>500?"…":""));
+  if(LAST.img) lines.push("\nVISUAL:\n"+LAST.img);
+  lines.push("\nREACTIONS:");
+  LAST.chosen.forEach(p=>{ const d=LAST.results[p.id]||{};
+    if(d.error){ lines.push(`\n${p.name} (${p.role}) — n/a`); return; }
+    lines.push(`\n${p.name} (${p.role}) — ${d.score}/10 · ${d.verdict}`);
+    lines.push(`  "${d.headline||""}"`);
+    if((d.resonates||[]).length) lines.push("  Resonates: "+d.resonates.join("; "));
+    if((d.fallsFlat||[]).length) lines.push("  Falls flat: "+d.fallsFlat.join("; "));
+    if(d.fix) lines.push("  Fix: "+d.fix);
+  });
+  return lines.join("\n");
+}
+$("#copySummary").addEventListener("click", async ()=>{
+  const t=summaryText(); if(!t) return;
+  try{ await navigator.clipboard.writeText(t); const b=$("#copySummary"); const o=b.textContent; b.textContent="Copied ✓"; setTimeout(()=>b.textContent=o,1500); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+});
+$("#downloadReport").addEventListener("click", ()=>{
+  if(!LAST) return;
+  const cards=LAST.chosen.map(p=>{ const d=LAST.results[p.id]||{};
+    const sc=d.error?"—":`${d.score}/10`;
+    return `<div style="border:1px solid #e4e8ee;border-radius:12px;padding:14px;margin:10px 0">
+      <div style="display:flex;justify-content:space-between"><b>${esc(p.name)}</b><span>${sc} ${esc(d.verdict||"")}</span></div>
+      <div style="color:#5d6675;font-size:13px">${esc(p.role)}</div>
+      <p style="font-style:italic">&ldquo;${esc(d.headline||"")}&rdquo;</p>
+      ${(d.resonates||[]).length?`<p><b>Resonates:</b> ${esc(d.resonates.join("; "))}</p>`:""}
+      ${(d.fallsFlat||[]).length?`<p><b>Falls flat:</b> ${esc(d.fallsFlat.join("; "))}</p>`:""}
+      ${d.fix?`<p style="background:#fbf6ea;padding:8px;border-radius:8px"><b>Fix:</b> ${esc(d.fix)}</p>`:""}
+    </div>`;}).join("");
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Persona Sounding Board report</title>
+    <style>body{font-family:-apple-system,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1c2430}</style></head>
+    <body><h1>Persona Sounding Board</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
+    ${LAST.copy?`<h3>Copy tested</h3><pre style="white-space:pre-wrap;background:#f7f8fa;padding:12px;border-radius:8px">${esc(LAST.copy)}</pre>`:""}
+    ${LAST.img?`<h3>Visual</h3><p>${esc(LAST.img)}</p>`:""}
+    <h3>Reactions</h3>${cards}
+    <p style="color:#5d6675;font-size:12px;margin-top:24px">AI role-play for early message testing — a directional gut check, not a substitute for real donor conversations. Prepared by Accordant Philanthropy.</p>
+    </body></html>`;
+  const blob=new Blob([html],{type:"text/html"}); const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url; a.download="persona-sounding-board-report.html"; a.click(); URL.revokeObjectURL(url);
+});
+
+/* usage */
+function fmtAvg(a){ return (a==null)?"—":(Math.round(a*10)/10).toFixed(1); }
+function bars(container, items){
+  $(container).innerHTML = items.map(it=>{
+    const a = it.avg==null?0:it.avg;
+    return `<div class="hbar"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(it.label)} <span class="hint">(${it.n})</span></div>
+      <div class="track"><i style="width:${Math.max(2,a*10)}%;background:${it.color||scoreColor(a)}"></i></div>
+      <div class="val">${fmtAvg(it.avg)}</div></div>`;
+  }).join("");
+}
+async function renderUsage(){
+  let s;
+  try{ s=await (await fetch("/api/stats")).json(); }catch(e){ $("#logTable").innerHTML='<div class="empty">Couldn’t load the log.</div>'; return; }
+  $("#stats").innerHTML=`
+    <div class="stat"><div class="v">${s.totalRuns||0}</div><div class="k">Evaluations</div></div>
+    <div class="stat"><div class="v">${s.users||0}</div><div class="k">Users</div></div>
+    <div class="stat"><div class="v">${fmtAvg(s.overall)}</div><div class="k">Avg score / 10</div></div>
+    <div class="stat"><div class="v">${(s.bySource||[]).map(x=>x.source).slice(0,3).join(", ")||"—"}</div><div class="k">Sources used</div></div>`;
+  if(s.byPersona && s.byPersona.some(p=>p.n>0)){
+    $("#personaChart").style.display="block";
+    bars("#personaBars", s.byPersona.map(p=>({label:p.name,avg:p.avg,n:p.n,color:p.color})));
+  } else $("#personaChart").style.display="none";
+  if(s.byAsset && s.byAsset.length){
+    $("#assetChart").style.display="block";
+    bars("#assetBars", s.byAsset.map(a=>({label:a.atype,avg:a.avg,n:a.n})));
+  } else $("#assetChart").style.display="none";
+
+  if(!s.recent || !s.recent.length){ $("#logTable").innerHTML='<div class="empty">No evaluations logged yet.</div>'; return; }
+  const rows=s.recent.map(r=>`<tr>
+    <td>${esc(new Date(r.ts).toLocaleString())}</td><td>${esc(r.user)}</td><td>${esc(r.atype)}</td>
+    <td>${esc(r.source)}</td><td>${fmtAvg(r.avg_score)}</td>
+    <td style="font-size:12px;color:var(--muted)">${esc((r.copy_preview||"").slice(0,60))}</td></tr>`).join("");
+  $("#logTable").innerHTML=`<table class="log"><thead><tr><th>When</th><th>User</th><th>Asset</th><th>Source</th><th>Avg</th><th>Copy preview</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* misc actions */
+$("#run").addEventListener("click",run);
+$("#clear").addEventListener("click",()=>{
+  $("#copy").value="";$("#img").value="";$("#copy").dataset.source="paste";
+  $("#agg").innerHTML="";$("#resultActions").style.display="none";
+  $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";
+  $("#results").innerHTML='<div class="empty">Add copy (paste, pull from a URL, or upload a PDF), pick your personas, then hit <b>Get reactions</b>.</div>';
+});
+$("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
+$("#refreshLog").addEventListener("click",renderUsage);
+$("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
+
+boot();
+</script>
+</body>
+</html>

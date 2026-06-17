@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Persona Sounding Board</title>
+<style>
+  :root{--brand:#0a5b73;--ink:#1c2430;--muted:#5d6675;--line:#e4e8ee;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#f7f8fa;color:var(--ink);display:flex;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+  .box{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 24px rgba(20,30,45,.08);
+    padding:30px;max-width:380px;width:100%}
+  .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
+  h1{font-size:21px;margin:6px 0 2px}
+  p.sub{color:var(--muted);font-size:13.5px;margin:0 0 20px}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 5px}
+  input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit}
+  input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px #e6f1f4}
+  button{margin-top:18px;width:100%;background:var(--brand);color:#fff;border:none;border-radius:10px;
+    padding:12px;font-size:15px;font-weight:600;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  .err{color:#b23b3b;font-size:13px;margin-top:12px;min-height:18px}
+  .foot{font-size:12px;color:var(--muted);margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+  <form class="box" id="f">
+    <div class="eyebrow">Cottage Health Foundation</div>
+    <h1>Persona Sounding Board</h1>
+    <p class="sub">Sign in to test your copy and visuals against the six audience personas.</p>
+    <label for="email">Your name or email <span style="font-weight:400;color:var(--muted)">(tags the usage log)</span></label>
+    <input type="text" id="email" autocomplete="username" placeholder="e.g. Maria, Annual Giving">
+    <label for="password">Shared team password</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
+    <button type="submit">Sign in</button>
+    <div class="err" id="err"></div>
+    <div class="foot">Prepared by Accordant Philanthropy</div>
+  </form>
+<script>
+  const f = document.getElementById("f");
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    document.getElementById("err").textContent = "";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      const r = await fetch("/api/login", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      if (r.ok) { window.location.href = "/"; }
+      else { const j = await r.json().catch(() => ({})); document.getElementById("err").textContent = j.error || "Sign in failed."; }
+    } catch (err) { document.getElementById("err").textContent = "Network error — try again."; }
+  });
+</script>
+</body>
+</html>

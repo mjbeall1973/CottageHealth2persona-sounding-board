@@ -1,0 +1,68 @@
+// personas.js — the six Santa Barbara-area audience personas.
+// This is the SINGLE SOURCE OF TRUTH. Edit a persona here, redeploy, and the
+// change shows up everywhere (the Evaluate tab, the reference tab, and the AI prompt).
+
+const PERSONAS = [
+  {
+    id: "eleanor", color: "#7a4ea3", name: "Eleanor",
+    role: "70, multi-generational old-money donor",
+    blurb: "Legacy Santa Barbara family. Has given to Cottage for decades and sits in the social circle of major benefactors. Thinks in terms of institutions, stewardship, and what endures.",
+    motivations: ["Legacy and family name carried forward", "Lasting medical excellence (cardiology, neurosciences, children's)", "Discretion, tradition, and being among trusted peers", "Confidence the institution is well-run"],
+    objections: ["Anything trendy, gimmicky, or 'salesy'", "Urgency, pressure, or transactional asks", "Sloppy writing or design", "Digital-only with no personal touch"],
+    tone: "Refined, gracious, understated. Personal and relationship-led. Speaks to permanence and excellence, never hype.",
+    imgYes: ["Timeless, elegant photography", "The hospital, named spaces, craftsmanship", "Real people of stature, dignified portraits", "Quiet, classic color and typography"],
+    imgNo: ["Stock-photo clichés", "Loud graphics, neon, busy collage", "Emoji or meme aesthetics", "Anything that looks cheap or rushed"]
+  },
+  {
+    id: "marcus", color: "#1f7a8c", name: "Marcus",
+    role: "Middle-aged, newer-money, influential",
+    blurb: "Made his money in tech/wine/real estate, energetic and well-connected in the market. Wants to back bold ideas and be seen leading them. Allergic to anything that feels slow or stuffy.",
+    motivations: ["Measurable impact and clear ROI on a gift", "Innovation, ambition, being early on something big", "Visibility and peer leadership", "Momentum — things actually getting done"],
+    objections: ["Stuffy, old-fashioned, or vague tone", "No data, no specifics, no goal", "Feeling like just another name on a list", "Slow or bureaucratic framing"],
+    tone: "Confident, modern, ambitious, data-forward. Lead with the vision and the number. Make the opportunity feel catalytic.",
+    imgYes: ["Dynamic, modern, high-energy shots", "New facilities, technology, innovation", "Leaders and doers in motion", "Bold, clean, contemporary design"],
+    imgNo: ["Static, dated, formal-portrait feel", "Cluttered or text-heavy visuals", "Generic 'charity' imagery", "Anything that reads as old-guard"]
+  },
+  {
+    id: "linda", color: "#2e8b57", name: "Linda",
+    role: "Annual donor, modest means, local at heart",
+    blurb: "Some wealth but not by local standards. Gives every year because she cares about healthcare and her community — she or family have been cared for locally. Wants to know her gift matters.",
+    motivations: ["Local impact she can see and feel", "Knowing any-size gift truly counts", "Gratitude — caring for neighbors and family", "Being part of the Cottage 'family'"],
+    objections: ["Messaging that feels aimed only at the wealthy", "Feeling her gift is too small to matter", "Jargon, elitism, or coldness", "Big galas/naming talk with no place for her"],
+    tone: "Warm, inclusive, grateful, plainspoken. Real stories over statistics. Make her feel essential, not minor.",
+    imgYes: ["Real local people, neighbors, families", "Nurses and caregivers in candid moments", "The local/community hospital", "Patients whose lives were touched"],
+    imgNo: ["Glossy, exclusive, black-tie-only vibe", "Faceless buildings or abstract concepts", "Corporate or clinical coldness", "Imagery that signals 'big donors only'"]
+  },
+  {
+    id: "clinician", color: "#c0641a", name: "Dr. Rivera",
+    role: "Clinician & internal influencer",
+    blurb: "A respected doctor/nurse seen as a community influencer. Deeply believes in the mission and wants the Foundation to fund the work on the front lines — equipment, education, patient care.",
+    motivations: ["Resources that directly improve patient care", "Respect for frontline staff and their expertise", "Professional development and program support", "Mission integrity — care over spin"],
+    objections: ["Corporate spin disconnected from real care", "Being used as a fundraising prop", "Overpromising or exaggerated claims", "Donor messaging that ignores staff"],
+    tone: "Authentic, mission-driven, respectful, specific. Name the clinical impact. Honor caregivers as partners, not backdrops.",
+    imgYes: ["Real caregivers and teams at work", "Authentic, unstaged clinical moments", "Equipment and programs being used", "Patients and staff together"],
+    imgNo: ["Obviously staged 'hero' shots", "Models who clearly aren't clinicians", "Polished spin that erases the work", "Anything that feels exploitative"]
+  },
+  {
+    id: "maya", color: "#0a7ea4", name: "Maya",
+    role: "Younger public, no immediate need",
+    blurb: "Healthy, younger Santa Barbaran with no pressing healthcare need. Not ready to make a big gift, but wants to feel good about a local brand and start a low-key relationship with the Foundation.",
+    motivations: ["Local pride and community identity", "Feeling part of something good", "Easy, low-commitment ways in (events, volunteering, follows)", "Authenticity and social proof"],
+    objections: ["Heavy asks or guilt-tripping", "'Why should I care, I'm healthy?' irrelevance", "Corporate, old-feeling, or preachy tone", "Anything inauthentic or out of touch"],
+    tone: "Fresh, friendly, authentic, community-forward, light. Invite a relationship, don't demand a donation. Make belonging feel cool and easy.",
+    imgYes: ["Vibrant local lifestyle and Santa Barbara identity", "Events, volunteers, young community", "Bright, authentic, candid energy", "Modern, social-media-native design"],
+    imgNo: ["Somber or guilt-heavy imagery", "Stuffy formal or clinical shots", "Dated design that feels 'for older people'", "Overly corporate stock photos"]
+  },
+  {
+    id: "sponsor", color: "#8c5e2a", name: "James",
+    role: "Corporate / community business sponsor",
+    blurb: "Owns or leads a prominent Santa Barbara business. Sponsors community causes for brand goodwill, employee pride, and visibility. Weighs what a partnership does for the business as well as the community.",
+    motivations: ["Visible community goodwill and brand alignment", "Employee morale and local reputation", "Tangible recognition (logo, event presence, PR)", "An ongoing partnership, not a one-off ask"],
+    objections: ["Pure charity asks with nothing for the business", "Unclear what the sponsorship actually delivers", "Misalignment with the company's brand or values", "Transactional, one-and-done framing"],
+    tone: "Partnership-oriented and professional. Lead with mutual benefit and visibility. Show the win-win and make recognition concrete.",
+    imgYes: ["Community events with crowds and energy", "Local businesses and people together", "Recognizable Santa Barbara settings", "Polished but warm partnership imagery"],
+    imgNo: ["Somber, pure-charity guilt imagery", "No sense of community or audience", "Clinical-only or sterile shots", "Visuals that hide the partnership/recognition angle"]
+  }
+];
+
+module.exports = { PERSONAS };
