@@ -279,8 +279,8 @@ ASSET TYPE: ${atype}
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
 ${hasImage ? `\nAN ACTUAL PHOTOGRAPH IS ATTACHED. Look at the image itself and react to what you literally see — subject, warmth, light, composition, setting, and whether it tells a story and connects to philanthropy. Judge its VISUAL fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For a photo, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
-React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
-{"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>"}`;
+React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Also rate, from 0 to 10, how strongly THIS asset delivers on each of these areas (used to build a heat map of strengths and weaknesses): warmth (warmth and humanity), inspiration (hope and possibility, not obligation), clarity (clear and easy to grasp), local (Santa Barbara / coast-to-valley relevance), empowerment (makes the donor feel they personally make the impact), onBrand (uses the Foundation's voice and vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
+{"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>", "dimensions": {"warmth": <0-10>, "inspiration": <0-10>, "clarity": <0-10>, "local": <0-10>, "empowerment": <0-10>, "onBrand": <0-10>}}`;
 }
 
 function parseModelJSON(text) {
@@ -290,6 +290,14 @@ function parseModelJSON(text) {
   const a = t.indexOf("{"), b = t.lastIndexOf("}");
   if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
   return null;
+}
+
+const DIM_KEYS = ["warmth", "inspiration", "clarity", "local", "empowerment", "onBrand"];
+function sanitizeDims(d) {
+  if (!d || typeof d !== "object") return null;
+  const out = {}; let any = false;
+  DIM_KEYS.forEach(k => { const v = parseInt(d[k], 10); if (!isNaN(v)) { out[k] = Math.max(0, Math.min(10, v)); any = true; } });
+  return any ? out : null;
 }
 
 async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType) {
@@ -318,6 +326,7 @@ async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType)
           fallsFlat: Array.isArray(d.fallsFlat) ? d.fallsFlat.filter(Boolean).slice(0, 3) : [],
           fix: d.fix || "",
           verdict: d.verdict || "",
+          dimensions: sanitizeDims(d.dimensions),
           raw: null
         };
       }
@@ -369,6 +378,31 @@ app.post("/api/evaluate", async (req, res) => {
   tx();
 
   res.json({ runId, results, personas: chosen.map(p => ({ id: p.id, name: p.name, role: p.role, color: p.color })) });
+});
+
+// ---------- refine: follow-up conversation with the voice coach ----------
+app.post("/api/chat", async (req, res) => {
+  const { messages, context } = req.body || {};
+  if (!Array.isArray(messages) || !messages.length) return res.status(400).json({ error: "No message provided." });
+  const ctx = context || {};
+  const system = `You are the Cottage Health Foundation's philanthropy voice coach, talking with a staff member about a piece of content they just tested against six audience personas. Help them improve it through a natural back-and-forth: give specific, friendly, practical feedback and suggestions, explain the personas' reactions when useful, and when they ask, rewrite the copy in the Foundation's voice. Keep replies concise — a short paragraph or a tight list. When you provide a revised version, present it clearly (e.g. under a "Revised:" label) so it is easy to copy.
+${BRAND_VOICE.promptSummary}
+${SCORING_GUIDE}
+${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
+THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
+HOW THE ROOM REACTED: ${String(ctx.summary || "(not provided)").slice(0, 1500)}.`;
+  const msgs = messages
+    .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+    .slice(-20)
+    .map(m => ({ role: m.role, content: m.content.slice(0, 6000) }));
+  if (!msgs.length || msgs[msgs.length - 1].role !== "user") return res.status(400).json({ error: "The last message must be from you." });
+  try {
+    const r = await anthropic.messages.create({ model: MODEL, max_tokens: 900, system, messages: msgs });
+    const reply = (r.content || []).map(b => b.text || "").join("").trim();
+    res.json({ reply: reply || "(no reply)" });
+  } catch (e) {
+    res.status(502).json({ error: (e && e.message) || "Chat failed." });
+  }
 });
 
 // ---------- usage stats ----------
