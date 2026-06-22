@@ -26,6 +26,10 @@ const PERSONAS = [
     intro: "Hello. My name is Eleanor. I've called this place home for as long as I can remember. I've watched it change, grow, stumble, and rise again — and through it all, I've remained. My friends will tell you I have a generous heart. They'll also tell you I have high standards. Both are true. You see, I've learned a thing or two over the years. One of them is that authenticity matters. I can spot insincerity from a mile away. So when you speak with me, take your time. Slow down. Be clear about what you want. And above all, be genuine. Because honesty, respect, and sincerity never go out of style.",
     audio: "eleanor.mp3",
     spoken: "Oh, hello there. So... where to begin. I've been here longer than most, dear — seen the good years and the hard ones, all of it. People will tell you I'm generous, and I am. But don't try to pull one over on me. I can tell in a heartbeat whether someone means it or they're just... selling. So slow down. Talk to me like a person. Be real with me. That's all I've ever asked.",
+    spokenRegions: {
+      sb: "Oh, hello. I've kept a home on this coast longer than I care to admit — Montecito, mostly. I've watched State Street change, the galas come and go, all of it. People say I'm generous; I am. But I can read a person in a heartbeat. So don't perform for me, dear. Slow down, look me in the eye, and mean what you say.",
+      sy: "Well, hello. My people have been out here in the valley for generations — back when it was all ranches and orchards, before the wineries came. I love this land, and I don't part with anything lightly. I've a generous heart, but high standards too. So don't dress it up for me. Sit a while, talk plain, and be genuine. That's how it's always been done out here."
+    },
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
@@ -47,6 +51,10 @@ const PERSONAS = [
     avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false },
     intro: "I'm Marcus. I built my business here, and I don't sit still. I want to back bold ideas — the kind that change what this region can do — and I want to see the results. Show me the vision and the numbers, make me part of something ambitious, and don't waste my time with fluff. I move fast, and I bring people with me. Impress me, and I'll help you think bigger.",
     spoken: "Hey — Marcus. I'll keep this quick, 'cause, honestly, that's kinda my whole thing. Built my business here, I move fast, I back big ideas. Don't give me the slow, stuffy pitch — give me the vision, give me the number, show me it's actually gonna do something. You do that? I'm in. And I'll bring people with me.",
+    spokenRegions: {
+      sb: "Hey — Marcus. I'll keep it quick. Built my company downtown — Funk Zone before it was cool. I move fast, I back big swings, and this town's got more ambition than people give it credit for. Don't hand me the slow, stuffy pitch — give me the vision and the number. Do that, I'm in, and I'll bring half of State Street with me.",
+      sy: "Hey — Marcus. Quick version: I put my money into the valley — started a label out past Los Olivos. People think wine country's slow. It's not, not anymore. I move fast and I back bold ideas. So skip the stuffy pitch. Give me the vision, give me the number, and I'll bring the whole valley to the table."
+    },
     voice: { gender: "male", rate: 1.03, pitch: 0.95 }
   },
   {
@@ -68,6 +76,10 @@ const PERSONAS = [
     avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false },
     intro: "Hi, I'm Linda. I've lived here most of my life, and Cottage took care of my family when we needed it. I give every year — not because I'm wealthy, but because this is my community and these are my neighbors. I want to know my gift matters, even a small one. Talk to me like a friend, show me a real person whose life got better, and I'm all in.",
     spoken: "Hi hon, I'm Linda! Oh gosh, I've been around here a long time. This hospital took such good care of my family when we needed it — so yeah, I give every year. Not a ton, but whatever I can. I just wanna know it matters, y'know? Show me a real person, a real story. Talk to me like a neighbor, not a checkbook. That's really all I need.",
+    spokenRegions: {
+      sb: "Hi hon, I'm Linda! Lived on the Mesa most of my life. Cottage took care of my family when we needed it, so I give every year — not a lot, but what I can. I just wanna know it matters. Show me a real neighbor, a real story — I catch up on all of it at the Saturday farmers market anyway. Talk to me like a friend and I'm there.",
+      sy: "Hi hon, I'm Linda! Been out here in the valley forever — can't run to the store in Solvang without bumpin' into somebody I know. The hospital took good care of my family, so I give every year, whatever I can. I just wanna know it matters. Tell me a real story about a neighbor, talk to me plain, and I'm all in."
+    },
     voice: { gender: "female", rate: 0.98, pitch: 1.05 }
   },
   {
@@ -89,6 +101,10 @@ const PERSONAS = [
     avatar: { skin: "#c68642", hair: "#241f1b", style: "bun", clothes: "#2f9e9e", glasses: true },
     intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
     spoken: "Dr. Rivera. Look, I'll keep it real with you — I'm on the floor every day, so I don't have a lot of patience for spin. What gets me? Stuff that actually helps us take care of people. The equipment, the training, the programs that move the needle for patients. Don't dress it up, and please don't use my staff as a photo op. Just tell me what it does for the people in those beds. Do that, and you've got me.",
+    spokenRegions: {
+      sb: "Dr. Rivera. I'll be straight — I'm on the floor at the main campus most days. What moves me is simple: stuff that actually helps us care for people. The equipment, the training, the programs that work. Don't dress it up, and don't use my staff as a photo op. Tell me what it does for patients, and I've got your back.",
+      sy: "Dr. Rivera. Real talk — out here at the valley hospital we wear a lot of hats, and every resource counts. What gets me is what actually helps patients: the equipment, the training, the programs. Don't spin it, and don't use my team as props. Tell me what it does for folks who'd otherwise drive over the pass for care, and I'm with you."
+    },
     voice: { gender: "female", rate: 0.96, pitch: 0.98 }
   },
   {
@@ -110,6 +126,10 @@ const PERSONAS = [
     avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false },
     intro: "Hey, I'm Maya. I'm younger, I'm healthy, and honestly I'm not thinking about hospitals much — but I love this place. The beach, the people, our little corner of California. I'm not ready to write a big check, but invite me in — a volunteer day, an event, a way to belong — and keep it real. Make me feel part of something good, and I'll show up, and I'll bring my friends.",
     spoken: "Hey hey, I'm Maya! Okay so — real talk, I'm young, I'm healthy, I'm not really thinking about hospitals, ngl. But I love it here. Like, the beach, the people, our whole little corner of California. So don't hit me with a big guilt-trip ask, that's such a turn-off. Just invite me in — a volunteer thing, an event, whatever — keep it real and kinda fun, and yeah, I'll totally show up. Probably drag my friends along too.",
+    spokenRegions: {
+      sb: "Hey hey, I'm Maya! Real talk — I'm young, healthy, not thinking about hospitals, ngl. But I love it here. Beach mornings, the Funk Zone, State Street with my friends. Don't hit me with a guilt-trip ask. Invite me in — a beach cleanup, an event, whatever — keep it real and fun, and I'll show up. Bring my friends too.",
+      sy: "Hey hey, I'm Maya! Okay so — young, healthy, not really thinking about hospitals, ngl. But I love it out here. Tasting rooms on the weekend, hikes, horses, that whole slow valley vibe. Don't guilt-trip me into giving. Invite me to something fun — a festival, a volunteer day — keep it chill and real, and yeah, I'm there with my friends."
+    },
     voice: { gender: "female", rate: 1.06, pitch: 1.08 }
   },
   {
@@ -131,6 +151,10 @@ const PERSONAS = [
     avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false },
     intro: "I'm James. I run a business in town, and I believe in giving back where I live and work. When I sponsor something, I'm looking for a real partnership — good for the community, and good for my company and my team. Show me the win-win, make the recognition meaningful, and let's build something lasting together, not a one-time ask.",
     spoken: "James — good to meet ya. So, I run a business here in town, and I'm big on giving back. But I'll be straight with you: I'm a business guy. When I put my name on something, I wanna see it work both ways. Good for the community, sure — but good for my team and my brand too. Show me that win-win, make the recognition real, and let's build something that lasts. Not some one-and-done thing.",
+    spokenRegions: {
+      sb: "James, good to meet ya. I run a business downtown — State Street foot traffic, tourists, the whole deal. I give back, but I'm a business guy: I want it to work both ways. Good for the community, good for my brand and my team. Show me the win-win, make the recognition real, and let's build something lasting — the Chamber'll hear about it either way.",
+      sy: "James, good to meet ya. I run a business out in the valley — wine tourism, the Solvang crowds, a tight-knit community. I believe in giving back, but I'm a business guy too: it's gotta work both ways. Good for our neighbors, good for my brand. Show me the win-win, make the recognition real, and let's build something that lasts out here."
+    },
     voice: { gender: "male", rate: 1.0, pitch: 0.92 }
   }
 ];
