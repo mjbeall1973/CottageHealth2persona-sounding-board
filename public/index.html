@@ -181,6 +181,13 @@ table.log tr:last-child td{border-bottom:none}
 .bvcard .spec{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}.bvcard .bnote{font-size:13.5px;margin:0 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
 .foot{font-size:12px;color:var(--muted);margin-top:22px;text-align:center}.foot b{color:var(--ink)}
+.histrow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:10px}
+.histmain{flex:1;min-width:0}
+.histtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.histtop b{font-size:14px}
+.histscore{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:24px;border-radius:7px;color:#fff;font-weight:800;font-size:13px;padding:0 7px}
+.histprev{font-size:13px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reopenbtn{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -222,6 +229,7 @@ table.log tr:last-child td{border-bottom:none}
     <button class="tab" data-tab="ref">The 6 personas</button>
     <button class="tab" data-tab="brand">Brand voice</button>
     <button class="tab" data-tab="photo">Photography</button>
+    <button class="tab" data-tab="history">My history</button>
     <button class="tab" data-tab="usage">Usage log</button>
   </div>
 
@@ -324,6 +332,11 @@ table.log tr:last-child td{border-bottom:none}
   <section class="panel" id="ref"><div class="pref" id="prefList"></div></section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
+  <section class="panel" id="history">
+    <div class="note">Your tests are saved automatically under your name (<b id="histWho"></b>), newest first. Click <b>Reopen</b> to load any past test — its copy, context, and the full reactions — back into the Evaluate tab.</div>
+    <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
+    <div id="histList"></div>
+  </section>
   <section class="panel" id="usage">
     <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
     <div class="stats" id="stats"></div>
@@ -431,6 +444,7 @@ $$(".tab").forEach(t=>t.addEventListener("click",()=>{
   if(t.dataset.tab==="usage") renderUsage();
   if(t.dataset.tab==="brand") renderBrand();
   if(t.dataset.tab==="photo") renderPhoto();
+  if(t.dataset.tab==="history") renderHistory();
 }));
 
 function renderPhoto(){
@@ -904,6 +918,64 @@ async function renderUsage(){
     <td style="font-size:12px;color:var(--muted)">${esc((r.copy_preview||"").slice(0,60))}</td></tr>`).join("");
   $("#logTable").innerHTML=`<table class="log"><thead><tr><th>When</th><th>User</th><th>Asset</th><th>Source</th><th>Avg</th><th>Copy preview</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
+
+/* my history — auto-saved past tests, reopen any of them */
+async function renderHistory(){
+  $("#histWho").textContent = ($("#whoName").textContent || "you");
+  let s;
+  try{ s=await (await fetch("/api/my-history")).json(); }
+  catch(e){ $("#histList").innerHTML='<div class="empty">Couldn’t load your history — try Refresh.</div>'; return; }
+  const runs=(s&&s.runs)||[];
+  if(!runs.length){ $("#histList").innerHTML='<div class="empty">No saved tests yet. Run an evaluation on the Evaluate tab and it’ll appear here automatically.</div>'; return; }
+  $("#histList").innerHTML=runs.map(r=>{
+    const avg=(r.avg_score==null)?"—":(Math.round(r.avg_score*10)/10).toFixed(1);
+    const prev=r.copy_preview||r.image_note||"(no copy)";
+    return `<div class="histrow">
+      <div class="histmain">
+        <div class="histtop"><span class="histscore" style="background:${scoreColor(r.avg_score||0)}">${avg}</span>
+          <b>${esc(r.atype||"Other")}</b><span class="hint">${esc(new Date(r.ts).toLocaleString())} · ${esc(r.source||"")}</span></div>
+        <div class="histprev">${esc(prev)}</div>
+      </div>
+      <button class="btn small reopenbtn" data-id="${esc(r.run_id)}">Reopen</button>
+    </div>`;
+  }).join("");
+}
+function reopenRun(j){
+  $$(".tab").forEach(x=>x.classList.remove("active")); $$(".panel").forEach(x=>x.classList.remove("active"));
+  document.querySelector('.tab[data-tab="eval"]').classList.add("active"); $("#eval").classList.add("active");
+  stopSpeaking();
+  $("#copy").value=j.copy||""; $("#context").value=j.context||"";
+  if(j.atype){ try{ $("#atype").value=j.atype; }catch(e){} }
+  $("#copy").dataset.source=j.source||"paste";
+  clearImage();
+  const results=j.results||{};
+  const ids=(Array.isArray(j.personaIds)&&j.personaIds.length)?j.personaIds:Object.keys(results);
+  const chosen=PERSONAS.filter(p=>ids.includes(p.id));
+  $("#agg").innerHTML=""; $("#heat").innerHTML="";
+  $("#results").innerHTML=chosen.map(p=>`<div class="rcard" id="r-${p.id}">
+      <div class="rhead">${avatarSVG(p,36)}
+        <div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div>
+        <div class="score"><div class="num" style="color:var(--muted)">·</div><div class="lab"></div></div></div>
+      <div class="rbody"></div></div>`).join("");
+  chosen.forEach(p=>renderCard(p,results[p.id]));
+  renderAggregate(chosen,results); renderHeatmap(chosen,results);
+  LAST={atype:j.atype,copy:j.copy,context:j.context,img:j.image_note||"",chosen,results,ts:new Date(j.ts)};
+  $("#resultActions").style.display="flex";
+  startRefine(chosen,results);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$("#histRefresh").addEventListener("click",renderHistory);
+$("#histList").addEventListener("click", async e=>{
+  const b=e.target.closest(".reopenbtn"); if(!b) return;
+  b.disabled=true; const o=b.textContent; b.textContent="Loading…";
+  try{
+    const r=await fetch("/api/my-history/"+encodeURIComponent(b.dataset.id));
+    const j=await r.json();
+    if(!r.ok){ alert(j.error||"Couldn’t load that test."); }
+    else reopenRun(j);
+  }catch(e){ alert("Network error — try again."); }
+  b.disabled=false; b.textContent=o;
+});
 
 /* misc actions */
 $("#run").addEventListener("click",run);
