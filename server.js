@@ -13,7 +13,7 @@ const Anthropic = require("@anthropic-ai/sdk");
 const pdfParse = require("pdf-parse");
 
 const { PERSONAS } = require("./personas");
-const { BRAND_VOICE } = require("./brand-voice");
+const { BRAND_VOICE, PHOTOGRAPHY } = require("./brand-voice");
 
 // ---------- config ----------
 const PORT = process.env.PORT || 3000;
@@ -56,7 +56,7 @@ const insertRow = db.prepare(`
 
 // ---------- app ----------
 const app = express();
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: true }));
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
@@ -114,7 +114,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ---------- config for the frontend ----------
 app.get("/api/config", (req, res) => {
-  res.json({ personas: PERSONAS, brandVoice: BRAND_VOICE, user: req.userEmail });
+  res.json({ personas: PERSONAS, brandVoice: BRAND_VOICE, photography: PHOTOGRAPHY, user: req.userEmail });
 });
 
 // ---------- source extraction: URL ----------
@@ -258,7 +258,7 @@ TIER 1 vocabulary to reward: ${TIER1_WORDS}.
 TIER 2 vocabulary to reward: ${TIER2_WORDS}.
 DO-NOT-USE words & concepts (the main reason to go below 5 — flag the specific ones the copy uses): ${DO_NOT_USE}.`;
 
-function buildPrompt(p, atype, copy, img) {
+function buildPrompt(p, atype, copy, img, hasImage) {
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
@@ -278,8 +278,8 @@ ${SCORING_GUIDE}
 ASSET TYPE: ${atype}
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
-
-React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language, and reward on-voice vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
+${hasImage ? `\nAN ACTUAL PHOTOGRAPH IS ATTACHED. Look at the image itself and react to what you literally see — subject, warmth, light, composition, setting, and whether it tells a story and connects to philanthropy. Judge its VISUAL fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For a photo, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
+React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
 {"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>"}`;
 }
 
@@ -292,13 +292,21 @@ function parseModelJSON(text) {
   return null;
 }
 
-async function evaluateOne(persona, atype, copy, img) {
+async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType) {
+  const hasImage = !!imageData;
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage);
+  const content = hasImage
+    ? [
+        { type: "image", source: { type: "base64", media_type: imageMediaType || "image/jpeg", data: imageData } },
+        { type: "text", text: promptText }
+      ]
+    : promptText;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const msg = await anthropic.messages.create({
         model: MODEL,
         max_tokens: 600,
-        messages: [{ role: "user", content: buildPrompt(persona, atype, copy, img) }]
+        messages: [{ role: "user", content }]
       });
       const text = (msg.content || []).map(b => b.text || "").join("");
       const d = parseModelJSON(text);
@@ -322,17 +330,21 @@ async function evaluateOne(persona, atype, copy, img) {
 }
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, personaIds, source } = req.body || {};
+  const { atype, copy, img, personaIds, source, imageData, imageMediaType } = req.body || {};
   const cleanCopy = (copy || "").trim();
   const cleanImg = (img || "").trim();
-  if (!cleanCopy && !cleanImg) return res.status(400).json({ error: "Add some copy or describe a visual first." });
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  let imgData = typeof imageData === "string" ? imageData.replace(/^data:[^,]+,/, "") : "";
+  const imgType = allowedTypes.includes(imageMediaType) ? imageMediaType : "image/jpeg";
+  if (imgData.length > 9000000) return res.status(413).json({ error: "That image is too large — please use one under ~6 MB." });
+  if (!cleanCopy && !cleanImg && !imgData) return res.status(400).json({ error: "Add some copy, describe a visual, or upload an image first." });
 
   const ids = Array.isArray(personaIds) && personaIds.length ? personaIds : PERSONAS.map(p => p.id);
   const chosen = PERSONAS.filter(p => ids.includes(p.id));
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg); }));
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgData, imgType); }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
@@ -346,7 +358,7 @@ app.post("/api/evaluate", async (req, res) => {
         atype: atype || "Other",
         source: source || "paste",
         copy_preview: cleanCopy.slice(0, 160),
-        image_preview: cleanImg.slice(0, 160),
+        image_preview: imgData ? (cleanImg ? cleanImg.slice(0, 140) + " [+uploaded image]" : "(uploaded image)") : cleanImg.slice(0, 160),
         persona_id: p.id, persona_name: p.name,
         score: (r && !r.error && typeof r.score === "number") ? r.score : null,
         verdict: (r && r.verdict) || "",

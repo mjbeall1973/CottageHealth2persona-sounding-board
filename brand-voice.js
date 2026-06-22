@@ -24,4 +24,31 @@ BRAND_VOICE.promptSummary =
   BRAND_VOICE.dimensions.map(d => d.name + " " + d.score).join(", ") +
   ". When suggesting a fix, nudge the copy toward this voice without naming the framework.";
 
-module.exports = { BRAND_VOICE };
+// ---------- photography guidance ----------
+// Shown on the Photography tab AND fed to the AI when an image is evaluated.
+const PHOTOGRAPHY = {
+  intro: "Every image should suggest a story, draw us in, and hook us emotionally on learning more. Hospital settings read cold — a place none of us really want to be — so warm up patient photos or push back the surroundings. And philanthropy images should connect to philanthropy: consider the relationship to the subject and bring that forward.",
+  dos: [
+    "Suggest a story — a moment or relationship that makes us want to know more",
+    "Warm it up — natural light, warmth, and life; soften or downplay clinical surroundings",
+    "Show real people and genuine emotion, not staged stock",
+    "Make the philanthropy connection visible — caregiver and patient, donor and impact, neighbor and community",
+    "Keep it local and recognizable — Santa Barbara, coast to valley",
+    "Favor authentic, candid moments over posed 'hero' shots"
+  ],
+  donts: [
+    "Cold, clinical hospital scenes with no human warmth",
+    "Sterile equipment or empty facilities as the hero of the shot",
+    "Obvious stock photography and staged smiles",
+    "Faceless buildings or abstract concepts with no person in them",
+    "Somber, guilt-heavy, or exploitative imagery",
+    "Busy, cluttered, or low-quality snapshots"
+  ]
+};
+PHOTOGRAPHY.promptBlock =
+  "COTTAGE HEALTH FOUNDATION PHOTOGRAPHY PRINCIPLES (judge the image against these): " +
+  PHOTOGRAPHY.intro +
+  " DO: " + PHOTOGRAPHY.dos.join("; ") + ". " +
+  " AVOID: " + PHOTOGRAPHY.donts.join("; ") + ".";
+
+module.exports = { BRAND_VOICE, PHOTOGRAPHY };
