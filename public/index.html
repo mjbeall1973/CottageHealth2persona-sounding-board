@@ -114,6 +114,9 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
 .avatar{flex:0 0 auto;display:inline-block;vertical-align:middle}
 ul.profile li{margin-bottom:5px}
+.saysit{margin:12px 0 4px}
+.saysit h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 6px}
+.saysquote{margin:0;font-size:14px;line-height:1.55;font-style:italic;color:var(--ink);background:#f5f0fb;border:1px solid #e7ddf3;border-left:3px solid var(--brand);border-radius:10px;padding:10px 12px}
 .imgpreview{margin-top:10px}
 .imgpreview img{max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:8px}
 .photogrid{display:grid;grid-template-columns:1fr;gap:14px}
@@ -417,6 +420,7 @@ function buildRef(){
         <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
       ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
+      ${p.spoken?`<div class="saysit"><h5>If they said it out loud</h5><p class="saysquote">&ldquo;${esc(p.spoken)}&rdquo;</p></div>`:""}
       ${profileBlock(p)}
       <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
       <h5>What turns them off</h5><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
