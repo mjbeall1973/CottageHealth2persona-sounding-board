@@ -121,6 +121,18 @@ table.heat tr.avg td.name{font-weight:700}
 .msg.ai.thinking{color:var(--muted);font-style:italic}
 .chatbar{display:flex;gap:8px;align-items:flex-end}
 .chatbar textarea{flex:1}
+.meetbtn{margin:4px 0 2px}
+.pcard.speaking{box-shadow:0 0 0 2px var(--brand-soft),var(--shadow)}
+.pcard.speaking .avatar{animation:talk .9s ease-in-out infinite}
+@keyframes talk{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.betabar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fbf2dc;border:1px solid #e7d6a8;border-radius:10px;padding:10px 14px;margin:6px 0 2px}
+.betabar .betatxt{font-size:13px;color:#6b531c;flex:1;min-width:200px}
+.betabar .betatxt b{color:var(--accent)}
+.betaform{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0}
+.betaform textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;margin-bottom:8px}
+.ownerwrap{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.ownerhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ownerhead h3{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0;font-weight:700}
 .foot .hillsfoot{display:block;width:100%;height:30px;margin:0 0 10px;opacity:.8}
 .tone{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:8px 10px;font-weight:500}
 .chk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.chk .yes h5{color:var(--good)}.chk .no h5{color:var(--bad)}
@@ -151,6 +163,14 @@ table.log tr:last-child td{border-bottom:none}
 </head>
 <body>
 <div class="wrap">
+  <div class="betabar">
+    <div class="betatxt"><b>Beta version.</b> Please report any errors and share suggestions to help us improve the tool.</div>
+    <button class="btn small" id="betaToggle">Send feedback</button>
+  </div>
+  <div class="betaform" id="betaForm" style="display:none">
+    <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
+    <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
+  </div>
   <div class="brandbar">
     <div class="logo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="img" aria-label="Cottage Health">
@@ -286,6 +306,10 @@ table.log tr:last-child td{border-bottom:none}
     <div class="chartcard" id="assetChart" style="display:none"><h3>Average fit score by asset type</h3><div id="assetBars"></div></div>
     <div class="toolbar"><button class="btn small" id="exportCsv">Export CSV</button><button class="btn small secondary" id="refreshLog">Refresh</button></div>
     <div id="logTable"></div>
+    <div class="ownerwrap">
+      <div class="ownerhead"><h3>Owner report &mdash; users &amp; engagement</h3><button class="btn small" id="ownerCsv">Download owner report (CSV)</button></div>
+      <div id="ownerTable"></div>
+    </div>
   </section>
 
   <div class="foot"><b>Philanthropy Voice Guide</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
@@ -348,9 +372,10 @@ function profileBlock(p){
 }
 function buildRef(){
   $("#prefList").innerHTML = PERSONAS.map(p=>`
-    <div class="pcard">
+    <div class="pcard" id="pcard-${p.id}">
       <div class="top">${avatarSVG(p,46)}
         <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
+      ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
       ${profileBlock(p)}
       <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
@@ -374,6 +399,7 @@ $$(".tab").forEach(t=>t.addEventListener("click",()=>{
   $$(".tab").forEach(x=>x.classList.remove("active"));
   $$(".panel").forEach(x=>x.classList.remove("active"));
   t.classList.add("active"); $("#"+t.dataset.tab).classList.add("active");
+  stopSpeaking();
   if(t.dataset.tab==="usage") renderUsage();
   if(t.dataset.tab==="brand") renderBrand();
   if(t.dataset.tab==="photo") renderPhoto();
@@ -420,6 +446,39 @@ function handleImageFile(file){
   reader.readAsDataURL(file);
 }
 function clearImage(){ UPLOADED=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
+
+/* meet the personas — spoken first-person intros via the browser */
+var SPEAKING=null, VOICES=[];
+function loadVoices(){ try{ VOICES = window.speechSynthesis ? speechSynthesis.getVoices() : []; }catch(e){ VOICES=[]; } }
+if(window.speechSynthesis){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+function pickVoice(gender){
+  const en=VOICES.filter(v=>/^en[-_]?/i.test(v.lang));
+  const fem=/(samantha|karen|victoria|moira|tessa|fiona|serena|susan|allison|ava|joana|female|zira)/i;
+  const masc=/(alex|daniel|fred|tom|aaron|david|mark|oliver|rishi|gordon|male)/i;
+  let pool = en.filter(v=> gender==="male"? masc.test(v.name) : fem.test(v.name));
+  if(!pool.length) pool = en.length? en : VOICES;
+  return pool[0] || null;
+}
+function markSpeaking(id){
+  $$(".pcard").forEach(c=>c.classList.remove("speaking"));
+  $$(".meetbtn").forEach(b=>{ b.textContent=b.dataset.label; });
+  if(id){ const c=document.getElementById("pcard-"+id); if(c){ c.classList.add("speaking"); const b=c.querySelector(".meetbtn"); if(b) b.textContent="◼ Stop"; } }
+}
+function stopSpeaking(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} SPEAKING=null; markSpeaking(null); }
+function meetPersona(id){
+  if(!window.speechSynthesis){ alert("Your browser doesn't support spoken intros — try Chrome or Safari."); return; }
+  if(SPEAKING===id){ stopSpeaking(); return; }
+  stopSpeaking();
+  const p=PERSONAS.find(x=>x.id===id); if(!p||!p.intro) return;
+  const u=new SpeechSynthesisUtterance(p.intro);
+  const v=p.voice||{}; const voice=pickVoice(v.gender||"female");
+  if(voice) u.voice=voice;
+  u.rate=v.rate||1; u.pitch=v.pitch||1;
+  u.onend=()=>{ if(SPEAKING===id) stopSpeaking(); };
+  u.onerror=()=>{ if(SPEAKING===id) stopSpeaking(); };
+  SPEAKING=id; markSpeaking(id);
+  speechSynthesis.speak(u);
+}
 
 /* source selector */
 $("#srcseg").addEventListener("click", e=>{
@@ -657,7 +716,13 @@ function bars(container, items){
       <div class="val">${fmtAvg(it.avg)}</div></div>`;
   }).join("");
 }
+async function renderOwner(){
+  let s; try{ s=await (await fetch("/api/owner-stats")).json(); }catch(e){ return; }
+  const rows=(s.users||[]).map(u=>`<tr><td>${esc(u.user)}</td><td>${u.evaluations}</td><td>${u.avg_score==null?"–":(Math.round(u.avg_score*10)/10)}</td><td>${u.active_days}</td><td style="font-size:12px;color:var(--muted)">${esc(String(u.last_seen||"").slice(0,10))}</td><td>${u.feedback||0}</td></tr>`).join("");
+  $("#ownerTable").innerHTML = rows ? `<table class="log"><thead><tr><th>User</th><th>Evals</th><th>Avg</th><th>Active days</th><th>Last seen</th><th>Feedback</th></tr></thead><tbody>${rows}</tbody></table>` : `<div class="empty">No users yet.</div>`;
+}
 async function renderUsage(){
+  renderOwner();
   let s;
   try{ s=await (await fetch("/api/stats")).json(); }catch(e){ $("#logTable").innerHTML='<div class="empty">Couldn’t load the log.</div>'; return; }
   $("#stats").innerHTML=`
@@ -698,6 +763,17 @@ $("#chatSend").addEventListener("click", ()=>sendChat());
 $("#chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendChat(); }});
 $("#refineChips").addEventListener("click", e=>{ const c=e.target.closest("[data-q]"); if(c) sendChat(c.getAttribute("data-q")); });
 $("#chatDownload").addEventListener("click", downloadChat);
+$("#prefList").addEventListener("click", e=>{ const b=e.target.closest(".meetbtn"); if(b) meetPersona(b.dataset.id); });
+$("#betaToggle").addEventListener("click",()=>{ const f=$("#betaForm"); f.style.display=(f.style.display==="block")?"none":"block"; if(f.style.display==="block")$("#betaText").focus(); });
+$("#betaSend").addEventListener("click", async ()=>{
+  const t=$("#betaText").value.trim(); if(!t){ $("#betaMsg").textContent="Add a note first."; return; }
+  $("#betaMsg").textContent="Sending…";
+  try{ const r=await fetch("/api/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:t})});
+    if(r.ok){ $("#betaText").value=""; $("#betaMsg").textContent="Thanks — sent!"; setTimeout(()=>{$("#betaForm").style.display="none";$("#betaMsg").textContent="";},1600); }
+    else { const j=await r.json().catch(()=>({})); $("#betaMsg").textContent=j.error||"Couldn't send."; }
+  }catch(e){ $("#betaMsg").textContent="Network error."; }
+});
+$("#ownerCsv").addEventListener("click",()=>{ window.location.href="/api/owner-report.csv"; });
 $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
