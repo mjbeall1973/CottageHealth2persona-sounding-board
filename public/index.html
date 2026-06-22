@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Persona Sounding Board — Cottage Health Foundation</title>
+<title>Philanthropy Voice Guide — Cottage Health Foundation</title>
 <style>
 :root{
   color-scheme: light;
@@ -93,6 +93,14 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
 .avatar{flex:0 0 auto;display:inline-block;vertical-align:middle}
 ul.profile li{margin-bottom:5px}
+.imgpreview{margin-top:10px}
+.imgpreview img{max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:8px}
+.photogrid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:680px){.photogrid{grid-template-columns:1fr 1fr}}
+.dos li{margin-bottom:6px}
+.dos .good{color:var(--good)}.dos .bad{color:var(--bad)}
+.hills{display:block;width:100%;height:44px;margin:-2px 0 2px}
+.foot .hillsfoot{display:block;width:100%;height:30px;margin:0 0 10px;opacity:.8}
 .tone{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:8px 10px;font-weight:500}
 .chk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.chk .yes h5{color:var(--good)}.chk .no h5{color:var(--bad)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
@@ -134,17 +142,23 @@ table.log tr:last-child td{border-bottom:none}
     </div>
     <div class="bdiv"></div>
     <div>
-      <div class="eyebrow">Foundation Marketing Tool</div>
-      <h1>Persona Sounding Board</h1>
+      <h1>Philanthropy Voice Guide</h1>
     </div>
     <div class="who"><span id="whoName"></span><br><a id="logout">Sign out</a></div>
   </div>
-  <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, or <b>upload a PDF</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
+  <svg class="hills" viewBox="0 0 1200 64" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 64 L0 34 C180 14 360 30 540 28 C760 26 980 38 1200 24 L1200 64 Z" fill="#b8862f" opacity="0.13"/>
+    <circle cx="300" cy="28" r="3.4" fill="#6b5b2a" opacity="0.18"/><circle cx="332" cy="30" r="2.6" fill="#6b5b2a" opacity="0.16"/><circle cx="930" cy="33" r="3" fill="#6b5b2a" opacity="0.15"/>
+    <path d="M0 64 L0 46 C220 28 430 44 660 42 C900 40 1050 50 1200 42 L1200 64 Z" fill="#0a5b73" opacity="0.10"/>
+    <path d="M0 64 L0 56 C260 46 520 56 800 54 C1000 53 1100 58 1200 55 L1200 64 Z" fill="#2e8b57" opacity="0.15"/>
+  </svg>
+  <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, <b>upload a PDF</b>, or <b>upload an image</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
 
   <div class="tabs">
     <button class="tab active" data-tab="eval">Evaluate</button>
     <button class="tab" data-tab="ref">The 6 personas</button>
     <button class="tab" data-tab="brand">Brand voice</button>
+    <button class="tab" data-tab="photo">Photography</button>
     <button class="tab" data-tab="usage">Usage log</button>
   </div>
 
@@ -200,6 +214,14 @@ table.log tr:last-child td{border-bottom:none}
           <textarea id="img" rows="3" placeholder="e.g. Aerial photo of the hospital at golden hour with a smiling nurse in the foreground..."></textarea>
         </div>
         <div class="field">
+          <label class="fld" for="imgFile">Or upload an image <span class="hint">(JPG, PNG, GIF — the personas judge the actual photo)</span></label>
+          <input type="file" id="imgFile" accept="image/png,image/jpeg,image/gif,image/webp" style="padding:8px">
+          <div class="imgpreview" id="imgPreview" style="display:none">
+            <img id="imgThumb" alt="Uploaded image preview">
+            <button type="button" class="btn small secondary" id="imgRemove">Remove image</button>
+          </div>
+        </div>
+        <div class="field">
           <label class="fld">Test against</label>
           <div class="pers-toggles" id="toggles"></div>
         </div>
@@ -222,6 +244,7 @@ table.log tr:last-child td{border-bottom:none}
 
   <section class="panel" id="ref"><div class="pref" id="prefList"></div></section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
+  <section class="panel" id="photo"><div id="photoBody"></div></section>
   <section class="panel" id="usage">
     <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
     <div class="stats" id="stats"></div>
@@ -231,7 +254,7 @@ table.log tr:last-child td{border-bottom:none}
     <div id="logTable"></div>
   </section>
 
-  <div class="foot"><b>Persona Sounding Board</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
+  <div class="foot"><b>Philanthropy Voice Guide</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
 </div>
 
 <script>
@@ -262,11 +285,12 @@ function avatarSVG(p, size){
   </svg>`;
 }
 
+var PHOTO=null, UPLOADED=null;
 async function boot(){
   let cfg;
   try{ cfg = await (await fetch("/api/config")).json(); }
   catch(e){ document.body.innerHTML="<p style='padding:40px;font-family:sans-serif'>Couldn't load the tool. Please refresh.</p>"; return; }
-  PERSONAS = cfg.personas; BRAND_VOICE = cfg.brandVoice;
+  PERSONAS = cfg.personas; BRAND_VOICE = cfg.brandVoice; PHOTO = cfg.photography;
   $("#whoName").textContent = cfg.user || "";
   buildToggles(); buildRef();
 }
@@ -318,7 +342,50 @@ $$(".tab").forEach(t=>t.addEventListener("click",()=>{
   t.classList.add("active"); $("#"+t.dataset.tab).classList.add("active");
   if(t.dataset.tab==="usage") renderUsage();
   if(t.dataset.tab==="brand") renderBrand();
+  if(t.dataset.tab==="photo") renderPhoto();
 }));
+
+function renderPhoto(){
+  if(!PHOTO){ $("#photoBody").innerHTML="<div class='empty'>Photography guidance unavailable.</div>"; return; }
+  const dos=PHOTO.dos.map(d=>`<li>${esc(d)}</li>`).join("");
+  const donts=PHOTO.donts.map(d=>`<li>${esc(d)}</li>`).join("");
+  const checklists=PERSONAS.map(p=>`
+    <div class="pcard"><div class="top">${avatarSVG(p,40)}
+      <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
+      <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
+        <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
+    </div>`).join("");
+  $("#photoBody").innerHTML=`
+    <div class="bvhead"><div class="one">Choosing images for the Foundation</div><div class="sum">${esc(PHOTO.intro)}</div></div>
+    <div class="photogrid">
+      <div class="bvcard dos"><div class="bn good">Do</div><ul>${dos}</ul></div>
+      <div class="bvcard dos"><div class="bn bad">Don't</div><ul>${donts}</ul></div>
+    </div>
+    <div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">What each persona looks for in a photo</div>
+    <div class="pref">${checklists}</div>
+    <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Tip: upload a photo on the Evaluate tab to have all six react to it against these principles.</p>`;
+}
+
+function handleImageFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const im=new Image();
+    im.onload=()=>{
+      const max=1024; let w=im.width, h=im.height;
+      if(w>max||h>max){ const s=Math.min(max/w,max/h); w=Math.round(w*s); h=Math.round(h*s); }
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      const ctx=c.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,w,h); ctx.drawImage(im,0,0,w,h);
+      const url=c.toDataURL("image/jpeg",0.85);
+      UPLOADED={ data:url.split(",")[1], mediaType:"image/jpeg" };
+      $("#imgThumb").src=url; $("#imgPreview").style.display="block";
+    };
+    im.onerror=()=>alert("Couldn't read that image — try a JPG or PNG.");
+    im.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(){ UPLOADED=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
 
 /* source selector */
 $("#srcseg").addEventListener("click", e=>{
@@ -372,8 +439,8 @@ $("#extractPdf").addEventListener("click", async ()=>{
 async function run(){
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img=$("#img").value.trim();
   const sel=$$(".ptog input:checked").map(c=>c.value);
-  const source=$("#copy").dataset.source||"paste";
-  if(!copy && !img){ alert("Add some copy or describe a visual first."); return; }
+  const source=UPLOADED ? (($("#copy").dataset.source)||"image") : ($("#copy").dataset.source||"paste");
+  if(!copy && !img && !UPLOADED){ alert("Add some copy, describe a visual, or upload an image first."); return; }
   if(!sel.length){ alert("Pick at least one persona."); return; }
 
   const btn=$("#run"); btn.disabled=true; btn.innerHTML='<span class="spinner light"></span>Asking the room...';
@@ -387,13 +454,14 @@ async function run(){
 
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({atype,copy,img,personaIds:sel,source})});
+      body:JSON.stringify({atype,copy,img,personaIds:sel,source,
+        imageData: UPLOADED?UPLOADED.data:undefined, imageMediaType: UPLOADED?UPLOADED.mediaType:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
     else{
       chosen.forEach(p=>renderCard(p,j.results[p.id]));
       renderAggregate(chosen,j.results);
-      LAST={atype,copy,img,chosen,results:j.results,ts:new Date()};
+      LAST={atype,copy,img:(img||(UPLOADED?"[uploaded image evaluated]":"")),chosen,results:j.results,ts:new Date()};
       $("#resultActions").style.display="flex";
     }
   }catch(e){ alert("Network error — try again."); }
@@ -469,9 +537,9 @@ $("#downloadReport").addEventListener("click", ()=>{
       ${(d.fallsFlat||[]).length?`<p><b>Falls flat:</b> ${esc(d.fallsFlat.join("; "))}</p>`:""}
       ${d.fix?`<p style="background:#fbf6ea;padding:8px;border-radius:8px"><b>Fix:</b> ${esc(d.fix)}</p>`:""}
     </div>`;}).join("");
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Persona Sounding Board report</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Philanthropy Voice Guide report</title>
     <style>body{font-family:-apple-system,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1c2430}</style></head>
-    <body><h1>Persona Sounding Board</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
+    <body><h1>Philanthropy Voice Guide</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
     ${LAST.copy?`<h3>Copy tested</h3><pre style="white-space:pre-wrap;background:#f7f8fa;padding:12px;border-radius:8px">${esc(LAST.copy)}</pre>`:""}
     ${LAST.img?`<h3>Visual</h3><p>${esc(LAST.img)}</p>`:""}
     <h3>Reactions</h3>${cards}
@@ -520,10 +588,13 @@ async function renderUsage(){
 $("#run").addEventListener("click",run);
 $("#clear").addEventListener("click",()=>{
   $("#copy").value="";$("#img").value="";$("#copy").dataset.source="paste";
+  clearImage();
   $("#agg").innerHTML="";$("#resultActions").style.display="none";
   $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";
-  $("#results").innerHTML='<div class="empty">Add copy (paste, pull from a URL, or upload a PDF), pick your personas, then hit <b>Get reactions</b>.</div>';
+  $("#results").innerHTML='<div class="empty">Add copy, describe a visual, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
 });
+$("#imgFile").addEventListener("change", e=>handleImageFile(e.target.files[0]));
+$("#imgRemove").addEventListener("click", clearImage);
 $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
