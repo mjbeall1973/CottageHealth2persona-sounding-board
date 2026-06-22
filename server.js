@@ -55,6 +55,18 @@ const insertRow = db.prepare(`
 `);
 db.exec(`CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, user TEXT, text TEXT);`);
 const insertFeedback = db.prepare(`INSERT INTO feedback (ts, user, text) VALUES (@ts, @user, @text)`);
+// full per-run snapshot so a user can reopen a past test (saved automatically by user)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS runs (
+    run_id TEXT PRIMARY KEY,
+    ts TEXT, user TEXT, atype TEXT, source TEXT,
+    context TEXT, copy TEXT, image_note TEXT,
+    persona_ids TEXT, results_json TEXT, avg_score REAL
+  );
+`);
+const insertRun = db.prepare(`INSERT OR REPLACE INTO runs
+  (run_id, ts, user, atype, source, context, copy, image_note, persona_ids, results_json, avg_score)
+  VALUES (@run_id, @ts, @user, @atype, @source, @context, @copy, @image_note, @persona_ids, @results_json, @avg_score)`);
 const REPORT_TOKEN = process.env.REPORT_TOKEN || SESSION_SECRET;
 
 // ---------- app ----------
@@ -430,7 +442,41 @@ app.post("/api/evaluate", async (req, res) => {
   });
   tx();
 
+  // save the full run so the user can reopen it later (auto-saved by user)
+  try {
+    const scored = chosen.map(p => results[p.id]).filter(r => r && !r.error && typeof r.score === "number");
+    const avg = scored.length ? scored.reduce((s, r) => s + r.score, 0) / scored.length : null;
+    insertRun.run({
+      run_id: runId, ts, user,
+      atype: atype || "Other",
+      source: source || "paste",
+      context: cleanContext || "",
+      copy: cleanCopy.slice(0, 20000),
+      image_note: imgs.length ? (`${imgs.length} image/page${imgs.length > 1 ? "s" : ""}${cleanImg ? " + concept" : ""}`) : (cleanImg || ""),
+      persona_ids: JSON.stringify(chosen.map(p => p.id)),
+      results_json: JSON.stringify(results),
+      avg_score: avg
+    });
+  } catch (e) { /* non-fatal: history is best-effort */ }
+
   res.json({ runId, results, personas: chosen.map(p => ({ id: p.id, name: p.name, role: p.role, color: p.color })) });
+});
+
+// ---------- per-user history: list + reopen ----------
+app.get("/api/my-history", (req, res) => {
+  const user = req.userEmail || "user";
+  const runs = db.prepare(`SELECT run_id, ts, atype, source, image_note, avg_score, substr(copy,1,150) AS copy_preview
+    FROM runs WHERE user=? ORDER BY ts DESC LIMIT 100`).all(user);
+  res.json({ user, runs });
+});
+app.get("/api/my-history/:id", (req, res) => {
+  const user = req.userEmail || "user";
+  const row = db.prepare(`SELECT * FROM runs WHERE run_id=? AND user=?`).get(req.params.id, user);
+  if (!row) return res.status(404).json({ error: "That test isn't in your history (it may have been on a different sign-in)." });
+  let results = {}, personaIds = [];
+  try { results = JSON.parse(row.results_json || "{}"); } catch (e) {}
+  try { personaIds = JSON.parse(row.persona_ids || "[]"); } catch (e) {}
+  res.json({ run_id: row.run_id, ts: row.ts, atype: row.atype, source: row.source, context: row.context, copy: row.copy, image_note: row.image_note, avg_score: row.avg_score, personaIds, results });
 });
 
 // ---------- refine: follow-up conversation with the voice coach ----------
