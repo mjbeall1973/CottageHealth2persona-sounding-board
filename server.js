@@ -306,7 +306,7 @@ TIER 1 vocabulary to reward: ${TIER1_WORDS}.
 TIER 2 vocabulary to reward: ${TIER2_WORDS}.
 DO-NOT-USE words & concepts (the main reason to go below 5 — flag the specific ones the copy uses): ${DO_NOT_USE}.`;
 
-function buildPrompt(p, atype, copy, img, hasImage, context) {
+function buildPrompt(p, atype, copy, img, hasImage, context, imageCount) {
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
@@ -326,7 +326,7 @@ ${SCORING_GUIDE}
 ${context ? `WHAT THE USER IS TESTING (their goal/context — weigh this in your reaction and your score): "${context}"\n` : ""}ASSET TYPE: ${atype}
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
-${hasImage ? `\nAN ACTUAL PHOTOGRAPH IS ATTACHED. Look at the image itself and react to what you literally see — subject, warmth, light, composition, setting, and whether it tells a story and connects to philanthropy. Judge its VISUAL fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For a photo, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
+${hasImage ? `\n${imageCount > 1 ? `THIS IS A MULTI-PAGE PIECE — ${imageCount} page images are attached in order, along with the copy text above. Judge the WHOLE piece together (the copy AND the design/imagery across all pages) for ONE reaction and score.` : "AN ACTUAL PHOTOGRAPH IS ATTACHED."} Look at the image(s) and react to what you literally see — subject, warmth, light, composition, layout, and whether it tells a story and connects to philanthropy. Judge visual fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For imagery, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
 React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Also rate, from 0 to 10, how strongly THIS asset delivers on each of these areas (used to build a heat map of strengths and weaknesses): warmth (warmth and humanity), inspiration (hope and possibility, not obligation), clarity (clear and easy to grasp), local (Santa Barbara / coast-to-valley relevance), empowerment (makes the donor feel they personally make the impact), onBrand (uses the Foundation's voice and vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
 {"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>", "dimensions": {"warmth": <0-10>, "inspiration": <0-10>, "clarity": <0-10>, "local": <0-10>, "empowerment": <0-10>, "onBrand": <0-10>}}`;
 }
@@ -348,14 +348,12 @@ function sanitizeDims(d) {
   return any ? out : null;
 }
 
-async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType, context) {
-  const hasImage = !!imageData;
-  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context);
+async function evaluateOne(persona, atype, copy, img, images, context) {
+  const imgs = Array.isArray(images) ? images : [];
+  const hasImage = imgs.length > 0;
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length);
   const content = hasImage
-    ? [
-        { type: "image", source: { type: "base64", media_type: imageMediaType || "image/jpeg", data: imageData } },
-        { type: "text", text: promptText }
-      ]
+    ? imgs.map(im => ({ type: "image", source: { type: "base64", media_type: im.mediaType || "image/jpeg", data: im.data } })).concat([{ type: "text", text: promptText }])
     : promptText;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -387,22 +385,26 @@ async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType,
 }
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, context, personaIds, source, imageData, imageMediaType } = req.body || {};
+  const { atype, copy, img, context, personaIds, source, images, imageData, imageMediaType } = req.body || {};
   const cleanContext = (context || "").trim().slice(0, 600);
   const cleanCopy = (copy || "").trim();
   const cleanImg = (img || "").trim();
   const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-  let imgData = typeof imageData === "string" ? imageData.replace(/^data:[^,]+,/, "") : "";
-  const imgType = allowedTypes.includes(imageMediaType) ? imageMediaType : "image/jpeg";
-  if (imgData.length > 9000000) return res.status(413).json({ error: "That image is too large — please use one under ~6 MB." });
-  if (!cleanCopy && !cleanImg && !imgData) return res.status(400).json({ error: "Add some copy, describe a visual, or upload an image first." });
+  let imgs = Array.isArray(images) ? images : [];
+  if (!imgs.length && typeof imageData === "string" && imageData) imgs = [{ data: imageData, mediaType: imageMediaType }];
+  imgs = imgs.filter(x => x && typeof x.data === "string" && x.data.length)
+             .slice(0, 8)
+             .map(x => ({ data: x.data.replace(/^data:[^,]+,/, ""), mediaType: allowedTypes.includes(x.mediaType) ? x.mediaType : "image/jpeg" }));
+  const totalImgLen = imgs.reduce((n, x) => n + x.data.length, 0);
+  if (totalImgLen > 18000000) return res.status(413).json({ error: "Those images are too large — try fewer pages or a smaller file." });
+  if (!cleanCopy && !cleanImg && !imgs.length) return res.status(400).json({ error: "Add some copy, describe a visual, or upload an image/PDF first." });
 
   const ids = Array.isArray(personaIds) && personaIds.length ? personaIds : PERSONAS.map(p => p.id);
   const chosen = PERSONAS.filter(p => ids.includes(p.id));
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgData, imgType, cleanContext); }));
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext); }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
@@ -416,7 +418,7 @@ app.post("/api/evaluate", async (req, res) => {
         atype: atype || "Other",
         source: source || "paste",
         copy_preview: cleanCopy.slice(0, 160),
-        image_preview: imgData ? (cleanImg ? cleanImg.slice(0, 140) + " [+uploaded image]" : "(uploaded image)") : cleanImg.slice(0, 160),
+        image_preview: imgs.length ? (cleanImg ? cleanImg.slice(0, 130) + ` [+${imgs.length} image(s)]` : `(${imgs.length} image/page${imgs.length > 1 ? "s" : ""})`) : cleanImg.slice(0, 160),
         persona_id: p.id, persona_name: p.name,
         score: (r && !r.error && typeof r.score === "number") ? r.score : null,
         verdict: (r && r.verdict) || "",
