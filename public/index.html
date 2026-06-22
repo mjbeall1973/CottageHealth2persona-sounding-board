@@ -100,6 +100,27 @@ ul.profile li{margin-bottom:5px}
 .dos li{margin-bottom:6px}
 .dos .good{color:var(--good)}.dos .bad{color:var(--bad)}
 .hills{display:block;width:100%;height:44px;margin:-2px 0 2px}
+.heatwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
+.heatwrap h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 10px}
+table.heat{width:100%;border-collapse:separate;border-spacing:3px}
+table.heat th{font-size:10px;color:var(--muted);font-weight:600;text-align:center;padding:0 1px 4px}
+table.heat td.name{text-align:left;color:var(--ink);font-weight:500;white-space:nowrap;padding-right:8px;font-size:12.5px}
+table.heat td.cell{color:#fff;text-align:center;border-radius:6px;padding:7px 0;font-weight:700;font-size:12px;min-width:30px}
+table.heat tr.avg td.name{font-weight:700}
+.heatsum{font-size:13px;color:var(--ink);margin-top:10px}
+.heatsum .s{color:var(--good);font-weight:700}.heatsum .w{color:var(--bad);font-weight:700}
+.refinecard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-top:14px}
+.refinehead{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.refinehead b{font-size:14px;color:var(--brand)}
+#refineChips{margin-bottom:10px}
+#refineChips .chip{cursor:pointer}
+.chatlog{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;margin-bottom:10px;padding-right:2px}
+.msg{font-size:13.5px;line-height:1.5;padding:9px 12px;border-radius:12px;max-width:92%;white-space:pre-wrap}
+.msg.user{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:#f1f4f8;color:var(--ink);border-bottom-left-radius:4px}
+.msg.ai.thinking{color:var(--muted);font-style:italic}
+.chatbar{display:flex;gap:8px;align-items:flex-end}
+.chatbar textarea{flex:1}
 .foot .hillsfoot{display:block;width:100%;height:30px;margin:0 0 10px;opacity:.8}
 .tone{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:8px 10px;font-weight:500}
 .chk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.chk .yes h5{color:var(--good)}.chk .no h5{color:var(--bad)}
@@ -231,12 +252,25 @@ table.log tr:last-child td{border-bottom:none}
 
       <div>
         <div id="agg"></div>
+        <div id="heat"></div>
         <div id="resultActions" class="actbar" style="display:none">
           <button class="btn small secondary" id="copySummary">Copy summary</button>
           <button class="btn small secondary" id="downloadReport">Download report</button>
         </div>
         <div class="results" id="results">
-          <div class="empty">Add copy (paste, pull from a URL, or upload a PDF), pick your personas, then hit <b>Get reactions</b>.</div>
+          <div class="empty">Add copy, describe a visual, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>
+        </div>
+        <div id="refine" style="display:none">
+          <div class="refinecard">
+            <div class="refinehead"><b>Refine with the voice coach</b><span class="hint">Ask follow-ups, request a rewrite, keep the conversation going.</span></div>
+            <div class="chips" id="refineChips"></div>
+            <div class="chatlog" id="chatLog"></div>
+            <div class="chatbar">
+              <textarea id="chatInput" rows="2" placeholder="e.g. Make it warmer for Linda, or rewrite the opening line..."></textarea>
+              <button class="btn small" id="chatSend">Send</button>
+            </div>
+            <div class="toolbar"><button class="btn small secondary" id="chatDownload">Download conversation</button></div>
+          </div>
         </div>
       </div>
     </div>
@@ -444,7 +478,7 @@ async function run(){
   if(!sel.length){ alert("Pick at least one persona."); return; }
 
   const btn=$("#run"); btn.disabled=true; btn.innerHTML='<span class="spinner light"></span>Asking the room...';
-  $("#agg").innerHTML=""; $("#resultActions").style.display="none";
+  $("#agg").innerHTML=""; $("#heat").innerHTML=""; $("#resultActions").style.display="none"; $("#refine").style.display="none";
   const chosen=PERSONAS.filter(p=>sel.includes(p.id));
   $("#results").innerHTML = chosen.map(p=>`<div class="rcard" id="r-${p.id}">
       <div class="rhead">${avatarSVG(p,36)}
@@ -461,8 +495,10 @@ async function run(){
     else{
       chosen.forEach(p=>renderCard(p,j.results[p.id]));
       renderAggregate(chosen,j.results);
+      renderHeatmap(chosen,j.results);
       LAST={atype,copy,img:(img||(UPLOADED?"[uploaded image evaluated]":"")),chosen,results:j.results,ts:new Date()};
       $("#resultActions").style.display="flex";
+      startRefine(chosen,j.results);
     }
   }catch(e){ alert("Network error — try again."); }
   btn.disabled=false; btn.textContent="Get reactions";
@@ -501,11 +537,73 @@ function renderAggregate(chosen,results){
       <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div></div>`;
 }
 
+/* heat map */
+const DIM_DEFS=[["warmth","Warmth"],["inspiration","Inspire"],["clarity","Clarity"],["local","Local"],["empowerment","Empower"],["onBrand","On-brand"]];
+function heatColor(v){ const h=Math.max(0,Math.min(10,v))*12; return `hsl(${h},55%,42%)`; }
+function renderHeatmap(chosen,results){
+  const rows=chosen.map(p=>({p,dims:(results[p.id]&&results[p.id].dimensions)||null})).filter(x=>x.dims);
+  if(!rows.length){ $("#heat").innerHTML=""; return; }
+  const agg={}; DIM_DEFS.forEach(([k])=>{ const vals=rows.map(r=>r.dims[k]).filter(v=>typeof v==="number"); agg[k]=vals.length? vals.reduce((a,b)=>a+b,0)/vals.length : null; });
+  const present=DIM_DEFS.filter(([k])=>agg[k]!=null);
+  if(!present.length){ $("#heat").innerHTML=""; return; }
+  const r1=n=>Math.round(n*10)/10;
+  const cell=v=> v==null ? `<td class="cell" style="background:#e4e8ee;color:#9aa3b0">–</td>` : `<td class="cell" style="background:${heatColor(v)}">${r1(v)}</td>`;
+  const head=`<tr><th></th>${present.map(([k,l])=>`<th>${l}</th>`).join("")}</tr>`;
+  const avgRow=`<tr class="avg"><td class="name">Room avg</td>${present.map(([k])=>cell(agg[k])).join("")}</tr>`;
+  const personaRows=rows.map(r=>`<tr><td class="name">${esc(r.p.name)}</td>${present.map(([k])=>cell(r.dims[k])).join("")}</tr>`).join("");
+  const sortedAgg=[...present].sort((a,b)=>agg[b[0]]-agg[a[0]]);
+  const strong=sortedAgg[0], weak=sortedAgg[sortedAgg.length-1];
+  const sum=`<div class="heatsum">Strongest area: <span class="s">${strong[1]}</span> (${r1(agg[strong[0]])}/10) &middot; Weakest area: <span class="w">${weak[1]}</span> (${r1(agg[weak[0]])}/10)</div>`;
+  $("#heat").innerHTML=`<div class="heatwrap"><h3>Message heat map &mdash; where it's strong vs. weak</h3><table class="heat"><thead>${head}</thead><tbody>${avgRow}${personaRows}</tbody></table>${sum}</div>`;
+}
+
+/* refine: conversation with the voice coach */
+var CHAT=[], CHAT_CTX=null;
+const CHAT_SUGGESTIONS=["Make it warmer and more human","Rewrite it in our voice","Tighten the opening line","Add a coast-to-valley hook","Make the donor the hero","Why did the room react this way?"];
+function startRefine(chosen,results){
+  CHAT=[];
+  const scored=chosen.map(p=>({p,d:results[p.id]})).filter(x=>x.d&&!x.d.error);
+  const avg=scored.length?(scored.reduce((s,x)=>s+(+x.d.score||0),0)/scored.length).toFixed(1):"n/a";
+  const lines=scored.map(x=>`${x.p.name} ${x.d.score}/10 (${x.d.verdict||""}); fix: ${x.d.fix||"—"}`).join(" | ");
+  CHAT_CTX={ atype:LAST.atype, copy:LAST.copy, img:LAST.img, summary:`Room avg ${avg}/10. ${lines}` };
+  $("#refineChips").innerHTML=CHAT_SUGGESTIONS.map(s=>`<span class="chip" data-q="${esc(s)}">${esc(s)}</span>`).join("");
+  $("#chatLog").innerHTML=`<div class="msg ai">Want to take this further? Ask me anything about it — I can suggest tweaks, explain the room's reaction, or rewrite it in the Foundation's voice. Pick a starter below or type your own.</div>`;
+  $("#refine").style.display="block";
+}
+function paintChat(thinking){
+  $("#chatLog").innerHTML = CHAT.map(m=>`<div class="msg ${m.role==="user"?"user":"ai"}">${esc(m.content)}</div>`).join("") + (thinking?`<div class="msg ai thinking">thinking…</div>`:"");
+  const l=$("#chatLog"); l.scrollTop=l.scrollHeight;
+}
+async function sendChat(text){
+  text=(text!=null?text:$("#chatInput").value).trim();
+  if(!text || !CHAT_CTX) return;
+  $("#chatInput").value="";
+  CHAT.push({role:"user",content:text});
+  paintChat(true);
+  const send=$("#chatSend"); send.disabled=true;
+  try{
+    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:CHAT,context:CHAT_CTX})});
+    const j=await r.json();
+    CHAT.push({role:"assistant",content: r.ok ? (j.reply||"(no reply)") : ("(Sorry — "+(j.error||"that didn't go through")+".)")});
+  }catch(e){ CHAT.push({role:"assistant",content:"(Network error — try again.)"}); }
+  paintChat(false); send.disabled=false;
+}
+function downloadChat(){
+  if(!CHAT_CTX) return;
+  const out=["PHILANTHROPY VOICE GUIDE — refinement session", new Date().toLocaleString(), "", "ASSET TYPE: "+CHAT_CTX.atype];
+  if(CHAT_CTX.copy) out.push("", "ORIGINAL COPY:", CHAT_CTX.copy);
+  if(CHAT_CTX.img) out.push("", "VISUAL: "+CHAT_CTX.img);
+  out.push("", "ROOM SUMMARY: "+CHAT_CTX.summary, "", "--- CONVERSATION ---");
+  CHAT.forEach(m=>out.push("", (m.role==="user"?"YOU":"COACH")+": "+m.content));
+  const blob=new Blob([out.join("\n")],{type:"text/plain"}); const url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download="voice-guide-conversation.txt"; a.click(); URL.revokeObjectURL(url);
+}
+
 /* share: copy + download */
 function summaryText(){
   if(!LAST) return "";
   const lines=[];
-  lines.push("PERSONA SOUNDING BOARD — "+LAST.ts.toLocaleString());
+  lines.push("PHILANTHROPY VOICE GUIDE — "+LAST.ts.toLocaleString());
   lines.push("Asset type: "+LAST.atype);
   if(LAST.copy) lines.push("\nCOPY TESTED:\n"+LAST.copy.slice(0,500)+(LAST.copy.length>500?"…":""));
   if(LAST.img) lines.push("\nVISUAL:\n"+LAST.img);
@@ -546,7 +644,7 @@ $("#downloadReport").addEventListener("click", ()=>{
     <p style="color:#5d6675;font-size:12px;margin-top:24px">AI role-play for early message testing — a directional gut check, not a substitute for real donor conversations. Prepared by Accordant Philanthropy.</p>
     </body></html>`;
   const blob=new Blob([html],{type:"text/html"}); const url=URL.createObjectURL(blob); const a=document.createElement("a");
-  a.href=url; a.download="persona-sounding-board-report.html"; a.click(); URL.revokeObjectURL(url);
+  a.href=url; a.download="philanthropy-voice-guide-report.html"; a.click(); URL.revokeObjectURL(url);
 });
 
 /* usage */
@@ -589,12 +687,17 @@ $("#run").addEventListener("click",run);
 $("#clear").addEventListener("click",()=>{
   $("#copy").value="";$("#img").value="";$("#copy").dataset.source="paste";
   clearImage();
-  $("#agg").innerHTML="";$("#resultActions").style.display="none";
+  $("#agg").innerHTML="";$("#heat").innerHTML="";$("#resultActions").style.display="none";
+  $("#refine").style.display="none"; CHAT=[]; CHAT_CTX=null;
   $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";
   $("#results").innerHTML='<div class="empty">Add copy, describe a visual, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
 });
 $("#imgFile").addEventListener("change", e=>handleImageFile(e.target.files[0]));
 $("#imgRemove").addEventListener("click", clearImage);
+$("#chatSend").addEventListener("click", ()=>sendChat());
+$("#chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendChat(); }});
+$("#refineChips").addEventListener("click", e=>{ const c=e.target.closest("[data-q]"); if(c) sendChat(c.getAttribute("data-q")); });
+$("#chatDownload").addEventListener("click", downloadChat);
 $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
