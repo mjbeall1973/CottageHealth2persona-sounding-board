@@ -90,7 +90,7 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .aggregate .big{font-size:13px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .aggregate .row{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
 .aggregate .pill{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font-size:13px}
-.cardquip{margin-top:12px;background:#f5f0fb;border:1px solid #e7ddf3;border-radius:12px;border-top-left-radius:3px;padding:10px 12px;font-size:14px;font-weight:600;font-style:italic;color:#4a3a66;line-height:1.45}
+.cardquip{margin:0 0 12px;background:#f5f0fb;border:1px solid #e7ddf3;border-radius:12px;border-top-left-radius:3px;padding:10px 12px;font-size:14.5px;font-weight:600;font-style:italic;color:#4a3a66;line-height:1.45}
 .cardquip .emoji{font-style:normal;font-size:17px;margin-right:7px;vertical-align:-1px}
 .actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .pref{display:grid;grid-template-columns:1fr;gap:14px}
@@ -602,13 +602,12 @@ function renderCard(p,d){
   el.querySelector(".score").innerHTML=`<div class="num" style="color:${scoreColor(score)}">${score}</div><div class="lab">/ 10</div>`;
   const res=(d.resonates||[]).filter(Boolean), flat=(d.fallsFlat||[]).filter(Boolean);
   el.querySelector(".rbody").innerHTML=`
-    <p class="quote">&ldquo;${esc(d.headline||"")}&rdquo;</p>
-    <div style="margin:-4px 0 12px"><span class="verdict" style="background:${verdictColor(d.verdict)};color:#fff">${esc(d.verdict||"")}</span>
+    ${personaQuip(p.id,score)}
+    <div style="margin:0 0 12px"><span class="verdict" style="background:${verdictColor(d.verdict)};color:#fff">${esc(d.verdict||"")}</span>
       <div class="bar"><i style="width:${score*10}%;background:${scoreColor(score)}"></i></div></div>
     <div class="cols"><div class="good"><h4>Resonates</h4><ul>${res.length?res.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div>
       <div class="bad"><h4>Falls flat</h4><ul>${flat.length?flat.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div></div>
-    ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}
-    ${personaQuip(p.id,score)}`;
+    ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}`;
 }
 
 /* playful, in-character quip from the persona who's reacting — tiered by their own score */
