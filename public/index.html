@@ -63,6 +63,12 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:default;filter:none}
 .btn.secondary{background:#eef1f5;color:var(--ink);margin-top:8px}
 .btn.small{width:auto;padding:9px 14px;font-size:13px}
+.reclabel{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 5px}
+.recbtn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.recbtn .micdot{display:none;width:8px;height:8px;border-radius:50%;background:#b23b3b}
+.recbtn.recording{background:#fdeceb;color:#b23b3b;border:1px solid #f3cfcd}
+.recbtn.recording .micdot{display:inline-block;animation:micpulse 1s ease-in-out infinite}
+@keyframes micpulse{0%,100%{opacity:1}50%{opacity:.25}}
 .results{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
 @media(min-width:900px){.results{grid-template-columns:1fr 1fr}}
 .results .empty{grid-column:1/-1}
@@ -258,8 +264,12 @@ table.log tr:last-child td{border-bottom:none}
         </div>
 
         <div class="field">
-          <label class="fld" for="copy">Copy <span class="hint">(headline + body — auto-filled from URL/PDF, edit freely)</span></label>
-          <textarea id="copy" rows="7" placeholder="Paste the headline and body copy here..."></textarea>
+          <div class="reclabel">
+            <label class="fld" for="copy" style="margin:0">Copy <span class="hint">(headline + body — type, paste, or dictate)</span></label>
+            <button type="button" class="btn small secondary recbtn" id="dictate" title="Dictate with your microphone"><span class="micdot"></span>🎤 Dictate</button>
+          </div>
+          <textarea id="copy" rows="7" placeholder="Paste the headline and body copy here — or click Dictate and start talking..."></textarea>
+          <div class="srcnote" id="dictateNote"></div>
         </div>
         <div class="field">
           <label class="fld" for="pdfInput">Upload a PDF <span class="hint">(reads the whole file — copy and page images judged together)</span></label>
@@ -556,8 +566,44 @@ $("#extractPdf").addEventListener("click", async ()=>{
   btn.disabled=false; btn.textContent=old;
 });
 
+/* dictation — speech-to-text straight into the copy box (browser Web Speech API) */
+var REC=null, RECING=false, REC_BASE="", REC_FINAL="";
+function setRecUI(on){
+  RECING=on; const b=$("#dictate"); if(!b) return;
+  b.classList.toggle("recording",on);
+  b.innerHTML = on ? '<span class="micdot"></span>◼ Stop' : '<span class="micdot"></span>🎤 Dictate';
+}
+function stopDictation(){ if(REC){ try{ REC.stop(); }catch(e){} } }
+(function initDictation(){
+  const b=$("#dictate"), note=$("#dictateNote");
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!b) return;
+  if(!SR){ b.style.display="none"; return; }
+  b.addEventListener("click",()=>{
+    if(RECING){ stopDictation(); return; }
+    REC=new SR(); REC.lang="en-US"; REC.continuous=true; REC.interimResults=true;
+    REC_BASE=$("#copy").value; REC_FINAL="";
+    REC.onstart=()=>{ setRecUI(true); srcNote(note,"work","Listening… speak naturally, then click Stop. (Punctuation: say “period,” “comma,” “new line.”)"); };
+    REC.onerror=(e)=>{ const er=(e&&e.error)||""; srcNote(note,"err", er==="not-allowed"||er==="service-not-allowed" ? "Microphone blocked — allow mic access for this site in your browser, then try again." : (er==="no-speech"?"Didn't catch anything — try again and speak a bit louder.":"Dictation error — "+esc(er||"try again")+".")); };
+    REC.onend=()=>{ setRecUI(false); if(note.classList.contains("work")){ const n=($("#copy").value||"").trim().length; srcNote(note,"ok", n?"Got it — edit the copy freely, then get reactions.":"Dictation stopped."); } };
+    REC.onresult=(ev)=>{
+      let interim="";
+      for(let i=ev.resultIndex;i<ev.results.length;i++){
+        const r=ev.results[i];
+        if(r.isFinal) REC_FINAL+=r[0].transcript; else interim+=r[0].transcript;
+      }
+      const spoken=(REC_FINAL+interim).replace(/\s+/g," ").trimStart();
+      const joiner = (REC_BASE && !/\s$/.test(REC_BASE)) ? " " : "";
+      $("#copy").value = REC_BASE + (spoken?joiner+spoken:"");
+      $("#copy").dataset.source="dictation";
+    };
+    try{ REC.start(); }catch(e){ srcNote(note,"err","Couldn't start dictation — try again."); }
+  });
+})();
+
 /* evaluate */
 async function run(){
+  stopDictation();
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img="";
   const context=$("#context").value.trim();
   const sel=$$(".ptog input:checked").map(c=>c.value);
@@ -862,11 +908,12 @@ async function renderUsage(){
 /* misc actions */
 $("#run").addEventListener("click",run);
 $("#clear").addEventListener("click",()=>{
+  stopDictation();
   $("#copy").value="";$("#context").value="";$("#copy").dataset.source="paste";
   clearImage();
   $("#agg").innerHTML="";$("#heat").innerHTML="";$("#resultActions").style.display="none";
   $("#refine").style.display="none"; CHAT=[]; CHAT_CTX=null;
-  $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";
+  $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";$("#dictateNote").className="srcnote";
   $("#results").innerHTML='<div class="empty">Add copy, upload a PDF, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
 });
 $("#imgFile").addEventListener("change", e=>handleImageFile(e.target.files[0]));
