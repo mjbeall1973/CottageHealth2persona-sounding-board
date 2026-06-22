@@ -90,6 +90,8 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .aggregate .big{font-size:13px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .aggregate .row{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
 .aggregate .pill{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font-size:13px}
+.aggregate .quip{font-size:15.5px;font-weight:600;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.22);line-height:1.45}
+.aggregate .quip .emoji{font-size:18px;margin-right:6px}
 .actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .pref{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:720px){.pref{grid-template-columns:1fr 1fr}}
@@ -608,15 +610,50 @@ function renderCard(p,d){
     ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}`;
 }
 
+/* playful score-based reaction */
+const QUIPS=[
+  { min:9,  emoji:"🤩", lines:[
+    "Stop it — you. Does your boss know how awesome you are?",
+    "Okay, save some talent for the rest of us. The room is obsessed.",
+    "Frame it. Mail it. This one's a keeper.",
+    "Chef's kiss. The personas would like your autograph." ]},
+  { min:7.5, emoji:"😄", lines:[
+    "Nice work! The room is nodding along — a little polish and it sings.",
+    "Strong stuff. You're clearly the favorite in the marketing meeting.",
+    "Ooh, they like it. Tighten one or two spots and it's a winner.",
+    "Solid. Whoever wrote this deserves the good office snacks." ]},
+  { min:5.5, emoji:"🙂", lines:[
+    "Not bad! It's got promise — give the weak spots a little love.",
+    "We're getting there. A nudge warmer and the room comes around.",
+    "Middle of the pack, but you're close. Don't quit your day job — actually, do keep this job, you're good at it.",
+    "Respectable! A second pass and this jumps a tier." ]},
+  { min:3.5, emoji:"😬", lines:[
+    "Oof. The room got quiet. Don't worry — your secret's safe with me. Try again!",
+    "Rocky start, but every great appeal has a messy first draft. Dust off and go again.",
+    "The personas are politely sipping their coffee. Let's win them back — rework it.",
+    "Not your finest hour, but I won't tell a soul. Another swing?" ]},
+  { min:0, emoji:"🫣", lines:[
+    "Oh no. I won't tell anyone how bad that was — keep trying!",
+    "We're going to pretend this never happened. Deep breath, fresh draft, you've got this.",
+    "Yikes. The room left to 'get more coffee.' Big rewrite, big comeback — go!",
+    "That one's between us. Burn the evidence and try a warmer, bolder take." ]}
+];
+function funQuip(avg){
+  const t=QUIPS.find(q=>avg>=q.min)||QUIPS[QUIPS.length-1];
+  const line=t.lines[Math.floor(Math.random()*t.lines.length)];
+  return `<div class="quip"><span class="emoji">${t.emoji}</span>${esc(line)}</div>`;
+}
 function renderAggregate(chosen,results){
   const scored=chosen.map(p=>({p,d:results[p.id]})).filter(x=>x.d&&!x.d.error&&!isNaN(parseInt(x.d.score,10)));
   if(!scored.length) return;
-  const avg=(scored.reduce((s,x)=>s+(parseInt(x.d.score,10)||0),0)/scored.length).toFixed(1);
+  const avgNum=scored.reduce((s,x)=>s+(parseInt(x.d.score,10)||0),0)/scored.length;
+  const avg=avgNum.toFixed(1);
   const sorted=[...scored].sort((a,b)=>(b.d.score||0)-(a.d.score||0));
   const top=sorted[0], low=sorted[sorted.length-1];
   $("#agg").innerHTML=`<div class="aggregate"><div class="big">Room read &middot; average fit ${avg}/10</div>
     <div class="row"><div class="pill">Strongest with <b>${esc(top.p.name)}</b> (${top.d.score})</div>
-      <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div></div>`;
+      <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div>
+    ${funQuip(avgNum)}</div>`;
 }
 
 /* heat map */
