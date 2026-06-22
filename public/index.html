@@ -233,7 +233,6 @@ table.log tr:last-child td{border-bottom:none}
           <div class="seg" id="srcseg">
             <button data-src="paste" class="on">Paste text</button>
             <button data-src="url">From URL</button>
-            <button data-src="pdf">From PDF</button>
           </div>
 
           <div class="srcpanel on" id="src-paste">
@@ -247,14 +246,6 @@ table.log tr:last-child td{border-bottom:none}
             </div>
             <div class="srcnote" id="urlNote"></div>
           </div>
-
-          <div class="srcpanel" id="src-pdf">
-            <div class="inline">
-              <input type="file" id="pdfInput" accept="application/pdf" style="padding:8px">
-              <button class="btn small" id="extractPdf" style="white-space:nowrap">Extract</button>
-            </div>
-            <div class="srcnote" id="pdfNote"></div>
-          </div>
         </div>
 
         <div class="field">
@@ -262,8 +253,12 @@ table.log tr:last-child td{border-bottom:none}
           <textarea id="copy" rows="7" placeholder="Paste the headline and body copy here..."></textarea>
         </div>
         <div class="field">
-          <label class="fld" for="img">Image / visual concept <span class="hint">(describe it, or paste alt text)</span></label>
-          <textarea id="img" rows="3" placeholder="e.g. Aerial photo of the hospital at golden hour with a smiling nurse in the foreground..."></textarea>
+          <label class="fld" for="pdfInput">Upload a PDF <span class="hint">(reads the whole file — copy and page images judged together)</span></label>
+          <div class="inline">
+            <input type="file" id="pdfInput" accept="application/pdf" style="padding:8px">
+            <button class="btn small" id="extractPdf" style="white-space:nowrap">Read PDF</button>
+          </div>
+          <div class="srcnote" id="pdfNote"></div>
         </div>
         <div class="field">
           <label class="fld" for="imgFile">Or upload an image <span class="hint">(JPG, PNG, GIF — the personas judge the actual photo)</span></label>
@@ -290,7 +285,7 @@ table.log tr:last-child td{border-bottom:none}
           <button class="btn small secondary" id="downloadReport">Download report</button>
         </div>
         <div class="results" id="results">
-          <div class="empty">Add copy, describe a visual, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>
+          <div class="empty">Add copy, upload a PDF, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>
         </div>
         <div id="refine" style="display:none">
           <div class="refinecard">
@@ -513,7 +508,6 @@ $("#fetchUrl").addEventListener("click", async ()=>{
     if(!r.ok){ srcNote(note,"err",esc(j.error||"Couldn't read that URL.")); }
     else{
       $("#copy").value=j.copy||"";
-      if(j.image) $("#img").value=j.image;
       $("#copy").dataset.source="url";
       srcNote(note,"ok",`Pulled ${(j.copy||"").length.toLocaleString()} characters from <b>${esc(j.sourceLabel||url)}</b>${j.truncated?" (trimmed to fit)":""}. Review the copy box, then get reactions.`);
     }
@@ -555,7 +549,7 @@ $("#extractPdf").addEventListener("click", async ()=>{
 
 /* evaluate */
 async function run(){
-  const atype=$("#atype").value, copy=$("#copy").value.trim(), img=$("#img").value.trim();
+  const atype=$("#atype").value, copy=$("#copy").value.trim(), img="";
   const context=$("#context").value.trim();
   const sel=$$(".ptog input:checked").map(c=>c.value);
   const imagesArr=[];
@@ -779,12 +773,12 @@ async function renderUsage(){
 /* misc actions */
 $("#run").addEventListener("click",run);
 $("#clear").addEventListener("click",()=>{
-  $("#copy").value="";$("#img").value="";$("#context").value="";$("#copy").dataset.source="paste";
+  $("#copy").value="";$("#context").value="";$("#copy").dataset.source="paste";
   clearImage();
   $("#agg").innerHTML="";$("#heat").innerHTML="";$("#resultActions").style.display="none";
   $("#refine").style.display="none"; CHAT=[]; CHAT_CTX=null;
   $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";
-  $("#results").innerHTML='<div class="empty">Add copy, describe a visual, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
+  $("#results").innerHTML='<div class="empty">Add copy, upload a PDF, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
 });
 $("#imgFile").addEventListener("change", e=>handleImageFile(e.target.files[0]));
 $("#imgRemove").addEventListener("click", clearImage);
