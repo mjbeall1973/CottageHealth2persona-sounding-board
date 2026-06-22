@@ -16,7 +16,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
-.wrap{max-width:1080px;margin:0 auto;padding:14px 18px 48px}
+.wrap{max-width:1320px;margin:0 auto;padding:14px 18px 48px}
 .brandbar{display:flex;align-items:center;gap:18px;padding:16px 18px;margin:4px 0 6px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .brandbar .logo svg{height:48px;width:auto;display:block}
 .brandbar .bdiv{width:1px;align-self:stretch;background:var(--line);margin:2px 0}
@@ -59,7 +59,9 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:default;filter:none}
 .btn.secondary{background:#eef1f5;color:var(--ink);margin-top:8px}
 .btn.small{width:auto;padding:9px 14px;font-size:13px}
-.results{display:flex;flex-direction:column;gap:14px}
+.results{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+@media(min-width:900px){.results{grid-template-columns:1fr 1fr}}
+.results .empty{grid-column:1/-1}
 .empty{color:var(--muted);font-size:14px;text-align:center;padding:48px 18px;border:1px dashed var(--line);border-radius:var(--radius)}
 .spinner{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
 .spinner.light{border-color:#fff;border-top-color:transparent}
@@ -319,8 +321,10 @@ table.log tr:last-child td{border-bottom:none}
   <div class="foot"><b>Philanthropy Voice Guide</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
+if(window.pdfjsLib){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){} }
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 function esc(s){return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
@@ -347,7 +351,7 @@ function avatarSVG(p, size){
   </svg>`;
 }
 
-var PHOTO=null, UPLOADED=null;
+var PHOTO=null, UPLOADED=null, PDF_IMAGES=null;
 async function boot(){
   let cfg;
   try{ cfg = await (await fetch("/api/config")).json(); }
@@ -441,7 +445,7 @@ function handleImageFile(file){
       const c=document.createElement("canvas"); c.width=w; c.height=h;
       const ctx=c.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,w,h); ctx.drawImage(im,0,0,w,h);
       const url=c.toDataURL("image/jpeg",0.85);
-      UPLOADED={ data:url.split(",")[1], mediaType:"image/jpeg" };
+      UPLOADED={ data:url.split(",")[1], mediaType:"image/jpeg" }; PDF_IMAGES=null;
       $("#imgThumb").src=url; $("#imgPreview").style.display="block";
     };
     im.onerror=()=>alert("Couldn't read that image — try a JPG or PNG.");
@@ -449,7 +453,7 @@ function handleImageFile(file){
   };
   reader.readAsDataURL(file);
 }
-function clearImage(){ UPLOADED=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
+function clearImage(){ UPLOADED=null; PDF_IMAGES=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
 
 /* meet the personas — spoken first-person intros via the browser */
 var SPEAKING=null, VOICES=[];
@@ -514,21 +518,32 @@ $("#fetchUrl").addEventListener("click", async ()=>{
 $("#extractPdf").addEventListener("click", async ()=>{
   const f=$("#pdfInput").files[0]; const note=$("#pdfNote");
   if(!f){ srcNote(note,"err","Choose a PDF first."); return; }
+  if(!window.pdfjsLib){ srcNote(note,"err","PDF reader is still loading — try again in a few seconds."); return; }
   const btn=$("#extractPdf"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner light"></span>';
-  srcNote(note,"work","Reading the PDF…");
+  srcNote(note,"work","Reading the PDF — copy and page images…");
   try{
-    const fd=new FormData(); fd.append("file",f);
-    const r=await fetch("/api/extract-pdf",{method:"POST",body:fd});
-    const j=await r.json();
-    if(!r.ok){ srcNote(note,"err",esc(j.error||"Couldn't read that PDF.")); }
-    else{
-      $("#copy").value=j.copy||"";
-      if(j.image) $("#img").value=j.image;
-      $("#copy").dataset.source="pdf";
-      if(j.thin) srcNote(note,"err",esc(j.image||"Little text found — this PDF may be image-based. Describe the visual instead."));
-      else srcNote(note,"ok",`Extracted ${(j.copy||"").length.toLocaleString()} characters${j.pages?` from ${j.pages} page(s)`:""}${j.truncated?", trimmed to fit":""}. Review the copy box, then get reactions.`);
+    const buf=await f.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    const maxPages=Math.min(pdf.numPages,6);
+    let text=""; const imgs=[];
+    for(let i=1;i<=maxPages;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      text += tc.items.map(it=>it.str).join(" ") + "\n\n";
+      const base=page.getViewport({scale:1});
+      const scale=Math.min(1.7, 1100/Math.max(base.width,base.height));
+      const vp=page.getViewport({scale});
+      const c=document.createElement("canvas"); c.width=Math.round(vp.width); c.height=Math.round(vp.height);
+      const ctx=c.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,c.width,c.height);
+      await page.render({canvasContext:ctx,viewport:vp}).promise;
+      imgs.push({ data:c.toDataURL("image/jpeg",0.8).split(",")[1], mediaType:"image/jpeg" });
     }
-  }catch(e){ srcNote(note,"err","Upload failed — try again."); }
+    text=text.replace(/[ \t]+/g," ").trim();
+    PDF_IMAGES=imgs; UPLOADED=null;
+    $("#copy").value=text.slice(0,16000); $("#copy").dataset.source="pdf";
+    if(imgs.length){ $("#imgThumb").src="data:image/jpeg;base64,"+imgs[0].data; $("#imgPreview").style.display="block"; }
+    srcNote(note,"ok",`Read ${maxPages} page${maxPages>1?"s":""}${pdf.numPages>maxPages?` (of ${pdf.numPages}; first ${maxPages} used)`:""}: ${text.length.toLocaleString()} chars of copy + ${imgs.length} page image${imgs.length>1?"s":""}. The personas will judge the copy and the design together.`);
+  }catch(e){ srcNote(note,"err","Couldn't read that PDF — "+esc((e&&e.message)||"error")); }
   btn.disabled=false; btn.textContent=old;
 });
 
@@ -537,8 +552,11 @@ async function run(){
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img=$("#img").value.trim();
   const context=$("#context").value.trim();
   const sel=$$(".ptog input:checked").map(c=>c.value);
-  const source=UPLOADED ? (($("#copy").dataset.source)||"image") : ($("#copy").dataset.source||"paste");
-  if(!copy && !img && !UPLOADED){ alert("Add some copy, describe a visual, or upload an image first."); return; }
+  const imagesArr=[];
+  if(PDF_IMAGES && PDF_IMAGES.length) imagesArr.push(...PDF_IMAGES);
+  if(UPLOADED) imagesArr.push(UPLOADED);
+  const source=(PDF_IMAGES&&PDF_IMAGES.length) ? "pdf" : (UPLOADED ? (($("#copy").dataset.source)||"image") : ($("#copy").dataset.source||"paste"));
+  if(!copy && !img && !imagesArr.length){ alert("Add some copy, describe a visual, or upload an image/PDF first."); return; }
   if(!sel.length){ alert("Pick at least one persona."); return; }
 
   const btn=$("#run"); btn.disabled=true; btn.innerHTML='<span class="spinner light"></span>Asking the room...';
@@ -553,14 +571,14 @@ async function run(){
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({atype,copy,img,context,personaIds:sel,source,
-        imageData: UPLOADED?UPLOADED.data:undefined, imageMediaType: UPLOADED?UPLOADED.mediaType:undefined})});
+        images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
     else{
       chosen.forEach(p=>renderCard(p,j.results[p.id]));
       renderAggregate(chosen,j.results);
       renderHeatmap(chosen,j.results);
-      LAST={atype,copy,context,img:(img||(UPLOADED?"[uploaded image evaluated]":"")),chosen,results:j.results,ts:new Date()};
+      LAST={atype,copy,context,img:(img||(imagesArr.length>1?`[multi-page piece: copy + ${imagesArr.length} page images evaluated]`:(imagesArr.length?"[uploaded image evaluated]":""))),chosen,results:j.results,ts:new Date()};
       $("#resultActions").style.display="flex";
       startRefine(chosen,j.results);
     }
