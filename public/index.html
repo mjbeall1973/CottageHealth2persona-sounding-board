@@ -31,6 +31,10 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .panel{display:none}.panel.active{display:block}
 .grid2{display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:760px){.grid2{grid-template-columns:360px 1fr}}
+.evaltop{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+@media(min-width:880px){.evaltop{grid-template-columns:1fr 300px;align-items:start}}
+.testcard h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 12px}
+.voicegraphic{width:100%;max-width:1000px;display:block;margin:0 auto 18px;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
 .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 12px}
 label.fld{display:block;font-size:13px;font-weight:600;margin:0 0 5px;color:var(--ink)}
@@ -127,9 +131,10 @@ table.heat tr.avg td.name{font-weight:700}
 .pcard.speaking{box-shadow:0 0 0 2px var(--brand-soft),var(--shadow)}
 .pcard.speaking .avatar{animation:talk .9s ease-in-out infinite}
 @keyframes talk{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-.betabar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fbf2dc;border:1px solid #e7d6a8;border-radius:10px;padding:10px 14px;margin:6px 0 2px}
-.betabar .betatxt{font-size:13px;color:#6b531c;flex:1;min-width:200px}
-.betabar .betatxt b{color:var(--accent)}
+.betabar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fcf7ec;border:1px solid #ece0c4;border-radius:8px;padding:5px 10px;margin:4px 0 0}
+.betabar .betatxt{font-size:11px;color:#9a8453;flex:1;min-width:200px}
+.betabar .betatxt b{color:#b8862f;font-weight:600}
+.betabar .btn.small{padding:4px 9px;font-size:11px;background:#eef1f5;color:var(--muted)}
 .betaform{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0}
 .betaform textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;margin-bottom:8px}
 .ownerwrap{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
@@ -207,7 +212,7 @@ table.log tr:last-child td{border-bottom:none}
 
   <!-- EVAL -->
   <section class="panel active" id="eval">
-    <div class="grid2">
+    <div class="evaltop">
       <div class="card">
         <h2>Your asset</h2>
         <div class="field">
@@ -268,15 +273,16 @@ table.log tr:last-child td{border-bottom:none}
             <button type="button" class="btn small secondary" id="imgRemove">Remove image</button>
           </div>
         </div>
-        <div class="field">
-          <label class="fld">Test against</label>
-          <div class="pers-toggles" id="toggles"></div>
-        </div>
         <button class="btn" id="run">Get reactions</button>
         <button class="btn secondary" id="clear">Clear</button>
       </div>
-
-      <div>
+      <div class="card testcard">
+        <h2>Test against</h2>
+        <div class="pers-toggles" id="toggles"></div>
+        <p class="hint" style="margin:10px 2px 0">Eleanor is selected to start &mdash; check anyone else you want in the room.</p>
+      </div>
+    </div>
+    <div class="resultsarea">
         <div id="agg"></div>
         <div id="heat"></div>
         <div id="resultActions" class="actbar" style="display:none">
@@ -299,7 +305,6 @@ table.log tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
-    </div>
   </section>
 
   <section class="panel" id="ref"><div class="pref" id="prefList"></div></section>
@@ -363,7 +368,7 @@ async function boot(){
 
 function buildToggles(){
   $("#toggles").innerHTML = PERSONAS.map(p=>`
-    <label class="ptog"><input type="checkbox" value="${p.id}" checked>
+    <label class="ptog"><input type="checkbox" value="${p.id}" ${p.id==="eleanor"?"checked":""}>
       ${avatarSVG(p,32)}
       <span><span class="pn">${esc(p.name)}</span>
       <span class="pd">${esc(p.role)}</span></span></label>`).join("");
@@ -399,7 +404,8 @@ function renderBrand(){
     <div class="bvcard"><div class="bt"><span class="bn">${esc(d.name)}</span><span class="bs">${d.score}</span></div>
       <div class="spec">${esc(d.spectrum)}</div><p class="bnote">${esc(d.note)}</p>
       <div class="chips">${d.words.map(w=>`<span class="chip">${esc(w)}</span>`).join("")}</div></div>`).join("");
-  $("#bvBody").innerHTML=`<div class="bvhead"><div class="one">${esc(BRAND_VOICE.oneLine)}</div><div class="sum">${esc(BRAND_VOICE.summary)}</div></div><div class="bvgrid">${cards}</div>`;
+  $("#bvBody").innerHTML=`<img class="voicegraphic" src="voice-sliders.png" alt="Cottage Health's brand voice vs. the Foundation's ideal voice — the workshop slider exercise across eight dimensions">
+    <div class="bvhead"><div class="one">${esc(BRAND_VOICE.oneLine)}</div><div class="sum">${esc(BRAND_VOICE.summary)}</div></div><div class="bvgrid">${cards}</div>`;
 }
 
 /* tabs */
