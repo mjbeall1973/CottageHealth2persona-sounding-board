@@ -306,7 +306,7 @@ TIER 1 vocabulary to reward: ${TIER1_WORDS}.
 TIER 2 vocabulary to reward: ${TIER2_WORDS}.
 DO-NOT-USE words & concepts (the main reason to go below 5 — flag the specific ones the copy uses): ${DO_NOT_USE}.`;
 
-function buildPrompt(p, atype, copy, img, hasImage) {
+function buildPrompt(p, atype, copy, img, hasImage, context) {
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
@@ -323,7 +323,7 @@ ${BRAND_VOICE.promptSummary}
 
 ${SCORING_GUIDE}
 
-ASSET TYPE: ${atype}
+${context ? `WHAT THE USER IS TESTING (their goal/context — weigh this in your reaction and your score): "${context}"\n` : ""}ASSET TYPE: ${atype}
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
 ${hasImage ? `\nAN ACTUAL PHOTOGRAPH IS ATTACHED. Look at the image itself and react to what you literally see — subject, warmth, light, composition, setting, and whether it tells a story and connects to philanthropy. Judge its VISUAL fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For a photo, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
@@ -348,9 +348,9 @@ function sanitizeDims(d) {
   return any ? out : null;
 }
 
-async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType) {
+async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType, context) {
   const hasImage = !!imageData;
-  const promptText = buildPrompt(persona, atype, copy, img, hasImage);
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context);
   const content = hasImage
     ? [
         { type: "image", source: { type: "base64", media_type: imageMediaType || "image/jpeg", data: imageData } },
@@ -387,7 +387,8 @@ async function evaluateOne(persona, atype, copy, img, imageData, imageMediaType)
 }
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, personaIds, source, imageData, imageMediaType } = req.body || {};
+  const { atype, copy, img, context, personaIds, source, imageData, imageMediaType } = req.body || {};
+  const cleanContext = (context || "").trim().slice(0, 600);
   const cleanCopy = (copy || "").trim();
   const cleanImg = (img || "").trim();
   const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -401,7 +402,7 @@ app.post("/api/evaluate", async (req, res) => {
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgData, imgType); }));
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgData, imgType, cleanContext); }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
@@ -437,7 +438,7 @@ app.post("/api/chat", async (req, res) => {
 ${BRAND_VOICE.promptSummary}
 ${SCORING_GUIDE}
 ${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
-THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
+${ctx.context ? `WHAT THEY'RE TESTING (their goal): "${String(ctx.context).slice(0, 600)}".\n` : ""}THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
 HOW THE ROOM REACTED: ${String(ctx.summary || "(not provided)").slice(0, 1500)}.`;
   const msgs = messages
     .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
