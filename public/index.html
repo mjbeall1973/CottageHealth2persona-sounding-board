@@ -91,6 +91,8 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .pcard .top{display:flex;align-items:center;gap:10px;margin-bottom:4px}.pcard .pname{font-weight:700;font-size:16px}.pcard .prole{font-size:12px;color:var(--muted)}
 .pcard .blurb{font-size:13.5px;margin:8px 0 12px}.pcard h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:12px 0 5px}
 .pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
+.avatar{flex:0 0 auto;display:inline-block;vertical-align:middle}
+ul.profile li{margin-bottom:5px}
 .tone{font-size:12.5px;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:8px 10px;font-weight:500}
 .chk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.chk .yes h5{color:var(--good)}.chk .no h5{color:var(--bad)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
@@ -240,6 +242,26 @@ function esc(s){return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;",
 function scoreColor(n){ if(n>=8)return "var(--good)"; if(n>=5)return "var(--warn)"; return "var(--bad)"; }
 function verdictColor(v){ v=(v||"").toLowerCase(); if(v.includes("love"))return "var(--good)"; if(v.includes("interest"))return "#2e8b57"; if(v.includes("lukewarm"))return "var(--warn)"; return "var(--bad)"; }
 
+function avatarSVG(p, size){
+  const a = p.avatar || { skin:"#e0a875", hair:"#3a322c", style:"short", clothes:p.color, glasses:false };
+  const sideHair = a.style==="long"
+    ? `<path d="M16 30 L16 53 Q16 57 21 57 L21 34 Z" fill="${a.hair}"/><path d="M48 30 L48 53 Q48 57 43 57 L43 34 Z" fill="${a.hair}"/>`
+    : a.style==="bob"
+    ? `<path d="M17 30 L17 43 Q17 46 21 46 L21 34 Z" fill="${a.hair}"/><path d="M47 30 L47 43 Q47 46 43 46 L43 34 Z" fill="${a.hair}"/>`
+    : "";
+  const bun = a.style==="bun" ? `<circle cx="32" cy="14" r="5" fill="${a.hair}"/>` : "";
+  const cap = `<path d="M19 30 C19 16 45 16 45 30 C41 22 23 22 19 30 Z" fill="${a.hair}"/>`;
+  const glasses = a.glasses ? `<g fill="none" stroke="#3a3a3a" stroke-width="1.5"><circle cx="27" cy="29" r="4"/><circle cx="37" cy="29" r="4"/><line x1="31" y1="29" x2="33" y2="29"/></g>` : "";
+  return `<svg class="avatar" viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true">
+    <circle cx="32" cy="32" r="32" fill="${p.color}" opacity="0.16"/>
+    <path d="M11 64 C11 49 53 49 53 64 Z" fill="${a.clothes}"/>
+    ${sideHair}
+    <rect x="28.5" y="37" width="7" height="7" fill="${a.skin}"/>
+    <circle cx="32" cy="28" r="12" fill="${a.skin}"/>
+    ${cap}${bun}${glasses}
+  </svg>`;
+}
+
 async function boot(){
   let cfg;
   try{ cfg = await (await fetch("/api/config")).json(); }
@@ -252,15 +274,27 @@ async function boot(){
 function buildToggles(){
   $("#toggles").innerHTML = PERSONAS.map(p=>`
     <label class="ptog"><input type="checkbox" value="${p.id}" checked>
-      <span><span class="pn"><span class="swatch" style="background:${p.color}"></span>${esc(p.name)}</span>
+      ${avatarSVG(p,32)}
+      <span><span class="pn">${esc(p.name)}</span>
       <span class="pd">${esc(p.role)}</span></span></label>`).join("");
+}
+function profileBlock(p){
+  if(!p.profile) return "";
+  const f=p.profile;
+  return `<h5>Lifestyle &amp; profile</h5><ul class="profile">
+    <li><b>Drives:</b> ${esc(f.car)}</li>
+    <li><b>Shops:</b> ${esc(f.shops)}</li>
+    <li><b>Brands:</b> ${esc(f.brands)}</li>
+    <li><b>Personality:</b> ${esc(f.personality)}</li>
+    <li><b>Where they get info:</b> ${esc(f.media)}</li></ul>`;
 }
 function buildRef(){
   $("#prefList").innerHTML = PERSONAS.map(p=>`
     <div class="pcard">
-      <div class="top"><span class="swatch" style="background:${p.color};width:12px;height:12px"></span>
+      <div class="top">${avatarSVG(p,46)}
         <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
       <div class="blurb">${esc(p.blurb)}</div>
+      ${profileBlock(p)}
       <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
       <h5>What turns them off</h5><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
       <h5>Tone that works</h5><div class="tone">${esc(p.tone)}</div>
@@ -346,7 +380,7 @@ async function run(){
   $("#agg").innerHTML=""; $("#resultActions").style.display="none";
   const chosen=PERSONAS.filter(p=>sel.includes(p.id));
   $("#results").innerHTML = chosen.map(p=>`<div class="rcard" id="r-${p.id}">
-      <div class="rhead"><span class="swatch" style="background:${p.color};width:12px;height:12px"></span>
+      <div class="rhead">${avatarSVG(p,36)}
         <div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div>
         <div class="score"><div class="num" style="color:var(--muted)">·</div><div class="lab">thinking</div></div></div>
       <div class="rbody"><div class="quote">…</div></div></div>`).join("");
