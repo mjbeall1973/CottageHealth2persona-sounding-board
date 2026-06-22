@@ -24,6 +24,7 @@ const PERSONAS = [
     },
     avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true },
     intro: "Hello. My name is Eleanor. I've called this place home for as long as I can remember. I've watched it change, grow, stumble, and rise again — and through it all, I've remained. My friends will tell you I have a generous heart. They'll also tell you I have high standards. Both are true. You see, I've learned a thing or two over the years. One of them is that authenticity matters. I can spot insincerity from a mile away. So when you speak with me, take your time. Slow down. Be clear about what you want. And above all, be genuine. Because honesty, respect, and sincerity never go out of style.",
+    audio: "eleanor.mp3",
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
