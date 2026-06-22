@@ -209,6 +209,10 @@ table.log tr:last-child td{border-bottom:none}
       <div class="card">
         <h2>Your asset</h2>
         <div class="field">
+          <label class="fld" for="context">What are you testing? <span class="hint">(optional &mdash; the goal, audience, or what you want feedback on)</span></label>
+          <input type="text" id="context" placeholder="e.g. Year-end email to lapsed mid-level donors; want it to feel warmer and less transactional">
+        </div>
+        <div class="field">
           <label class="fld" for="atype">Asset type</label>
           <select id="atype">
             <option>Email / appeal letter</option><option>Direct mail piece</option><option>Social media post</option>
@@ -531,6 +535,7 @@ $("#extractPdf").addEventListener("click", async ()=>{
 /* evaluate */
 async function run(){
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img=$("#img").value.trim();
+  const context=$("#context").value.trim();
   const sel=$$(".ptog input:checked").map(c=>c.value);
   const source=UPLOADED ? (($("#copy").dataset.source)||"image") : ($("#copy").dataset.source||"paste");
   if(!copy && !img && !UPLOADED){ alert("Add some copy, describe a visual, or upload an image first."); return; }
@@ -547,7 +552,7 @@ async function run(){
 
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({atype,copy,img,personaIds:sel,source,
+      body:JSON.stringify({atype,copy,img,context,personaIds:sel,source,
         imageData: UPLOADED?UPLOADED.data:undefined, imageMediaType: UPLOADED?UPLOADED.mediaType:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -555,7 +560,7 @@ async function run(){
       chosen.forEach(p=>renderCard(p,j.results[p.id]));
       renderAggregate(chosen,j.results);
       renderHeatmap(chosen,j.results);
-      LAST={atype,copy,img:(img||(UPLOADED?"[uploaded image evaluated]":"")),chosen,results:j.results,ts:new Date()};
+      LAST={atype,copy,context,img:(img||(UPLOADED?"[uploaded image evaluated]":"")),chosen,results:j.results,ts:new Date()};
       $("#resultActions").style.display="flex";
       startRefine(chosen,j.results);
     }
@@ -624,7 +629,7 @@ function startRefine(chosen,results){
   const scored=chosen.map(p=>({p,d:results[p.id]})).filter(x=>x.d&&!x.d.error);
   const avg=scored.length?(scored.reduce((s,x)=>s+(+x.d.score||0),0)/scored.length).toFixed(1):"n/a";
   const lines=scored.map(x=>`${x.p.name} ${x.d.score}/10 (${x.d.verdict||""}); fix: ${x.d.fix||"—"}`).join(" | ");
-  CHAT_CTX={ atype:LAST.atype, copy:LAST.copy, img:LAST.img, summary:`Room avg ${avg}/10. ${lines}` };
+  CHAT_CTX={ atype:LAST.atype, copy:LAST.copy, img:LAST.img, context:LAST.context, summary:`Room avg ${avg}/10. ${lines}` };
   $("#refineChips").innerHTML=CHAT_SUGGESTIONS.map(s=>`<span class="chip" data-q="${esc(s)}">${esc(s)}</span>`).join("");
   $("#chatLog").innerHTML=`<div class="msg ai">Want to take this further? Ask me anything about it — I can suggest tweaks, explain the room's reaction, or rewrite it in the Foundation's voice. Pick a starter below or type your own.</div>`;
   $("#refine").style.display="block";
@@ -750,7 +755,7 @@ async function renderUsage(){
 /* misc actions */
 $("#run").addEventListener("click",run);
 $("#clear").addEventListener("click",()=>{
-  $("#copy").value="";$("#img").value="";$("#copy").dataset.source="paste";
+  $("#copy").value="";$("#img").value="";$("#context").value="";$("#copy").dataset.source="paste";
   clearImage();
   $("#agg").innerHTML="";$("#heat").innerHTML="";$("#resultActions").style.display="none";
   $("#refine").style.display="none"; CHAT=[]; CHAT_CTX=null;
