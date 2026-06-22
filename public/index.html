@@ -85,6 +85,13 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .cols ul{margin:0;padding-left:16px;font-size:13.5px}.cols li{margin-bottom:4px}
 .fix{margin-top:12px;font-size:13.5px;background:#fbf6ea;border:1px solid #efe2c4;border-radius:10px;padding:10px 12px}
 .fix b{color:var(--accent)}
+.tags{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.taglbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:3px 7px;border-radius:6px}
+.taglbl.good{background:#1f8a52;color:#fff}.taglbl.bad{background:#b23b3b;color:#fff}
+.tag{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px}
+.tag.good{background:#eaf6ef;color:#1f7a47;border:1px solid #cde9d8}
+.tag.bad{background:#fdeceb;color:#a93535;border:1px solid #f3cfcd;text-decoration:line-through;text-decoration-thickness:1px}
 .bar{height:6px;border-radius:4px;background:#eef1f5;overflow:hidden;margin-top:6px}.bar > i{display:block;height:100%}
 .aggregate{background:var(--brand);color:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
 .aggregate .big{font-size:13px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
@@ -601,12 +608,18 @@ function renderCard(p,d){
   const score=Math.max(0,Math.min(10,parseInt(d.score,10)||0));
   el.querySelector(".score").innerHTML=`<div class="num" style="color:${scoreColor(score)}">${score}</div><div class="lab">/ 10</div>`;
   const res=(d.resonates||[]).filter(Boolean), flat=(d.fallsFlat||[]).filter(Boolean);
+  const onv=(d.onVoice||[]).filter(Boolean), avd=(d.avoid||[]).filter(Boolean);
+  const tags=(onv.length||avd.length)?`<div class="tags">
+      ${onv.length?`<div class="tagrow"><span class="taglbl good">+ On-voice</span>${onv.map(w=>`<span class="tag good">✓ ${esc(w)}</span>`).join("")}</div>`:""}
+      ${avd.length?`<div class="tagrow"><span class="taglbl bad">⚑ Avoid</span>${avd.map(w=>`<span class="tag bad">${esc(w)}</span>`).join("")}</div>`:""}
+    </div>`:"";
   el.querySelector(".rbody").innerHTML=`
     ${personaQuip(p.id,score)}
     <div style="margin:0 0 12px"><span class="verdict" style="background:${verdictColor(d.verdict)};color:#fff">${esc(d.verdict||"")}</span>
       <div class="bar"><i style="width:${score*10}%;background:${scoreColor(score)}"></i></div></div>
     <div class="cols"><div class="good"><h4>Resonates</h4><ul>${res.length?res.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div>
       <div class="bad"><h4>Falls flat</h4><ul>${flat.length?flat.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div></div>
+    ${tags}
     ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}`;
 }
 
@@ -789,6 +802,8 @@ $("#downloadReport").addEventListener("click", ()=>{
       <p style="font-style:italic">&ldquo;${esc(d.headline||"")}&rdquo;</p>
       ${(d.resonates||[]).length?`<p><b>Resonates:</b> ${esc(d.resonates.join("; "))}</p>`:""}
       ${(d.fallsFlat||[]).length?`<p><b>Falls flat:</b> ${esc(d.fallsFlat.join("; "))}</p>`:""}
+      ${(d.onVoice||[]).length?`<p style="color:#1f7a47"><b>On-voice words used:</b> ${esc(d.onVoice.join(", "))}</p>`:""}
+      ${(d.avoid||[]).length?`<p style="color:#a93535"><b>Avoid-list flags:</b> ${esc(d.avoid.join(", "))}</p>`:""}
       ${d.fix?`<p style="background:#fbf6ea;padding:8px;border-radius:8px"><b>Fix:</b> ${esc(d.fix)}</p>`:""}
     </div>`;}).join("");
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Philanthropy Voice Guide report</title>
