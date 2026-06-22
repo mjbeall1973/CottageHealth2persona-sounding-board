@@ -1,10 +1,9 @@
 // personas.js — the six Santa Barbara-area audience personas.
-// This is the SINGLE SOURCE OF TRUTH. Edit a persona here, redeploy, and the
-// change shows up everywhere (the Evaluate tab, the reference tab, and the AI prompt).
-//
-// "avatar" drives the illustrated portrait shown in the tool:
-//   skin/hair/clothes = hex colors; style = "short" | "bob" | "long" | "bun"; glasses = true/false
-// "profile" holds the lifestyle dimensions (car, shopping, brands, personality, media).
+// SINGLE SOURCE OF TRUTH. Edit here, redeploy, and it shows up everywhere.
+//   avatar  — illustrated portrait: skin/hair/clothes hex, style short|bob|long|bun, glasses bool
+//   profile — lifestyle dimensions (car, shops, brands, personality, media)
+//   intro   — first-person "Meet me" script, read aloud by the browser on the personas tab
+//   voice   — browser speech hints: gender (female|male), rate, pitch
 
 const PERSONAS = [
   {
@@ -23,7 +22,9 @@ const PERSONAS = [
       personality: "ISFJ — 'The Steward': loyal, dutiful, tradition-minded",
       media: "Wall Street Journal, the local society pages, NPR, handwritten notes"
     },
-    avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true }
+    avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true },
+    intro: "Hello — I'm Eleanor. Three generations of my family have called Santa Barbara home. I love my grandchildren, and a slow Sunday walk on the wharf after church. Don't think of me as old; I'm older, yes, but still sharp — I can read a person from a mile away, and I know in a heartbeat whether something's genuine or just a sales pitch. I give because this hospital has always been part of who we are. Earn my trust, speak to me like a friend, and I'll be with you for the long haul.",
+    voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
     id: "marcus", color: "#1f7a8c", name: "Marcus",
@@ -41,7 +42,9 @@ const PERSONAS = [
       personality: "ENTJ — 'The Commander': ambitious, decisive, impatient with slow",
       media: "Podcasts, LinkedIn, Bloomberg, founder newsletters"
     },
-    avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false }
+    avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false },
+    intro: "I'm Marcus. I built my business here, and I don't sit still. I want to back bold ideas — the kind that change what this region can do — and I want to see the results. Show me the vision and the numbers, make me part of something ambitious, and don't waste my time with fluff. I move fast, and I bring people with me. Impress me, and I'll help you think bigger.",
+    voice: { gender: "male", rate: 1.03, pitch: 0.95 }
   },
   {
     id: "linda", color: "#2e8b57", name: "Linda",
@@ -59,7 +62,9 @@ const PERSONAS = [
       personality: "ESFJ — 'The Caregiver': warm, community-minded, generous",
       media: "Local paper, KEYT news, Facebook community groups, the church bulletin"
     },
-    avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false }
+    avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false },
+    intro: "Hi, I'm Linda. I've lived here most of my life, and Cottage took care of my family when we needed it. I give every year — not because I'm wealthy, but because this is my community and these are my neighbors. I want to know my gift matters, even a small one. Talk to me like a friend, show me a real person whose life got better, and I'm all in.",
+    voice: { gender: "female", rate: 0.98, pitch: 1.05 }
   },
   {
     id: "clinician", color: "#c0641a", name: "Dr. Rivera",
@@ -77,7 +82,9 @@ const PERSONAS = [
       personality: "ISTJ — 'The Logistician': analytical, mission-driven, evidence-led",
       media: "Medical journals, NPR, professional networks, trusted colleagues"
     },
-    avatar: { skin: "#c68642", hair: "#241f1b", style: "bun", clothes: "#2f9e9e", glasses: true }
+    avatar: { skin: "#c68642", hair: "#241f1b", style: "bun", clothes: "#2f9e9e", glasses: true },
+    intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
+    voice: { gender: "female", rate: 0.96, pitch: 0.98 }
   },
   {
     id: "maya", color: "#0a7ea4", name: "Maya",
@@ -95,7 +102,9 @@ const PERSONAS = [
       personality: "ENFP — 'The Campaigner': authentic, social, cause-driven",
       media: "Instagram, TikTok, podcasts, friends' recommendations"
     },
-    avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false }
+    avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false },
+    intro: "Hey, I'm Maya. I'm younger, I'm healthy, and honestly I'm not thinking about hospitals much — but I love this place. The beach, the people, our little corner of California. I'm not ready to write a big check, but invite me in — a volunteer day, an event, a way to belong — and keep it real. Make me feel part of something good, and I'll show up, and I'll bring my friends.",
+    voice: { gender: "female", rate: 1.06, pitch: 1.08 }
   },
   {
     id: "sponsor", color: "#8c5e2a", name: "James",
@@ -113,7 +122,9 @@ const PERSONAS = [
       personality: "ESTJ — 'The Executive': organized, results- and relationship-driven",
       media: "The business journal, Chamber of Commerce, LinkedIn, the golf course"
     },
-    avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false }
+    avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false },
+    intro: "I'm James. I run a business in town, and I believe in giving back where I live and work. When I sponsor something, I'm looking for a real partnership — good for the community, and good for my company and my team. Show me the win-win, make the recognition meaningful, and let's build something lasting together, not a one-time ask.",
+    voice: { gender: "male", rate: 1.0, pitch: 0.92 }
   }
 ];
 

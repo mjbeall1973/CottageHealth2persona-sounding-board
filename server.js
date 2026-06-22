@@ -53,6 +53,9 @@ const insertRow = db.prepare(`
     (ts, run_id, user, atype, source, copy_preview, image_preview, persona_id, persona_name, score, verdict, fix)
   VALUES (@ts, @run_id, @user, @atype, @source, @copy_preview, @image_preview, @persona_id, @persona_name, @score, @verdict, @fix)
 `);
+db.exec(`CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, user TEXT, text TEXT);`);
+const insertFeedback = db.prepare(`INSERT INTO feedback (ts, user, text) VALUES (@ts, @user, @text)`);
+const REPORT_TOKEN = process.env.REPORT_TOKEN || SESSION_SECRET;
 
 // ---------- app ----------
 const app = express();
@@ -108,6 +111,51 @@ app.post("/api/logout", (req, res) => {
 app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
 
 // everything else requires sign-in
+// ---------- owner report (per-user analytics) — token OR signed-in ----------
+function ownerRows() {
+  const rows = db.prepare(`SELECT user,
+      COUNT(DISTINCT run_id) AS evaluations,
+      AVG(score) AS avg_score,
+      MIN(ts) AS first_seen, MAX(ts) AS last_seen,
+      COUNT(DISTINCT substr(ts,1,10)) AS active_days
+    FROM evaluations GROUP BY user ORDER BY evaluations DESC`).all();
+  const fb = {}; db.prepare(`SELECT user, COUNT(*) n FROM feedback GROUP BY user`).all().forEach(r => fb[r.user] = r.n);
+  return rows.map(r => ({ ...r, feedback: fb[r.user] || 0 }));
+}
+function ownerAuthed(req) {
+  if (verifyToken(getCookie(req, "pb_auth"))) return true;
+  return req.query && req.query.token && req.query.token === REPORT_TOKEN;
+}
+app.get("/api/owner-report.csv", (req, res) => {
+  if (!ownerAuthed(req)) return res.status(401).json({ error: "Not authorized." });
+  const rows = ownerRows();
+  const head = ["user", "evaluations", "avg_score", "active_days", "first_seen", "last_seen", "feedback_submitted"];
+  const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const lines = [head.join(",")];
+  rows.forEach(r => lines.push([r.user, r.evaluations, r.avg_score == null ? "" : (Math.round(r.avg_score * 10) / 10), r.active_days, r.first_seen, r.last_seen, r.feedback].map(q).join(",")));
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", 'attachment; filename="voice-guide-owner-report.csv"');
+  res.send(lines.join("\n"));
+});
+app.get("/api/owner-report.txt", (req, res) => {
+  if (!ownerAuthed(req)) return res.status(401).send("Not authorized.");
+  const rows = ownerRows();
+  const totalRuns = db.prepare("SELECT COUNT(DISTINCT run_id) n FROM evaluations").get().n;
+  const overall = db.prepare("SELECT AVG(score) a FROM evaluations WHERE score IS NOT NULL").get().a;
+  const fb = db.prepare("SELECT ts, user, text FROM feedback ORDER BY ts DESC LIMIT 50").all();
+  const L = [];
+  L.push("PHILANTHROPY VOICE GUIDE — weekly usage report");
+  L.push(new Date().toLocaleString());
+  L.push(`\nTotals: ${totalRuns} evaluations · ${rows.length} users · overall avg ${overall == null ? "—" : (Math.round(overall * 10) / 10)}/10`);
+  L.push("\nUSERS (most active first):");
+  rows.forEach(r => L.push(`- ${r.user}: ${r.evaluations} evals, avg ${r.avg_score == null ? "—" : (Math.round(r.avg_score * 10) / 10)}/10, ${r.active_days} active day(s), last ${String(r.last_seen).slice(0, 10)}${r.feedback ? `, ${r.feedback} feedback` : ""}`));
+  L.push("\nRECENT FEEDBACK:");
+  if (!fb.length) L.push("- (none yet)");
+  fb.forEach(f => L.push(`- [${String(f.ts).slice(0, 10)}] ${f.user}: ${f.text}`));
+  res.setHeader("Content-Type", "text/plain");
+  res.send(L.join("\n"));
+});
+
 app.use(requireAuth);
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.use(express.static(path.join(__dirname, "public")));
@@ -434,6 +482,19 @@ app.get("/api/stats", (req, res) => {
   `).all();
 
   res.json({ totalRuns, users, overall, byPersona, byAsset, bySource, recent });
+});
+
+// ---------- beta feedback ----------
+app.post("/api/feedback", (req, res) => {
+  const text = (req.body && typeof req.body.text === "string") ? req.body.text.trim().slice(0, 4000) : "";
+  if (!text) return res.status(400).json({ error: "Please enter some feedback." });
+  insertFeedback.run({ ts: new Date().toISOString(), user: req.userEmail || "user", text });
+  res.json({ ok: true });
+});
+
+// ---------- owner stats (in-tool table) ----------
+app.get("/api/owner-stats", (req, res) => {
+  res.json({ users: ownerRows() });
 });
 
 // ---------- CSV export ----------
