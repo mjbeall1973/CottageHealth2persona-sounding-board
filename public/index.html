@@ -90,8 +90,8 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .aggregate .big{font-size:13px;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .aggregate .row{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
 .aggregate .pill{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font-size:13px}
-.aggregate .quip{font-size:15.5px;font-weight:600;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.22);line-height:1.45}
-.aggregate .quip .emoji{font-size:18px;margin-right:6px}
+.cardquip{margin-top:12px;background:#f5f0fb;border:1px solid #e7ddf3;border-radius:12px;border-top-left-radius:3px;padding:10px 12px;font-size:14px;font-weight:600;font-style:italic;color:#4a3a66;line-height:1.45}
+.cardquip .emoji{font-style:normal;font-size:17px;margin-right:7px;vertical-align:-1px}
 .actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .pref{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:720px){.pref{grid-template-columns:1fr 1fr}}
@@ -607,41 +607,80 @@ function renderCard(p,d){
       <div class="bar"><i style="width:${score*10}%;background:${scoreColor(score)}"></i></div></div>
     <div class="cols"><div class="good"><h4>Resonates</h4><ul>${res.length?res.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div>
       <div class="bad"><h4>Falls flat</h4><ul>${flat.length?flat.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div></div>
-    ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}`;
+    ${d.fix?`<div class="fix"><b>Fix for ${esc(p.name)}:</b> ${esc(d.fix)}</div>`:""}
+    ${personaQuip(p.id,score)}`;
 }
 
-/* playful score-based reaction */
-const QUIPS=[
-  { min:9,  emoji:"🤩", lines:[
-    "Stop it — you. Does your boss know how awesome you are?",
-    "Okay, save some talent for the rest of us. The room is obsessed.",
-    "Frame it. Mail it. This one's a keeper.",
-    "Chef's kiss. The personas would like your autograph." ]},
-  { min:7.5, emoji:"😄", lines:[
-    "Nice work! The room is nodding along — a little polish and it sings.",
-    "Strong stuff. You're clearly the favorite in the marketing meeting.",
-    "Ooh, they like it. Tighten one or two spots and it's a winner.",
-    "Solid. Whoever wrote this deserves the good office snacks." ]},
-  { min:5.5, emoji:"🙂", lines:[
-    "Not bad! It's got promise — give the weak spots a little love.",
-    "We're getting there. A nudge warmer and the room comes around.",
-    "Middle of the pack, but you're close. Don't quit your day job — actually, do keep this job, you're good at it.",
-    "Respectable! A second pass and this jumps a tier." ]},
-  { min:3.5, emoji:"😬", lines:[
-    "Oof. The room got quiet. Don't worry — your secret's safe with me. Try again!",
-    "Rocky start, but every great appeal has a messy first draft. Dust off and go again.",
-    "The personas are politely sipping their coffee. Let's win them back — rework it.",
-    "Not your finest hour, but I won't tell a soul. Another swing?" ]},
-  { min:0, emoji:"🫣", lines:[
-    "Oh no. I won't tell anyone how bad that was — keep trying!",
-    "We're going to pretend this never happened. Deep breath, fresh draft, you've got this.",
-    "Yikes. The room left to 'get more coffee.' Big rewrite, big comeback — go!",
-    "That one's between us. Burn the evidence and try a warmer, bolder take." ]}
-];
-function funQuip(avg){
-  const t=QUIPS.find(q=>avg>=q.min)||QUIPS[QUIPS.length-1];
-  const line=t.lines[Math.floor(Math.random()*t.lines.length)];
-  return `<div class="quip"><span class="emoji">${t.emoji}</span>${esc(line)}</div>`;
+/* playful, in-character quip from the persona who's reacting — tiered by their own score */
+const PERSONA_QUIPS={
+  eleanor:{ e:{hi:"🥂",mid:"🤔",lo:"🧐"}, hi:[
+      "Well — this is rather lovely. I'd be proud to see my name beside it.",
+      "Tasteful and true. You may sit at my table any time.",
+      "Quietly wonderful, dear. This is how it's done."],
+    mid:[ "There's promise here. A touch more polish and it would be quite right.",
+      "Not unbecoming — but refine it before it meets the family.",
+      "Charming enough. Mind the details and you'll have me."],
+    lo:[ "Oh my. This won't do at all — but we'll keep it between us, won't we?",
+      "I've seen finer. Begin again, and mind the manners of it.",
+      "Bless you for trying. Now do start over, with more grace."]},
+  marcus:{ e:{hi:"🚀",mid:"📈",lo:"⛔"}, hi:[
+      "Now we're talking. Ship it and let's go bigger.",
+      "This moves the needle. I'm in — what's next?",
+      "Bold and sharp. That's how you lead a market."],
+    mid:[ "Decent. But 'decent' doesn't lead a market — sharpen it.",
+      "Halfway there. Give me the number and the vision and we're golden.",
+      "Okay start. Now make it ambitious enough to brag about."],
+    lo:[ "Hard pass. No vision, no data, no deal — redo it.",
+      "That's a swing and a miss. Come back when it's bold.",
+      "I'm out. Too slow, too safe. Think ten times bigger."]},
+  linda:{ e:{hi:"🥰",mid:"🙂",lo:"😟"}, hi:[
+      "Oh, this is wonderful — it made me tear up a little!",
+      "That's the heart of it. I'd give to this in a heartbeat.",
+      "Just lovely, hon. You made my morning."],
+    mid:[ "It's sweet, hon. Warm it up a smidge and you've got me.",
+      "Close! Just make sure folks like me feel included.",
+      "Nice start — now make it feel like home."],
+    lo:[ "Oh no, sweetheart — this one left me cold. Try again, you'll get it!",
+      "Bless your heart, that missed me. Let's make it warmer.",
+      "Don't fret, dear. Another go and you'll win me over."]},
+  clinician:{ e:{hi:"✅",mid:"🩺",lo:"❌"}, hi:[
+      "Accurate and honest — this respects the work. Well done.",
+      "That's the real impact, named plainly. I'll stand behind it.",
+      "No spin, all substance. You have my respect."],
+    mid:[ "The bones are good. Tie it to actual patient care and it lands.",
+      "Almost. Lose the gloss and tell me what it does on the floor.",
+      "Solid premise — now make the clinical impact specific."],
+    lo:[ "No — this is spin, not substance. Start over, with the truth.",
+      "That doesn't reflect the work. I can't put my name on it yet.",
+      "Respectfully, this misses the point of care. Rework it."]},
+  maya:{ e:{hi:"🤩",mid:"😅",lo:"🙃"}, hi:[
+      "Okay this actually slaps — I'd repost this!",
+      "Love it, so good. My friends would be into this.",
+      "Ngl this is a vibe. Count me in."],
+    mid:[ "Cute! Just don't make it feel like a lecture and I'm there.",
+      "Almost vibing — keep it real and a little lighter.",
+      "Getting there! Make it feel less 'official' and I'm sold."],
+    lo:[ "Oof, this ain't it. No guilt-trips please — try again!",
+      "Hard scroll-past for me. Make it feel less... corporate?",
+      "Yeah, no. Keep it real and fun and I'll come back."]},
+  sponsor:{ e:{hi:"🤝",mid:"📊",lo:"🚫"}, hi:[
+      "Strong. I can see the partnership — and the win-win. Let's talk.",
+      "This works for the community and the brand. I'm interested.",
+      "Now that's a deal worth putting our name on."],
+    mid:[ "Solid start. Show me what's in it for both sides and I'm closer.",
+      "Promising. Make the recognition concrete and we have a deal.",
+      "Good bones — now sell me the mutual benefit."],
+    lo:[ "Not yet. There's nothing here for a partner to say yes to.",
+      "I'm not seeing the win-win. Rework it and bring it back.",
+      "Pure charity ask, no upside. Give me a reason to sign."]}
+};
+function personaQuip(id, score){
+  const q=PERSONA_QUIPS[id]; if(!q) return "";
+  const tier = score>=7 ? "hi" : (score>=5 ? "mid" : "lo");
+  const pool=q[tier]||[]; if(!pool.length) return "";
+  const line=pool[Math.floor(Math.random()*pool.length)];
+  const emoji=(q.e&&q.e[tier])||"💬";
+  return `<div class="cardquip"><span class="emoji">${emoji}</span>${esc(line)}</div>`;
 }
 function renderAggregate(chosen,results){
   const scored=chosen.map(p=>({p,d:results[p.id]})).filter(x=>x.d&&!x.d.error&&!isNaN(parseInt(x.d.score,10)));
@@ -652,8 +691,7 @@ function renderAggregate(chosen,results){
   const top=sorted[0], low=sorted[sorted.length-1];
   $("#agg").innerHTML=`<div class="aggregate"><div class="big">Room read &middot; average fit ${avg}/10</div>
     <div class="row"><div class="pill">Strongest with <b>${esc(top.p.name)}</b> (${top.d.score})</div>
-      <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div>
-    ${funQuip(avgNum)}</div>`;
+      <div class="pill">Weakest with <b>${esc(low.p.name)}</b> (${low.d.score})</div></div></div>`;
 }
 
 /* heat map */
