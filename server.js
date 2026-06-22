@@ -243,6 +243,21 @@ app.post("/api/extract-pdf", upload.single("file"), async (req, res) => {
 });
 
 // ---------- evaluation ----------
+const TIER1_WORDS = "Here / Right here, Bold, Rise, Possible, Neighbors, Belong / Belonging, Together, Brave, Proven, Closer, Lift / Uplift, Hope, Champion, Thrive";
+const TIER2_WORDS = "Anchor, Authentic, Beacon, Catalyst, Committed, Connected, Determined, Imagine, Impact, Integrity, Invested, Local, Partnering, Perseverance, Possibilities, Pride, Purpose-driven, Respect, Responsibility, Rooted, Trusted";
+const DO_NOT_USE = "TRANSACTIONAL / SALESY (act now, limited time, last chance, don't miss out, deadline, for just $X a day, donate now as the only ask, buy in, we need your money); GUILT or FEAR-BASED (you owe, you should, don't let them down, before it's too late, imagine the suffering, shame, burden, desperate, begging, victims); BOASTFUL / SUPERLATIVE (best, #1, unrivaled, unmatched, unparalleled, the finest, premier, elite, revolutionary, leading the nation); HOLLOW CORPORATE JARGON (synergy, leverage, best-in-class, ecosystem, stakeholders, utilize, robust, game-changer, move the needle, 'committed to excellence' with no specifics); TIMID / APOLOGETIC (just, only, sorry to bother, if it's not too much trouble, we hope you might, hedging and passive voice)";
+const SCORING_GUIDE = `HOW TO SCORE (read carefully — be encouraging, not punitive):
+- Default generous. Most thoughtful nonprofit copy deserves a 5 or higher. Start around 6-7 and adjust from there.
+- Only score BELOW 5 if the copy actually uses off-voice "do-not-use" language or concepts (listed below). When it does, name the specific offending word or phrase in "fallsFlat" AND in "fix" so the writer knows exactly what to change.
+- A great deal of philanthropy is RELATIONSHIP-BUILDING, not transactional asking for money. Copy that builds connection, gratitude, belonging, story, or community is doing its job — score it WELL even if it has no hard "donate" ask. Never mark copy down for "no clear ask," "doesn't push for a donation," or "lacks urgency."
+- REWARD THE VOICE: add points when the copy uses the Foundation's Tier 1 or Tier 2 vocabulary below — the goal is a consistent voice everyone in the organization uses. Note the on-voice words it used in "resonates."
+- Rough scale: 8-10 = on-voice, relationship-building, and uses our vocabulary; 5-7 = solid and on-voice but could lean in further; below 5 = uses do-not-use language/concepts (say which).
+- Stay in character for WHAT resonates, what falls flat, and your "fix" — but apply this scoring approach to the number.
+
+TIER 1 vocabulary to reward: ${TIER1_WORDS}.
+TIER 2 vocabulary to reward: ${TIER2_WORDS}.
+DO-NOT-USE words & concepts (the main reason to go below 5 — flag the specific ones the copy uses): ${DO_NOT_USE}.`;
+
 function buildPrompt(p, atype, copy, img) {
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
@@ -250,6 +265,7 @@ REACT AS THIS PERSON, in first person, honestly and specifically. Do not be poli
 
 PERSONA — ${p.name}, ${p.role}.
 Background: ${p.blurb}
+Lifestyle (use this to make your voice specific and concrete): you drive ${p.profile.car}; you shop at ${p.profile.shops}; brands you like: ${p.profile.brands}; personality type: ${p.profile.personality}; where you get information: ${p.profile.media}.
 What moves you: ${p.motivations.join("; ")}.
 What turns you off: ${p.objections.join("; ")}.
 Tone you respond to: ${p.tone}
@@ -257,12 +273,14 @@ For images, you lean into: ${p.imgYes.join("; ")}. You dislike: ${p.imgNo.join("
 
 ${BRAND_VOICE.promptSummary}
 
+${SCORING_GUIDE}
+
 ASSET TYPE: ${atype}
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
 
-Judge how well THIS asset would land with YOU specifically. Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
-{"score": <integer 0-10, how well it resonates with you>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>"}`;
+React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language, and reward on-voice vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
+{"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>"}`;
 }
 
 function parseModelJSON(text) {

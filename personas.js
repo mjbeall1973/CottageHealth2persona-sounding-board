@@ -1,6 +1,10 @@
 // personas.js — the six Santa Barbara-area audience personas.
 // This is the SINGLE SOURCE OF TRUTH. Edit a persona here, redeploy, and the
 // change shows up everywhere (the Evaluate tab, the reference tab, and the AI prompt).
+//
+// "avatar" drives the illustrated portrait shown in the tool:
+//   skin/hair/clothes = hex colors; style = "short" | "bob" | "long" | "bun"; glasses = true/false
+// "profile" holds the lifestyle dimensions (car, shopping, brands, personality, media).
 
 const PERSONAS = [
   {
@@ -11,7 +15,15 @@ const PERSONAS = [
     objections: ["Anything trendy, gimmicky, or 'salesy'", "Urgency, pressure, or transactional asks", "Sloppy writing or design", "Digital-only with no personal touch"],
     tone: "Refined, gracious, understated. Personal and relationship-led. Speaks to permanence and excellence, never hype.",
     imgYes: ["Timeless, elegant photography", "The hospital, named spaces, craftsmanship", "Real people of stature, dignified portraits", "Quiet, classic color and typography"],
-    imgNo: ["Stock-photo clichés", "Loud graphics, neon, busy collage", "Emoji or meme aesthetics", "Anything that looks cheap or rushed"]
+    imgNo: ["Stock-photo clichés", "Loud graphics, neon, busy collage", "Emoji or meme aesthetics", "Anything that looks cheap or rushed"],
+    profile: {
+      car: "A quietly elegant, impeccably kept older Mercedes S-Class — never flashy",
+      shops: "Montecito boutiques, Nordstrom, Saks — by appointment more than online",
+      brands: "Hermès, Loro Piana, Tiffany & Co., Brooks Brothers",
+      personality: "ISFJ — 'The Steward': loyal, dutiful, tradition-minded",
+      media: "Wall Street Journal, the local society pages, NPR, handwritten notes"
+    },
+    avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true }
   },
   {
     id: "marcus", color: "#1f7a8c", name: "Marcus",
@@ -21,7 +33,15 @@ const PERSONAS = [
     objections: ["Stuffy, old-fashioned, or vague tone", "No data, no specifics, no goal", "Feeling like just another name on a list", "Slow or bureaucratic framing"],
     tone: "Confident, modern, ambitious, data-forward. Lead with the vision and the number. Make the opportunity feel catalytic.",
     imgYes: ["Dynamic, modern, high-energy shots", "New facilities, technology, innovation", "Leaders and doers in motion", "Bold, clean, contemporary design"],
-    imgNo: ["Static, dated, formal-portrait feel", "Cluttered or text-heavy visuals", "Generic 'charity' imagery", "Anything that reads as old-guard"]
+    imgNo: ["Static, dated, formal-portrait feel", "Cluttered or text-heavy visuals", "Generic 'charity' imagery", "Anything that reads as old-guard"],
+    profile: {
+      car: "A Tesla Model S or Porsche Taycan — wants the newest, cleanest tech",
+      shops: "Direct-to-consumer and online; the Apple Store; premium outdoor gear",
+      brands: "Apple, Tesla, Patagonia, Allbirds, cult Santa Ynez wine labels",
+      personality: "ENTJ — 'The Commander': ambitious, decisive, impatient with slow",
+      media: "Podcasts, LinkedIn, Bloomberg, founder newsletters"
+    },
+    avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false }
   },
   {
     id: "linda", color: "#2e8b57", name: "Linda",
@@ -31,7 +51,15 @@ const PERSONAS = [
     objections: ["Messaging that feels aimed only at the wealthy", "Feeling her gift is too small to matter", "Jargon, elitism, or coldness", "Big galas/naming talk with no place for her"],
     tone: "Warm, inclusive, grateful, plainspoken. Real stories over statistics. Make her feel essential, not minor.",
     imgYes: ["Real local people, neighbors, families", "Nurses and caregivers in candid moments", "The local/community hospital", "Patients whose lives were touched"],
-    imgNo: ["Glossy, exclusive, black-tie-only vibe", "Faceless buildings or abstract concepts", "Corporate or clinical coldness", "Imagery that signals 'big donors only'"]
+    imgNo: ["Glossy, exclusive, black-tie-only vibe", "Faceless buildings or abstract concepts", "Corporate or clinical coldness", "Imagery that signals 'big donors only'"],
+    profile: {
+      car: "A dependable Subaru Outback or Honda CR-V",
+      shops: "Costco, Trader Joe's, Target, the Saturday farmers market",
+      brands: "Trader Joe's, REI, value-first brands she trusts",
+      personality: "ESFJ — 'The Caregiver': warm, community-minded, generous",
+      media: "Local paper, KEYT news, Facebook community groups, the church bulletin"
+    },
+    avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false }
   },
   {
     id: "clinician", color: "#c0641a", name: "Dr. Rivera",
@@ -41,7 +69,15 @@ const PERSONAS = [
     objections: ["Corporate spin disconnected from real care", "Being used as a fundraising prop", "Overpromising or exaggerated claims", "Donor messaging that ignores staff"],
     tone: "Authentic, mission-driven, respectful, specific. Name the clinical impact. Honor caregivers as partners, not backdrops.",
     imgYes: ["Real caregivers and teams at work", "Authentic, unstaged clinical moments", "Equipment and programs being used", "Patients and staff together"],
-    imgNo: ["Obviously staged 'hero' shots", "Models who clearly aren't clinicians", "Polished spin that erases the work", "Anything that feels exploitative"]
+    imgNo: ["Obviously staged 'hero' shots", "Models who clearly aren't clinicians", "Polished spin that erases the work", "Anything that feels exploitative"],
+    profile: {
+      car: "A Toyota 4Runner or a Prius — function over flash",
+      shops: "REI and Costco; practical, no time for fuss",
+      brands: "Patagonia, On running shoes, quality tools that just work",
+      personality: "ISTJ — 'The Logistician': analytical, mission-driven, evidence-led",
+      media: "Medical journals, NPR, professional networks, trusted colleagues"
+    },
+    avatar: { skin: "#c68642", hair: "#241f1b", style: "bun", clothes: "#2f9e9e", glasses: true }
   },
   {
     id: "maya", color: "#0a7ea4", name: "Maya",
@@ -51,7 +87,15 @@ const PERSONAS = [
     objections: ["Heavy asks or guilt-tripping", "'Why should I care, I'm healthy?' irrelevance", "Corporate, old-feeling, or preachy tone", "Anything inauthentic or out of touch"],
     tone: "Fresh, friendly, authentic, community-forward, light. Invite a relationship, don't demand a donation. Make belonging feel cool and easy.",
     imgYes: ["Vibrant local lifestyle and Santa Barbara identity", "Events, volunteers, young community", "Bright, authentic, candid energy", "Modern, social-media-native design"],
-    imgNo: ["Somber or guilt-heavy imagery", "Stuffy formal or clinical shots", "Dated design that feels 'for older people'", "Overly corporate stock photos"]
+    imgNo: ["Somber or guilt-heavy imagery", "Stuffy formal or clinical shots", "Dated design that feels 'for older people'", "Overly corporate stock photos"],
+    profile: {
+      car: "A used Honda Civic, an e-bike, or rideshare — low-key and green",
+      shops: "Thrift and vintage, Reformation, local Santa Barbara shops, online",
+      brands: "Glossier, Reformation, Patagonia, sustainable local makers",
+      personality: "ENFP — 'The Campaigner': authentic, social, cause-driven",
+      media: "Instagram, TikTok, podcasts, friends' recommendations"
+    },
+    avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false }
   },
   {
     id: "sponsor", color: "#8c5e2a", name: "James",
@@ -61,7 +105,15 @@ const PERSONAS = [
     objections: ["Pure charity asks with nothing for the business", "Unclear what the sponsorship actually delivers", "Misalignment with the company's brand or values", "Transactional, one-and-done framing"],
     tone: "Partnership-oriented and professional. Lead with mutual benefit and visibility. Show the win-win and make recognition concrete.",
     imgYes: ["Community events with crowds and energy", "Local businesses and people together", "Recognizable Santa Barbara settings", "Polished but warm partnership imagery"],
-    imgNo: ["Somber, pure-charity guilt imagery", "No sense of community or audience", "Clinical-only or sterile shots", "Visuals that hide the partnership/recognition angle"]
+    imgNo: ["Somber, pure-charity guilt imagery", "No sense of community or audience", "Clinical-only or sterile shots", "Visuals that hide the partnership/recognition angle"],
+    profile: {
+      car: "An Audi Q7 or Lexus RX — polished but not ostentatious",
+      shops: "Local menswear, the pro shop at the club, business-class everything",
+      brands: "Established, community-recognizable names; backs local first",
+      personality: "ESTJ — 'The Executive': organized, results- and relationship-driven",
+      media: "The business journal, Chamber of Commerce, LinkedIn, the golf course"
+    },
+    avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false }
   }
 ];
 
