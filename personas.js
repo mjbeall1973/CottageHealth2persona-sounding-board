@@ -23,7 +23,7 @@ const PERSONAS = [
       media: "Wall Street Journal, the local society pages, NPR, handwritten notes"
     },
     avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true },
-    intro: "Hello — I'm Eleanor. Three generations of my family have called Santa Barbara home. I love my grandchildren, and a slow Sunday walk on the wharf after church. Don't think of me as old; I'm older, yes, but still sharp — I can read a person from a mile away, and I know in a heartbeat whether something's genuine or just a sales pitch. I give because this hospital has always been part of who we are. Earn my trust, speak to me like a friend, and I'll be with you for the long haul.",
+    intro: "Hello. My name is Eleanor. I've called this place home for as long as I can remember. I've watched it change, grow, stumble, and rise again — and through it all, I've remained. My friends will tell you I have a generous heart. They'll also tell you I have high standards. Both are true. You see, I've learned a thing or two over the years. One of them is that authenticity matters. I can spot insincerity from a mile away. So when you speak with me, take your time. Slow down. Be clear about what you want. And above all, be genuine. Because honesty, respect, and sincerity never go out of style.",
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
