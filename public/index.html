@@ -490,7 +490,7 @@ function handleImageFile(file){
 function clearImage(){ UPLOADED=null; PDF_IMAGES=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
 
 /* meet the personas — spoken first-person intros via the browser */
-var SPEAKING=null, VOICES=[];
+var SPEAKING=null, VOICES=[], AUDIO=null;
 function loadVoices(){ try{ VOICES = window.speechSynthesis ? speechSynthesis.getVoices() : []; }catch(e){ VOICES=[]; } }
 if(window.speechSynthesis){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
 function pickVoice(gender){
@@ -506,12 +506,24 @@ function markSpeaking(id){
   $$(".meetbtn").forEach(b=>{ b.textContent=b.dataset.label; });
   if(id){ const c=document.getElementById("pcard-"+id); if(c){ c.classList.add("speaking"); const b=c.querySelector(".meetbtn"); if(b) b.textContent="◼ Stop"; } }
 }
-function stopSpeaking(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} SPEAKING=null; markSpeaking(null); }
+function stopSpeaking(){
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  if(AUDIO){ try{ AUDIO.pause(); AUDIO.currentTime=0; }catch(e){} AUDIO=null; }
+  SPEAKING=null; markSpeaking(null);
+}
 function meetPersona(id){
-  if(!window.speechSynthesis){ alert("Your browser doesn't support spoken intros — try Chrome or Safari."); return; }
   if(SPEAKING===id){ stopSpeaking(); return; }
   stopSpeaking();
-  const p=PERSONAS.find(x=>x.id===id); if(!p||!p.intro) return;
+  const p=PERSONAS.find(x=>x.id===id); if(!p) return;
+  if(p.audio){
+    const a=new Audio(p.audio); AUDIO=a; SPEAKING=id; markSpeaking(id);
+    a.onended=()=>{ if(SPEAKING===id) stopSpeaking(); };
+    a.onerror=()=>{ if(SPEAKING===id) stopSpeaking(); };
+    a.play().catch(()=>{ stopSpeaking(); alert("Couldn't play the audio — try again."); });
+    return;
+  }
+  if(!window.speechSynthesis){ alert("Your browser doesn't support spoken intros — try Chrome or Safari."); return; }
+  if(!p.intro) return;
   const u=new SpeechSynthesisUtterance(p.intro);
   const v=p.voice||{}; const voice=pickVoice(v.gender||"female");
   if(voice) u.voice=voice;
