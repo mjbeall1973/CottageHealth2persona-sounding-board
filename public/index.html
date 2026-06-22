@@ -116,7 +116,12 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 ul.profile li{margin-bottom:5px}
 .saysit{margin:12px 0 4px}
 .saysit h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 6px}
-.saysquote{margin:0;font-size:14px;line-height:1.55;font-style:italic;color:var(--ink);background:#f5f0fb;border:1px solid #e7ddf3;border-left:3px solid var(--brand);border-radius:10px;padding:10px 12px}
+.saysquote{margin:0 0 4px;font-size:14px;line-height:1.55;font-style:italic;color:var(--ink);background:#f5f0fb;border:1px solid #e7ddf3;border-left:3px solid var(--brand);border-radius:10px;padding:10px 12px}
+.saystag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);margin:8px 0 4px}
+.regionbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+.regionlbl{font-size:13.5px;font-weight:600;color:var(--ink)}
+.regionseg{margin:0;display:inline-flex;flex-wrap:wrap}
+.regionseg button{flex:0 0 auto;padding:8px 14px}
 .imgpreview{margin-top:10px}
 .imgpreview img{max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:8px}
 .photogrid{display:grid;grid-template-columns:1fr;gap:14px}
@@ -184,6 +189,13 @@ table.log tr:last-child td{border-bottom:none}
 .bvcard .spec{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}.bvcard .bnote{font-size:13.5px;margin:0 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
 .foot{font-size:12px;color:var(--muted);margin-top:22px;text-align:center}.foot b{color:var(--ink)}
+.about{max-width:860px;margin:26px auto 0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:2px 16px}
+.about summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--brand);padding:12px 0;list-style:none}
+.about summary::-webkit-details-marker{display:none}
+.about summary::before{content:"\24D8  ";font-weight:400}
+.about[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+.about p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+.about p b{color:var(--ink)}
 .histrow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:10px}
 .histmain{flex:1;min-width:0}
 .histtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -332,7 +344,17 @@ table.log tr:last-child td{border-bottom:none}
       </div>
   </section>
 
-  <section class="panel" id="ref"><div class="pref" id="prefList"></div></section>
+  <section class="panel" id="ref">
+    <div class="regionbar">
+      <span class="regionlbl">Hear each persona as a local from:</span>
+      <div class="seg regionseg" id="regionSeg">
+        <button data-region="sb" class="on">🌊 Santa Barbara</button>
+        <button data-region="sy">🍇 Santa Ynez Valley</button>
+        <button data-region="both">Compare both</button>
+      </div>
+    </div>
+    <div class="pref" id="prefList"></div>
+  </section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
   <section class="panel" id="history">
@@ -353,6 +375,11 @@ table.log tr:last-child td{border-bottom:none}
     </div>
   </section>
 
+  <details class="about">
+    <summary>About this tool</summary>
+    <p>This tool role-plays six fictional Santa Barbara&ndash;area donor personas built from Cottage Health Foundation audience research and the Foundation&rsquo;s Voice of Philanthropy work. When you paste copy, pull a web page, or upload a PDF or image, each persona reacts in character and gives it a fit score. Every reaction is filtered through the same source material: the Foundation&rsquo;s brand-voice calibration (the workshop sliders), the Tier&nbsp;1 and Tier&nbsp;2 word banks, the words-and-phrases-to-avoid list, and the photography principles. That&rsquo;s why it rewards on-voice language, flags off-voice language, and looks for warmth, hope, local connection, and donor empowerment &mdash; it&rsquo;s measuring your draft against a defined, consistent voice rather than one person&rsquo;s opinion.</p>
+    <p>It&rsquo;s built for <b>evaluation and curation, not creation</b> &mdash; a fast gut-check to pressure-test and refine messaging before it goes out, not a replacement for writing or for real conversations with donors. The personas are AI role-play and their feedback is directional, so the tool <b>isn&rsquo;t perfect and will sometimes get things wrong</b>. Treat its scores and suggestions as a thoughtful second opinion, then use your own judgment.</p>
+  </details>
   <div class="foot"><b>Philanthropy Voice Guide</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
 </div>
 
@@ -413,6 +440,20 @@ function profileBlock(p){
     <li><b>Personality:</b> ${esc(f.personality)}</li>
     <li><b>Where they get info:</b> ${esc(f.media)}</li></ul>`;
 }
+var REGION="sb";
+function regionName(r){ return r==="sy"?"🍇 Santa Ynez Valley":"🌊 Santa Barbara"; }
+function saysBlock(p){
+  const sb=(p.spokenRegions&&p.spokenRegions.sb)||p.spoken||"";
+  const sy=(p.spokenRegions&&p.spokenRegions.sy)||p.spoken||"";
+  if(!sb&&!sy) return "";
+  if(REGION==="both"){
+    return `<div class="saysit"><h5>If they said it out loud</h5>
+      <div class="saystag">🌊 Santa Barbara</div><p class="saysquote">&ldquo;${esc(sb)}&rdquo;</p>
+      <div class="saystag">🍇 Santa Ynez Valley</div><p class="saysquote">&ldquo;${esc(sy)}&rdquo;</p></div>`;
+  }
+  const t=(REGION==="sy")?sy:sb;
+  return `<div class="saysit"><h5>If they said it out loud &middot; ${regionName(REGION)}</h5><p class="saysquote">&ldquo;${esc(t)}&rdquo;</p></div>`;
+}
 function buildRef(){
   $("#prefList").innerHTML = PERSONAS.map(p=>`
     <div class="pcard" id="pcard-${p.id}">
@@ -420,7 +461,7 @@ function buildRef(){
         <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
       ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
-      ${p.spoken?`<div class="saysit"><h5>If they said it out loud</h5><p class="saysquote">&ldquo;${esc(p.spoken)}&rdquo;</p></div>`:""}
+      ${saysBlock(p)}
       ${profileBlock(p)}
       <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
       <h5>What turns them off</h5><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
@@ -1011,6 +1052,11 @@ $("#chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftK
 $("#refineChips").addEventListener("click", e=>{ const c=e.target.closest("[data-q]"); if(c) sendChat(c.getAttribute("data-q")); });
 $("#chatDownload").addEventListener("click", downloadChat);
 $("#prefList").addEventListener("click", e=>{ const b=e.target.closest(".meetbtn"); if(b) meetPersona(b.dataset.id); });
+$("#regionSeg").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-region]"); if(!b) return;
+  $$("#regionSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  REGION=b.dataset.region; stopSpeaking(); buildRef();
+});
 $("#betaToggle").addEventListener("click",()=>{ const f=$("#betaForm"); f.style.display=(f.style.display==="block")?"none":"block"; if(f.style.display==="block")$("#betaText").focus(); });
 $("#betaSend").addEventListener("click", async ()=>{
   const t=$("#betaText").value.trim(); if(!t){ $("#betaMsg").textContent="Add a note first."; return; }
