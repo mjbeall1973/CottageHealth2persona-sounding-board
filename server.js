@@ -342,8 +342,24 @@ const REGION_NOTES = {
   sy: "YOUR REGION: You're a local in the Santa Ynez Valley — the inland wine-country and ranching towns (Solvang, Los Olivos, Buellton, Santa Ynez), a smaller, rural, tight-knit community where world-class care often means a drive over the pass. React with that local lens: reward copy and imagery that feel relevant and authentic to the valley, and note anything that feels too city-centric or generic for where you live.",
   both: ""
 };
-function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region) {
+function personalizeNote(pz) {
+  if (!pz || typeof pz !== "object") return "";
+  const lean = pz.lean;
+  const role = (pz.role || "").toString().slice(0, 80);
+  const use = (pz.use || "").toString().slice(0, 80);
+  const learned = (pz.learned || "").toString().slice(0, 400);
+  let s = "PERSONALIZATION (tune the STYLE of your feedback to this user — but NEVER lower the bar on the Critical criteria, inspiration and community-focus): ";
+  if (lean === "creative") s += "This user leans CREATIVE — favor narrative, voice, emotional craft, and bolder phrasing in your suggestions; you may push warmth, story, and inspiration harder.";
+  else if (lean === "technical") s += "This user leans TECHNICAL/PRECISE — favor clarity, structure, accuracy, and on-brand discipline; keep fixes concrete and specific.";
+  else s += "This user wants a BALANCED approach — blend creative voice with clarity and discipline.";
+  if (use) s += ` Their primary use of this tool is ${use} — tailor examples and the "fix" to that kind of work.`;
+  if (role) s += ` Their role is ${role}.`;
+  if (learned) s += ` WHAT THE TOOL HAS LEARNED about this user's writing so far (use gently and only if relevant, to sound like you remember them): ${learned}`;
+  return s;
+}
+function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region, personalize) {
   const regionNote = REGION_NOTES[region] || "";
+  const pzNote = personalizeNote(personalize);
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
@@ -356,7 +372,7 @@ What turns you off: ${p.objections.join("; ")}.
 Tone you respond to: ${p.tone}
 For images, you lean into: ${p.imgYes.join("; ")}. You dislike: ${p.imgNo.join("; ")}.
 
-${BRAND_VOICE.promptSummary}
+${BRAND_VOICE.promptSummary}${pzNote ? "\n\n" + pzNote : ""}
 
 ${SCORING_GUIDE}
 
@@ -385,10 +401,10 @@ function sanitizeDims(d) {
   return any ? out : null;
 }
 
-async function evaluateOne(persona, atype, copy, img, images, context, region) {
+async function evaluateOne(persona, atype, copy, img, images, context, region, personalize) {
   const imgs = Array.isArray(images) ? images : [];
   const hasImage = imgs.length > 0;
-  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length, region);
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length, region, personalize);
   const content = hasImage
     ? imgs.map(im => ({ type: "image", source: { type: "base64", media_type: im.mediaType || "image/jpeg", data: im.data } })).concat([{ type: "text", text: promptText }])
     : promptText;
@@ -424,8 +440,14 @@ async function evaluateOne(persona, atype, copy, img, images, context, region) {
 }
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, context, region, personaIds, source, images, imageData, imageMediaType } = req.body || {};
+  const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType } = req.body || {};
   const cleanRegion = ["sb", "sy", "both"].includes(region) ? region : "both";
+  const cleanPz = (personalize && typeof personalize === "object") ? {
+    lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
+    use: (personalize.use || "").toString().slice(0, 80),
+    role: (personalize.role || "").toString().slice(0, 80),
+    learned: (personalize.learned || "").toString().slice(0, 400)
+  } : null;
   const cleanContext = (context || "").trim().slice(0, 600);
   const cleanCopy = (copy || "").trim();
   const cleanImg = (img || "").trim();
@@ -444,7 +466,7 @@ app.post("/api/evaluate", async (req, res) => {
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext, cleanRegion); }));
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext, cleanRegion, cleanPz); }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
@@ -507,13 +529,19 @@ app.get("/api/my-history/:id", (req, res) => {
 
 // ---------- refine: follow-up conversation with the voice coach ----------
 app.post("/api/chat", async (req, res) => {
-  const { messages, context } = req.body || {};
+  const { messages, context, personalize } = req.body || {};
   if (!Array.isArray(messages) || !messages.length) return res.status(400).json({ error: "No message provided." });
   const ctx = context || {};
+  const pzChat = (personalize && typeof personalize === "object") ? personalizeNote({
+    lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
+    use: (personalize.use || "").toString().slice(0, 80),
+    role: (personalize.role || "").toString().slice(0, 80),
+    learned: (personalize.learned || "").toString().slice(0, 400)
+  }) : "";
   const system = `You are the Cottage Health Foundation's philanthropy voice coach, talking with a staff member about a piece of content they just tested against six audience personas. Help them improve it through a natural back-and-forth: give specific, friendly, practical feedback and suggestions, explain the personas' reactions when useful, and when they ask, rewrite the copy in the Foundation's voice. Keep replies concise — a short paragraph or a tight list. When you provide a revised version, present it clearly (e.g. under a "Revised:" label) so it is easy to copy.
 ${BRAND_VOICE.promptSummary}
 ${SCORING_GUIDE}
-${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
+${pzChat ? pzChat + "\n" : ""}${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
 ${ctx.context ? `WHAT THEY'RE TESTING (their goal): "${String(ctx.context).slice(0, 600)}".\n` : ""}THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
 HOW THE ROOM REACTED: ${String(ctx.summary || "(not provided)").slice(0, 1500)}.`;
   const msgs = messages
