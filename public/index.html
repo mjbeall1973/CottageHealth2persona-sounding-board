@@ -18,10 +18,10 @@
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
 .wrap{max-width:1320px;margin:0 auto;padding:14px 18px 48px}
 .brandbar{display:flex;align-items:center;gap:18px;padding:16px 18px;margin:4px 0 6px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.brandbar .logo svg{height:48px;width:auto;display:block}
+.brandbar .logo svg{height:72px;width:auto;display:block}
 .brandbar .bdiv{width:1px;align-self:stretch;background:var(--line);margin:2px 0}
 .brandbar .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
-.brandbar h1{font-size:21px;margin:1px 0 0;letter-spacing:-.2px;font-weight:700;color:var(--ink)}
+.brandbar h1{font-size:32px;margin:1px 0 0;letter-spacing:-.3px;font-weight:400;color:var(--ink)}
 .brandbar .who{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
 .brandbar .who a{color:var(--brand);cursor:pointer}
 .sub{color:var(--muted);font-size:14px;max-width:820px;margin:10px 2px 0}
@@ -199,6 +199,12 @@ table.log tr:last-child td{border-bottom:none}
 .about[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .about p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}
 .about p b{color:var(--ink)}
+.aboutcrit{margin:0 0 12px;padding-left:22px;font-size:13px;color:var(--muted);line-height:1.85}
+.aboutcrit li{margin-bottom:2px}
+.wtag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-radius:5px;padding:1px 6px;margin-right:7px;vertical-align:1px}
+.wt-crit{background:#fdeceb;color:#a93535}
+.wt-high{background:#e6f1f4;color:#0a5b73}
+.wt-med{background:#f1f4f8;color:#5d6675}
 .histrow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:10px}
 .histmain{flex:1;min-width:0}
 .histtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -369,6 +375,21 @@ table.log tr:last-child td{border-bottom:none}
     <summary>About this tool</summary>
     <p>This tool role-plays six fictional Santa Barbara&ndash;area donor personas built from Cottage Health Foundation audience research and the Foundation&rsquo;s Voice of Philanthropy work. When you paste copy, pull a web page, or upload a PDF or image, each persona reacts in character and gives it a fit score. Every reaction is filtered through the same source material: the Foundation&rsquo;s brand-voice calibration (the workshop sliders), the Tier&nbsp;1 and Tier&nbsp;2 word banks, the words-and-phrases-to-avoid list, and the photography principles. That&rsquo;s why it rewards on-voice language, flags off-voice language, and looks for warmth, hope, local connection, and donor empowerment &mdash; it&rsquo;s measuring your draft against a defined, consistent voice rather than one person&rsquo;s opinion.</p>
     <p>It&rsquo;s built for <b>evaluation and curation, not creation</b> &mdash; a fast gut-check to pressure-test and refine messaging before it goes out, not a replacement for writing or for real conversations with donors. The personas are AI role-play and their feedback is directional, so the tool <b>isn&rsquo;t perfect and will sometimes get things wrong</b>. Treat its scores and suggestions as a thoughtful second opinion, then use your own judgment.</p>
+    <p style="margin-bottom:8px"><b>How it weighs things.</b> Not every signal counts equally. The score and the order in which fixes are surfaced follow this priority, set with the Foundation &mdash; most important first:</p>
+    <ol class="aboutcrit">
+      <li><span class="wtag wt-crit">Critical</span> Inspiration over obligation &mdash; hope and possibility, never guilt or pressure</li>
+      <li><span class="wtag wt-crit">Critical</span> Community focus, outside-in &mdash; inclusive &ldquo;we / our / us,&rdquo; benefit to the community, not the institution</li>
+      <li><span class="wtag wt-high">High</span> Warmth &amp; humanity</li>
+      <li><span class="wtag wt-high">High</span> Donor empowerment</li>
+      <li><span class="wtag wt-high">High</span> Local relevance (coast to valley)</li>
+      <li><span class="wtag wt-high">High</span> Avoids do-not-use language</li>
+      <li><span class="wtag wt-high">High</span> Relationship-building over the ask</li>
+      <li><span class="wtag wt-high">High</span> On-brand voice overall</li>
+      <li><span class="wtag wt-med">Medium</span> Tier 1 core vocabulary</li>
+      <li><span class="wtag wt-med">Medium</span> Tier 2 word banks</li>
+      <li><span class="wtag wt-med">Medium</span> Clarity &amp; readability</li>
+    </ol>
+    <p>Critical criteria move the score the most; High criteria meaningfully raise or lower it; Medium criteria nudge it. The heat map shows these as columns so you can see exactly where a piece is strong or weak.</p>
   </details>
   <div class="foot"><b>Philanthropy Voice Guide</b> &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
 </div>
@@ -822,7 +843,7 @@ function renderAggregate(chosen,results){
 }
 
 /* heat map */
-const DIM_DEFS=[["warmth","Warmth"],["inspiration","Inspire"],["clarity","Clarity"],["local","Local"],["empowerment","Empower"],["onBrand","On-brand"]];
+const DIM_DEFS=[["inspiration","Inspire"],["community","Community"],["warmth","Warmth"],["empowerment","Empower"],["local","Local"],["onBrand","On-brand"],["clarity","Clarity"]];
 function heatColor(v){ const h=Math.max(0,Math.min(10,v))*12; return `hsl(${h},55%,42%)`; }
 function renderHeatmap(chosen,results){
   const rows=chosen.map(p=>({p,dims:(results[p.id]&&results[p.id].dimensions)||null})).filter(x=>x.dims);
