@@ -116,6 +116,7 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .pcard .blurb{font-size:13.5px;margin:8px 0 12px}.pcard h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:12px 0 5px}
 .pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
 .avatar{flex:0 0 auto;display:inline-block;vertical-align:middle}
+.pavatar{border-radius:50%;object-fit:cover;border:1px solid var(--line);background:#eef1f5}
 ul.profile li{margin-bottom:5px}
 .pdisc{border-top:1px solid var(--line)}
 .pdisc summary{cursor:pointer;list-style:none;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;padding:10px 0;display:flex;align-items:center;justify-content:space-between}
@@ -421,6 +422,10 @@ function esc(s){return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;",
 function scoreColor(n){ if(n>=8)return "var(--good)"; if(n>=5)return "var(--warn)"; return "var(--bad)"; }
 function verdictColor(v){ v=(v||"").toLowerCase(); if(v.includes("love"))return "var(--good)"; if(v.includes("interest"))return "#2e8b57"; if(v.includes("lukewarm"))return "var(--warn)"; return "var(--bad)"; }
 
+function avatar(p, size){
+  if(p && p.photo) return '<img class="avatar pavatar" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" width="'+size+'" height="'+size+'" loading="lazy">';
+  return avatarSVG(p, size);
+}
 function avatarSVG(p, size){
   const a = p.avatar || { skin:"#e0a875", hair:"#3a322c", style:"short", clothes:p.color, glasses:false };
   const sideHair = a.style==="long"
@@ -455,7 +460,7 @@ async function boot(){
 function buildToggles(){
   $("#toggles").innerHTML = PERSONAS.map(p=>`
     <label class="ptog"><input type="checkbox" value="${p.id}" ${p.id==="eleanor"?"checked":""}>
-      ${avatarSVG(p,32)}
+      ${avatar(p,64)}
       <span><span class="pn">${esc(p.name)}</span>
       <span class="pd">${esc(p.role)}</span></span></label>`).join("");
 }
@@ -486,7 +491,7 @@ function saysBlock(p){
 function buildRef(){
   $("#prefList").innerHTML = PERSONAS.map(p=>`
     <div class="pcard" id="pcard-${p.id}">
-      <div class="top">${avatarSVG(p,46)}
+      <div class="top">${avatar(p,92)}
         <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
       ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
@@ -528,7 +533,7 @@ function renderPhoto(){
   const dos=PHOTO.dos.map(d=>`<li>${esc(d)}</li>`).join("");
   const donts=PHOTO.donts.map(d=>`<li>${esc(d)}</li>`).join("");
   const checklists=PERSONAS.map(p=>`
-    <div class="pcard"><div class="top">${avatarSVG(p,40)}
+    <div class="pcard"><div class="top">${avatar(p,80)}
       <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
       <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
         <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
@@ -728,7 +733,7 @@ async function run(){
   $("#agg").innerHTML=""; $("#heat").innerHTML=""; $("#resultActions").style.display="none"; $("#refine").style.display="none";
   const chosen=PERSONAS.filter(p=>sel.includes(p.id));
   $("#results").innerHTML = chosen.map(p=>`<div class="rcard" id="r-${p.id}">
-      <div class="rhead">${avatarSVG(p,36)}
+      <div class="rhead">${avatar(p,72)}
         <div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div>
         <div class="score"><div class="num" style="color:var(--muted)">·</div><div class="lab">thinking</div></div></div>
       <div class="rbody"><div class="quote">…</div></div></div>`).join("");
@@ -1050,7 +1055,7 @@ function reopenRun(j){
   const chosen=PERSONAS.filter(p=>ids.includes(p.id));
   $("#agg").innerHTML=""; $("#heat").innerHTML="";
   $("#results").innerHTML=chosen.map(p=>`<div class="rcard" id="r-${p.id}">
-      <div class="rhead">${avatarSVG(p,36)}
+      <div class="rhead">${avatar(p,72)}
         <div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div></div>
         <div class="score"><div class="num" style="color:var(--muted)">·</div><div class="lab"></div></div></div>
       <div class="rbody"></div></div>`).join("");
