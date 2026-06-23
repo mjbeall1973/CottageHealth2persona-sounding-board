@@ -98,14 +98,14 @@ const PERSONAS = [
       personality: "ISTJ — 'The Logistician': analytical, mission-driven, evidence-led",
       media: "Medical journals, NPR, professional networks, trusted colleagues"
     },
-    avatar: { skin: "#c68642", hair: "#241f1b", style: "bun", clothes: "#2f9e9e", glasses: true },
+    avatar: { skin: "#c68642", hair: "#8c8c8c", style: "short", clothes: "#2f9e9e", glasses: true },
     intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
     spoken: "Dr. Rivera. Look, I'll keep it real with you — I'm on the floor every day, so I don't have a lot of patience for spin. What gets me? Stuff that actually helps us take care of people. The equipment, the training, the programs that move the needle for patients. Don't dress it up, and please don't use my staff as a photo op. Just tell me what it does for the people in those beds. Do that, and you've got me.",
     spokenRegions: {
       sb: "Dr. Rivera. I'll be straight — I'm on the floor at the main campus most days. What moves me is simple: stuff that actually helps us care for people. The equipment, the training, the programs that work. Don't dress it up, and don't use my staff as a photo op. Tell me what it does for patients, and I've got your back.",
       sy: "Dr. Rivera. Real talk — out here at the valley hospital we wear a lot of hats, and every resource counts. What gets me is what actually helps patients: the equipment, the training, the programs. Don't spin it, and don't use my team as props. Tell me what it does for folks who'd otherwise drive over the pass for care, and I'm with you."
     },
-    voice: { gender: "female", rate: 0.96, pitch: 0.98 }
+    voice: { gender: "male", rate: 0.96, pitch: 0.9 }
   },
   {
     id: "maya", color: "#0a7ea4", name: "Maya",
