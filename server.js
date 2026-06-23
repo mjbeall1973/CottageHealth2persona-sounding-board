@@ -318,12 +318,18 @@ TIER 1 — core power words (reward these most): ${TIER1_WORDS}.
 TIER 2 — word banks to reward: ${TIER2_WORDS}.
 WORDS & PHRASES TO AVOID (tag every one the copy actually uses): ${DO_NOT_USE}.`;
 
-function buildPrompt(p, atype, copy, img, hasImage, context, imageCount) {
+const REGION_NOTES = {
+  sb: "YOUR REGION: You're a local in the city of Santa Barbara — the coast, downtown and State Street, the harbor, the Mesa, Montecito — a more urban, coastal setting. React with that local lens: reward copy and imagery that feel relevant and authentic to coastal Santa Barbara, and note anything that feels generic or out-of-place for where you live.",
+  sy: "YOUR REGION: You're a local in the Santa Ynez Valley — the inland wine-country and ranching towns (Solvang, Los Olivos, Buellton, Santa Ynez), a smaller, rural, tight-knit community where world-class care often means a drive over the pass. React with that local lens: reward copy and imagery that feel relevant and authentic to the valley, and note anything that feels too city-centric or generic for where you live.",
+  both: ""
+};
+function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region) {
+  const regionNote = REGION_NOTES[region] || "";
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
 
-PERSONA — ${p.name}, ${p.role}.
+PERSONA — ${p.name}, ${p.role}.${regionNote ? `\n${regionNote}` : ""}
 Background: ${p.blurb}
 Lifestyle (use this to make your voice specific and concrete): you drive ${p.profile.car}; you shop at ${p.profile.shops}; brands you like: ${p.profile.brands}; personality type: ${p.profile.personality}; where you get information: ${p.profile.media}.
 What moves you: ${p.motivations.join("; ")}.
@@ -360,10 +366,10 @@ function sanitizeDims(d) {
   return any ? out : null;
 }
 
-async function evaluateOne(persona, atype, copy, img, images, context) {
+async function evaluateOne(persona, atype, copy, img, images, context, region) {
   const imgs = Array.isArray(images) ? images : [];
   const hasImage = imgs.length > 0;
-  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length);
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length, region);
   const content = hasImage
     ? imgs.map(im => ({ type: "image", source: { type: "base64", media_type: im.mediaType || "image/jpeg", data: im.data } })).concat([{ type: "text", text: promptText }])
     : promptText;
@@ -399,7 +405,8 @@ async function evaluateOne(persona, atype, copy, img, images, context) {
 }
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, context, personaIds, source, images, imageData, imageMediaType } = req.body || {};
+  const { atype, copy, img, context, region, personaIds, source, images, imageData, imageMediaType } = req.body || {};
+  const cleanRegion = ["sb", "sy", "both"].includes(region) ? region : "both";
   const cleanContext = (context || "").trim().slice(0, 600);
   const cleanCopy = (copy || "").trim();
   const cleanImg = (img || "").trim();
@@ -418,7 +425,7 @@ app.post("/api/evaluate", async (req, res) => {
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext); }));
+  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext, cleanRegion); }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
