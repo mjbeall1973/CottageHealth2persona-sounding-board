@@ -24,6 +24,9 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .brandbar h1{font-size:32px;margin:1px 0 0;letter-spacing:-.3px;font-weight:400;color:var(--ink)}
 .brandbar .who{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
 .brandbar .who a{color:var(--brand);cursor:pointer}
+.herobanner{margin:8px 0 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);line-height:0}
+.herobanner img{display:block;width:100%;height:185px;object-fit:cover;object-position:center 42%}
+@media(max-width:600px){.herobanner img{height:120px}}
 .sub{color:var(--muted);font-size:14px;max-width:820px;margin:10px 2px 0}
 .tabs{display:flex;gap:6px;margin:18px 0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .tab{padding:9px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -141,6 +144,22 @@ ul.profile li{margin-bottom:5px}
 @media(min-width:680px){.photogrid{grid-template-columns:1fr 1fr}}
 .dos li{margin-bottom:6px}
 .dos .good{color:var(--good)}.dos .bad{color:var(--bad)}
+.exwrap{display:flex;flex-direction:column;gap:10px}
+.exrow{display:grid;grid-template-columns:1fr 22px 1fr;align-items:stretch;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px}
+@media(max-width:560px){.exrow{grid-template-columns:1fr;}.exarrow{display:none}}
+.excol{font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:5px;border-radius:10px;padding:10px}
+.excol.bad{background:#fdeceb}.excol.good{background:#eaf6ef}
+.exarrow{align-self:center;color:var(--muted);font-size:16px;text-align:center}
+.exlbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.exlbl.bad{color:#a93535}.exlbl.good{color:#1f7a47}
+.galhead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
+.galhead.good{color:var(--good)}.galhead.bad{color:var(--bad)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:6px}
+.gcard{margin:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.gcard img{display:block;width:100%;height:155px;object-fit:cover;background:#eef1f5}
+.gcard figcaption{font-size:12.5px;color:var(--muted);padding:9px 11px;line-height:1.45}
+.gcard.do{border-top:3px solid var(--good)}
+.gcard.dont{border-top:3px solid var(--bad)}
 .hills{display:block;width:100%;height:44px;margin:-2px 0 2px}
 .heatwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
 .heatwrap h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 10px}
@@ -247,6 +266,7 @@ table.log tr:last-child td{border-bottom:none}
     </div>
     <div class="who"><span id="whoName"></span><br><a id="logout">Sign out</a></div>
   </div>
+  <div class="herobanner"><img src="cottage-hero.jpg" alt="Santa Barbara Cottage Hospital campus"></div>
   <div class="betabar">
     <div class="betatxt"><b>Beta version.</b> Please report any errors and share suggestions to help us improve the tool.</div>
     <button class="btn small" id="betaToggle">Send feedback</button>
@@ -532,6 +552,27 @@ function renderPhoto(){
   if(!PHOTO){ $("#photoBody").innerHTML="<div class='empty'>Photography guidance unavailable.</div>"; return; }
   const dos=PHOTO.dos.map(d=>`<li>${esc(d)}</li>`).join("");
   const donts=PHOTO.donts.map(d=>`<li>${esc(d)}</li>`).join("");
+  const exHtml=(PHOTO.examples||[]).map(e=>`<div class="exrow">
+      <div class="excol bad"><span class="exlbl bad">Instead of</span><span>${esc(e.instead)}</span></div>
+      <div class="exarrow">→</div>
+      <div class="excol good"><span class="exlbl good">Try</span><span>${esc(e.to)}</span></div>
+    </div>`).join("");
+  const GAL=[
+    {k:"do",s:"ex_vineyard.jpg",c:"Coast-to-valley and unmistakably local — it sets the place before a word is read."},
+    {k:"do",s:"ex_solvang.jpg",c:"Recognizable Santa Ynez — Solvang at golden hour says home."},
+    {k:"do",s:"ex_cattle.jpg",c:"Ranch country we know — warm, rooted, ours."},
+    {k:"do",s:"ex_field.jpg",c:"Real work in the real valley — candid and grounded, not staged."},
+    {k:"do",s:"ex_wharf.jpg",c:"A real person in a real place — natural light and a genuine smile."},
+    {k:"do",s:"ex_momson.jpg",c:"Warmth and real emotion — a candid moment that draws you in."},
+    {k:"do",s:"ex_grandma.jpg",c:"The relationship is the story — generations, care, connection."},
+    {k:"do",s:"ex_toast.jpg",c:"Community coming together — belonging you can feel."},
+    {k:"do",s:"ex_couple.jpg",c:"The local life worth protecting — warm, candid, aspirational."},
+    {k:"do",s:"ex_skater.jpg",c:"Energy and life for a younger audience — motion over a posed shot."},
+    {k:"dont",s:"ex_staffposed.jpg",c:"Posed and stocky in a clinical hallway — no story, no warmth."},
+    {k:"dont",s:"ex_nurseposed.jpg",c:"A staged solo ‘hero’ portrait — reads like stock, with no patient or connection."}
+  ];
+  const galDo=GAL.filter(g=>g.k==="do").map(g=>`<figure class="gcard do"><img src="${g.s}" loading="lazy" alt=""><figcaption>${esc(g.c)}</figcaption></figure>`).join("");
+  const galDont=GAL.filter(g=>g.k==="dont").map(g=>`<figure class="gcard dont"><img src="${g.s}" loading="lazy" alt=""><figcaption>${esc(g.c)}</figcaption></figure>`).join("");
   const checklists=PERSONAS.map(p=>`
     <div class="pcard"><div class="top">${avatar(p,80)}
       <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
@@ -544,6 +585,13 @@ function renderPhoto(){
       <div class="bvcard dos"><div class="bn good">Do</div><ul>${dos}</ul></div>
       <div class="bvcard dos"><div class="bn bad">Don't</div><ul>${donts}</ul></div>
     </div>
+    ${(PHOTO.examples&&PHOTO.examples.length)?`<div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">Before &amp; after — the principles at work</div><div class="exwrap">${exHtml}</div>`:""}
+    <div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">Example images</div>
+    <div class="galhead good">Do &mdash; these work</div>
+    <div class="gallery">${galDo}</div>
+    <div class="galhead bad">Don't &mdash; avoid these</div>
+    <div class="gallery">${galDont}</div>
+    <p class="lead" style="font-size:12px;color:var(--muted);margin:6px 0 0">Note: some examples are watermarked stock comps for reference — swap in licensed or original photography before publishing.</p>
     <div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">What each persona looks for in a photo</div>
     <div class="pref">${checklists}</div>
     <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Tip: upload a photo on the Evaluate tab to have all six react to it against these principles.</p>`;
