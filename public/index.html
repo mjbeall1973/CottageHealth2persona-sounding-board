@@ -117,6 +117,15 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .pcard ul{margin:0;padding-left:16px;font-size:13px}.pcard li{margin-bottom:3px}
 .avatar{flex:0 0 auto;display:inline-block;vertical-align:middle}
 ul.profile li{margin-bottom:5px}
+.pdisc{border-top:1px solid var(--line)}
+.pdisc summary{cursor:pointer;list-style:none;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;padding:10px 0;display:flex;align-items:center;justify-content:space-between}
+.pdisc summary::-webkit-details-marker{display:none}
+.pdisc summary::after{content:"+";font-size:15px;line-height:1;color:var(--brand);font-weight:400}
+.pdisc[open] summary{color:var(--brand)}
+.pdisc[open] summary::after{content:"\2013"}
+.pdisc ul{margin:0 0 12px;padding-left:16px;font-size:13px}
+.pdisc .tone{margin:0 0 12px}
+.pdisc .chk{margin:2px 0 10px}
 .saysit{margin:12px 0 4px}
 .saysit h5{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 6px}
 .saysquote{margin:0 0 4px;font-size:14px;line-height:1.55;font-style:italic;color:var(--ink);background:#f5f0fb;border:1px solid #e7ddf3;border-left:3px solid var(--brand);border-radius:10px;padding:10px 12px}
@@ -444,7 +453,7 @@ function buildToggles(){
 function profileBlock(p){
   if(!p.profile) return "";
   const f=p.profile;
-  return `<h5>Lifestyle &amp; profile</h5><ul class="profile">
+  return `<ul class="profile">
     <li><b>Drives:</b> ${esc(f.car)}</li>
     <li><b>Shops:</b> ${esc(f.shops)}</li>
     <li><b>Brands:</b> ${esc(f.brands)}</li>
@@ -473,13 +482,14 @@ function buildRef(){
       ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
       ${saysBlock(p)}
-      ${profileBlock(p)}
-      <h5>What moves them</h5><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
-      <h5>What turns them off</h5><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
-      <h5>Tone that works</h5><div class="tone">${esc(p.tone)}</div>
-      <h5>Image checklist</h5>
-      <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
-        <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
+      ${profileBlock(p)?`<details class="pdisc"><summary>Lifestyle &amp; profile</summary>${profileBlock(p)}</details>`:""}
+      <details class="pdisc"><summary>What moves them</summary><ul>${p.motivations.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></details>
+      <details class="pdisc"><summary>What turns them off</summary><ul>${p.objections.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></details>
+      <details class="pdisc"><summary>Tone that works</summary><div class="tone">${esc(p.tone)}</div></details>
+      <details class="pdisc"><summary>Image checklist</summary>
+        <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
+          <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
+      </details>
     </div>`).join("");
 }
 function renderBrand(){
