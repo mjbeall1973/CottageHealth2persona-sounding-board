@@ -510,6 +510,48 @@ app.post("/api/evaluate", async (req, res) => {
   res.json({ runId, results, personas: chosen.map(p => ({ id: p.id, name: p.name, role: p.role, color: p.color })) });
 });
 
+// ---------- photography review (single photo, no personas) ----------
+app.post("/api/evaluate-photo", async (req, res) => {
+  const { image, usage, personalize } = req.body || {};
+  const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (!image || typeof image.data !== "string" || !image.data) return res.status(400).json({ error: "Upload a photo first." });
+  const data = image.data.replace(/^data:[^,]+,/, "");
+  if (data.length > 9000000) return res.status(413).json({ error: "That image is too large — try a smaller file." });
+  const mt = allowed.includes(image.mediaType) ? image.mediaType : "image/jpeg";
+  const use = (usage || "").toString().slice(0, 300);
+  const pz = (personalize && typeof personalize === "object") ? personalizeNote({
+    lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
+    use: (personalize.use || "").toString().slice(0, 80),
+    role: (personalize.role || "").toString().slice(0, 80),
+    learned: ""
+  }) : "";
+  const prompt = `You are a brand photography reviewer and art director for the Cottage Health Foundation, which serves Santa Barbara coast to valley. Judge the ATTACHED photo against the Foundation's photography principles and brand voice, for the intended use described.
+
+${PHOTOGRAPHY.promptBlock}
+Brand voice in one line: ${BRAND_VOICE.oneLine}
+INTENDED USE: "${use || "(not specified)"}".
+${pz ? pz + "\n" : ""}
+Score from 0 to 10 how well this photo fits the Foundation's photography standard for that use. Be encouraging but honest — only go below 5 for cold/clinical, sterile-equipment, staged-stock, faceless, or guilt-heavy imagery. Name what you actually SEE in the photo. Respond with ONLY minified JSON (no markdown), exactly:
+{"score":<integer 0-10>,"verdict":"<one of: Strong fit, Usable with tweaks, Off-brand>","works":["<short>", ...up to 3],"improve":["<short>", ...up to 3],"fix":"<one concrete art-direction change>","dimensions":{"story":<0-10>,"warmth":<0-10>,"authenticity":<0-10>,"local":<0-10>,"connection":<0-10>}}`;
+  try {
+    const msg = await anthropic.messages.create({
+      model: MODEL, max_tokens: 600,
+      messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: mt, data } }, { type: "text", text: prompt }] }]
+    });
+    const text = (msg.content || []).map(b => b.text || "").join("");
+    const d = parseModelJSON(text);
+    if (!d) return res.status(502).json({ error: "Couldn't read the review — try again." });
+    res.json({
+      score: Math.max(0, Math.min(10, parseInt(d.score, 10) || 0)),
+      verdict: d.verdict || "",
+      works: Array.isArray(d.works) ? d.works.filter(Boolean).slice(0, 3) : [],
+      improve: Array.isArray(d.improve) ? d.improve.filter(Boolean).slice(0, 3) : [],
+      fix: d.fix || "",
+      dimensions: (d.dimensions && typeof d.dimensions === "object") ? d.dimensions : null
+    });
+  } catch (e) { res.status(500).json({ error: (e && e.message) || "Review failed." }); }
+});
+
 // ---------- per-user history: list + reopen ----------
 app.get("/api/my-history", (req, res) => {
   const user = req.userEmail || "user";
