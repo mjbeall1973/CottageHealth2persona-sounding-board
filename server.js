@@ -308,6 +308,25 @@ const TIER2_WORDS = "ACTION bank — Accelerating, Advancing, Building, Catalyzi
 const DO_NOT_USE = "TRANSACTIONAL / SALESY (act now, limited time, last chance, don't miss out, deadline, for just $X a day, donate now as the only CTA, buy in, transaction, process your gift, we need your money, give $X or more); GUILT / FEAR-BASED (you owe, you should, don't let them down, before it's too late, without you they'll suffer, imagine the suffering, failure, shame, burden, desperate, begging, plead, victims, tragic); BOASTFUL / SUPERLATIVE (best, #1, number one, unrivaled, unmatched, unparalleled, the finest, premier, elite, revolutionary, second to none, leading the nation, proud to be the best); INAUTHENTIC / CORPORATE JARGON (synergy, leverage, best-in-class, ecosystem, stakeholders, utilize, robust, game-changer, move the needle, value-add, circle back, passionate about, committed to excellence, empty 'make a difference'); TOO HUMBLE / MOUSEY / SOFT (just, only, a little, if you can, maybe, perhaps, we hope you might, sorry to bother, we apologize, if it's not too much trouble, we're just a small foundation, would you possibly consider, hedging qualifiers, passive voice)";
 const SCORING_GUIDE = `HOW TO SCORE (be encouraging, not punitive — and actively reinforce the Foundation's voice):
 - Default generous. Most thoughtful nonprofit copy deserves a 5 or higher. Start around 6-7 and adjust from there.
+
+PRIORITY & WEIGHTING — apply this hierarchy to BOTH the score and the order you raise issues (most important first):
+1. INSPIRATION OVER OBLIGATION (CRITICAL) — hope and possibility, never guilt, fear, or pressure.
+2. COMMUNITY FOCUS, OUTSIDE-IN (CRITICAL) — the copy should center benefit to the COMMUNITY, framed as an inclusive "we / our / us" (the donor, neighbors, and the Foundation together). Watch the word "we" closely: FLAG every institutional or exclusive "we / our / us" — Cottage, the hospital, or the health system talking about ITSELF — in "fallsFlat", quote it in "avoid", and in "fix" show how to turn it outside-in (toward the community and the donor). REWARD inclusive, community "we." This is an outside-in vs. inside-out test: it should feel like it's about the community's benefit, not the institution's.
+3. WARMTH & HUMANITY (HIGH) — warm, personal, neighborly; not clinical.
+4. DONOR EMPOWERMENT (HIGH) — the donor/reader is the one who makes the impact possible.
+5. LOCAL RELEVANCE (HIGH) — coast-to-valley; Santa Barbara / Santa Ynez specificity.
+6. AVOIDS DO-NOT-USE LANGUAGE (HIGH) — see the avoid list below.
+7. RELATIONSHIP-BUILDING OVER THE ASK (HIGH) — connection, gratitude, story, and belonging count fully, even with no hard "donate."
+8. ON-BRAND VOICE OVERALL (HIGH) — fits the calibration: daring-but-not-reckless, earned, quiet confidence.
+9. TIER 1 CORE VOCABULARY (MEDIUM) — reward use of the core power words.
+10. TIER 2 WORD BANKS (MEDIUM) — reward use of the Action / Local / Humanizing / Empowering vocabulary.
+11. CLARITY & READABILITY (MEDIUM) — clear and easy to grasp.
+
+HOW TO APPLY THE WEIGHTS:
+- CRITICAL criteria move the score the MOST. Copy that truly nails inspiration and community-focus can score high even if smaller things are off; copy that fails them (guilt-driven, or institution-centric "we") should score LOW even if the vocabulary is on point.
+- HIGH criteria meaningfully raise or lower the score; MEDIUM criteria only nudge it.
+- In "fallsFlat" and "fix", address the HIGHEST-priority problems FIRST and don't lead with a low-priority nitpick when a higher-priority issue exists. Keep "fix" focused on the single most important change by this hierarchy.
+
 - REWARD ON-VOICE VOCABULARY: scan the copy for the Tier 1 and Tier 2 words/themes below. Every on-voice word the copy uses EARNS points — the more it speaks in our shared vocabulary, the higher the score (copy that is genuinely rich in Tier 1 / Tier 2 language should land 8-10). List the exact on-voice words you spotted in "onVoice", and recognize them warmly in "resonates" (e.g. "love that you said 'right here' and 'neighbors'").
 - TAG OFF-VOICE LANGUAGE: scan the copy for the "words & phrases to avoid" below. List EVERY offending word or phrase you find, quoted exactly, in "avoid"; also name it in "fallsFlat" and give the on-voice replacement in "fix". Using avoid-list language is the main reason to score BELOW 5.
 - A great deal of philanthropy is RELATIONSHIP-BUILDING, not transactional asking for money. Copy that builds connection, gratitude, belonging, story, or community is doing its job — score it WELL even if it has no hard "donate" ask. Never mark copy down for "no clear ask," "doesn't push for a donation," or "lacks urgency."
@@ -345,8 +364,8 @@ ${context ? `WHAT THE USER IS TESTING (their goal/context — weigh this in your
 COPY: """${copy || "(none provided)"}"""
 IMAGE/VISUAL CONCEPT: """${img || "(none provided)"}"""
 ${hasImage ? `\n${imageCount > 1 ? `THIS IS A MULTI-PAGE PIECE — ${imageCount} page images are attached in order, along with the copy text above. Judge the WHOLE piece together (the copy AND the design/imagery across all pages) for ONE reaction and score.` : "AN ACTUAL PHOTOGRAPH IS ATTACHED."} Look at the image(s) and react to what you literally see — subject, warmth, light, composition, layout, and whether it tells a story and connects to philanthropy. Judge visual fit using your image lean-in/avoid above. ${PHOTOGRAPHY.promptBlock} For imagery, "do-not-use" means cold/clinical, sterile equipment, staged stock, faceless, or guilt-heavy shots — only those should pull the score below 5. In "resonates"/"fallsFlat" name what you actually see, and make "fix" a concrete art-direction change.\n` : ""}
-React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Also rate, from 0 to 10, how strongly THIS asset delivers on each of these areas (used to build a heat map of strengths and weaknesses): warmth (warmth and humanity), inspiration (hope and possibility, not obligation), clarity (clear and easy to grasp), local (Santa Barbara / coast-to-valley relevance), empowerment (makes the donor feel they personally make the impact), onBrand (uses the Foundation's voice and vocabulary). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
-{"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "onVoice": ["<exact Tier 1 / Tier 2 word or phrase the copy actually used>", ...up to 6, [] if none], "avoid": ["<exact avoid-list word or phrase the copy actually used>", ...up to 6, [] if none], "fix": "<one concrete change that would make this work better for you>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>", "dimensions": {"warmth": <0-10>, "inspiration": <0-10>, "clarity": <0-10>, "local": <0-10>, "empowerment": <0-10>, "onBrand": <0-10>}}`;
+React as THIS persona, then score the asset using the HOW TO SCORE rules above (generous by default; below 5 only for do-not-use language${hasImage ? "/imagery" : ""}, and reward on-voice vocabulary). Also rate, from 0 to 10, how strongly THIS asset delivers on each of these areas (used to build a heat map of strengths and weaknesses): inspiration (hope and possibility, not obligation), community (benefit framed for the whole community — inclusive "we / us / our," outside-in, NOT the institution talking about itself), warmth (warmth and humanity), empowerment (makes the donor feel they personally make the impact), local (Santa Barbara / coast-to-valley relevance), onBrand (uses the Foundation's voice and vocabulary), clarity (clear and easy to grasp). Respond with ONLY minified JSON (no markdown, no commentary) using exactly these keys:
+{"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "onVoice": ["<exact Tier 1 / Tier 2 word or phrase the copy actually used>", ...up to 6, [] if none], "avoid": ["<exact avoid-list word or phrase the copy actually used (include institutional 'we/our/us')>", ...up to 6, [] if none], "fix": "<the single highest-priority change per the PRIORITY hierarchy>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>", "dimensions": {"inspiration": <0-10>, "community": <0-10>, "warmth": <0-10>, "empowerment": <0-10>, "local": <0-10>, "onBrand": <0-10>, "clarity": <0-10>}}`;
 }
 
 function parseModelJSON(text) {
@@ -358,7 +377,7 @@ function parseModelJSON(text) {
   return null;
 }
 
-const DIM_KEYS = ["warmth", "inspiration", "clarity", "local", "empowerment", "onBrand"];
+const DIM_KEYS = ["inspiration", "community", "warmth", "empowerment", "local", "onBrand", "clarity"];
 function sanitizeDims(d) {
   if (!d || typeof d !== "object") return null;
   const out = {}; let any = false;
