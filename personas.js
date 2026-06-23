@@ -23,6 +23,7 @@ const PERSONAS = [
       media: "Wall Street Journal, the local society pages, NPR, handwritten notes"
     },
     avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true },
+    photo: "eleanor.jpg",
     intro: "Hello. My name is Eleanor. I've called this place home for as long as I can remember. I've watched it change, grow, stumble, and rise again — and through it all, I've remained. My friends will tell you I have a generous heart. They'll also tell you I have high standards. Both are true. You see, I've learned a thing or two over the years. One of them is that authenticity matters. I can spot insincerity from a mile away. So when you speak with me, take your time. Slow down. Be clear about what you want. And above all, be genuine. Because honesty, respect, and sincerity never go out of style.",
     audio: "eleanor.mp3",
     spoken: "Oh, hello there. So... where to begin. I've been here longer than most, dear — seen the good years and the hard ones, all of it. People will tell you I'm generous, and I am. But don't try to pull one over on me. I can tell in a heartbeat whether someone means it or they're just... selling. So slow down. Talk to me like a person. Be real with me. That's all I've ever asked.",
@@ -49,6 +50,7 @@ const PERSONAS = [
       media: "Podcasts, LinkedIn, Bloomberg, founder newsletters"
     },
     avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false },
+    photo: "marcus.jpg",
     intro: "I'm Marcus. I built my business here, and I don't sit still. I want to back bold ideas — the kind that change what this region can do — and I want to see the results. Show me the vision and the numbers, make me part of something ambitious, and don't waste my time with fluff. I move fast, and I bring people with me. Impress me, and I'll help you think bigger.",
     spoken: "Hey — Marcus. I'll keep this quick, 'cause, honestly, that's kinda my whole thing. Built my business here, I move fast, I back big ideas. Don't give me the slow, stuffy pitch — give me the vision, give me the number, show me it's actually gonna do something. You do that? I'm in. And I'll bring people with me.",
     spokenRegions: {
@@ -74,6 +76,7 @@ const PERSONAS = [
       media: "Local paper, KEYT news, Facebook community groups, the church bulletin"
     },
     avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false },
+    photo: "linda.jpg",
     intro: "Hi, I'm Linda. I've lived here most of my life, and Cottage took care of my family when we needed it. I give every year — not because I'm wealthy, but because this is my community and these are my neighbors. I want to know my gift matters, even a small one. Talk to me like a friend, show me a real person whose life got better, and I'm all in.",
     spoken: "Hi hon, I'm Linda! Oh gosh, I've been around here a long time. This hospital took such good care of my family when we needed it — so yeah, I give every year. Not a ton, but whatever I can. I just wanna know it matters, y'know? Show me a real person, a real story. Talk to me like a neighbor, not a checkbook. That's really all I need.",
     spokenRegions: {
@@ -99,6 +102,7 @@ const PERSONAS = [
       media: "Medical journals, NPR, professional networks, trusted colleagues"
     },
     avatar: { skin: "#c68642", hair: "#8c8c8c", style: "short", clothes: "#2f9e9e", glasses: true },
+    photo: "clinician.jpg",
     intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
     spoken: "Dr. Rivera. Look, I'll keep it real with you — I'm on the floor every day, so I don't have a lot of patience for spin. What gets me? Stuff that actually helps us take care of people. The equipment, the training, the programs that move the needle for patients. Don't dress it up, and please don't use my staff as a photo op. Just tell me what it does for the people in those beds. Do that, and you've got me.",
     spokenRegions: {
@@ -124,6 +128,7 @@ const PERSONAS = [
       media: "Instagram, TikTok, podcasts, friends' recommendations"
     },
     avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false },
+    photo: "maya.jpg",
     intro: "Hey, I'm Maya. I'm younger, I'm healthy, and honestly I'm not thinking about hospitals much — but I love this place. The beach, the people, our little corner of California. I'm not ready to write a big check, but invite me in — a volunteer day, an event, a way to belong — and keep it real. Make me feel part of something good, and I'll show up, and I'll bring my friends.",
     spoken: "Hey hey, I'm Maya! Okay so — real talk, I'm young, I'm healthy, I'm not really thinking about hospitals, ngl. But I love it here. Like, the beach, the people, our whole little corner of California. So don't hit me with a big guilt-trip ask, that's such a turn-off. Just invite me in — a volunteer thing, an event, whatever — keep it real and kinda fun, and yeah, I'll totally show up. Probably drag my friends along too.",
     spokenRegions: {
@@ -149,6 +154,7 @@ const PERSONAS = [
       media: "The business journal, Chamber of Commerce, LinkedIn, the golf course"
     },
     avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false },
+    photo: "sponsor.jpg",
     intro: "I'm James. I run a business in town, and I believe in giving back where I live and work. When I sponsor something, I'm looking for a real partnership — good for the community, and good for my company and my team. Show me the win-win, make the recognition meaningful, and let's build something lasting together, not a one-time ask.",
     spoken: "James — good to meet ya. So, I run a business here in town, and I'm big on giving back. But I'll be straight with you: I'm a business guy. When I put my name on something, I wanna see it work both ways. Good for the community, sure — but good for my team and my brand too. Show me that win-win, make the recognition real, and let's build something that lasts. Not some one-and-done thing.",
     spokenRegions: {
