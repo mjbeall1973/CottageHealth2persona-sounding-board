@@ -160,6 +160,8 @@ ul.profile li{margin-bottom:5px}
 .gcard figcaption{font-size:12.5px;color:var(--muted);padding:9px 11px;line-height:1.45}
 .gcard.do{border-top:3px solid var(--good)}
 .gcard.dont{border-top:3px solid var(--bad)}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{font-size:11px;font-weight:700;color:#fff;border-radius:999px;padding:3px 9px}
 .hills{display:block;width:100%;height:44px;margin:-2px 0 2px}
 .heatwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
 .heatwrap h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 10px}
@@ -264,7 +266,7 @@ table.log tr:last-child td{border-bottom:none}
     <div>
       <h1>Philanthropy Voice Guide</h1>
     </div>
-    <div class="who"><span id="whoName"></span><br><a id="logout">Sign out</a></div>
+    <div class="who"><span id="whoName"></span><br><a id="homeLink">Home</a> &middot; <a id="logout">Sign out</a></div>
   </div>
   <div class="herobanner"><img src="cottage-hero.jpg" alt="Santa Barbara Cottage Hospital campus"></div>
   <div class="betabar">
@@ -285,7 +287,7 @@ table.log tr:last-child td{border-bottom:none}
 
   <div class="tabs">
     <button class="tab active" data-tab="eval">Evaluate</button>
-    <button class="tab" data-tab="ref">The 6 personas</button>
+    <button class="tab" data-tab="ref">Donors</button>
     <button class="tab" data-tab="brand">Brand voice</button>
     <button class="tab" data-tab="photo">Photography</button>
     <button class="tab" data-tab="setup">My setup</button>
@@ -357,6 +359,7 @@ table.log tr:last-child td{border-bottom:none}
         <div id="resultActions" class="actbar" style="display:none">
           <button class="btn small secondary" id="copySummary">Copy summary</button>
           <button class="btn small secondary" id="downloadReport">Download report</button>
+          <button class="btn small" id="humanHelp">🤝 Get human help</button>
         </div>
         <div class="results" id="results">
           <div class="empty">Add copy, upload a PDF, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>
@@ -370,7 +373,7 @@ table.log tr:last-child td{border-bottom:none}
               <textarea id="chatInput" rows="2" placeholder="e.g. Make it warmer for Linda, or rewrite the opening line..."></textarea>
               <button class="btn small" id="chatSend">Send</button>
             </div>
-            <div class="toolbar"><button class="btn small secondary" id="chatDownload">Download conversation</button></div>
+            <div class="toolbar"><button class="btn small secondary" id="chatDownload">Download conversation</button><button class="btn small" id="humanHelpR">🤝 Get human help</button></div>
           </div>
         </div>
       </div>
@@ -466,7 +469,7 @@ function avatarSVG(p, size){
   </svg>`;
 }
 
-var PHOTO=null, UPLOADED=null, PDF_IMAGES=null;
+var PHOTO=null, UPLOADED=null, PDF_IMAGES=null, PHOTO_UPLOAD=null;
 async function boot(){
   let cfg;
   try{ cfg = await (await fetch("/api/config")).json(); }
@@ -573,28 +576,90 @@ function renderPhoto(){
   ];
   const galDo=GAL.filter(g=>g.k==="do").map(g=>`<figure class="gcard do"><img src="${g.s}" loading="lazy" alt=""><figcaption>${esc(g.c)}</figcaption></figure>`).join("");
   const galDont=GAL.filter(g=>g.k==="dont").map(g=>`<figure class="gcard dont"><img src="${g.s}" loading="lazy" alt=""><figcaption>${esc(g.c)}</figcaption></figure>`).join("");
-  const checklists=PERSONAS.map(p=>`
-    <div class="pcard"><div class="top">${avatar(p,80)}
-      <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
-      <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
-        <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
-    </div>`).join("");
+  const st="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700";
   $("#photoBody").innerHTML=`
-    <div class="bvhead"><div class="one">Choosing images for the Foundation</div><div class="sum">${esc(PHOTO.intro)}</div></div>
-    <div class="photogrid">
-      <div class="bvcard dos"><div class="bn good">Do</div><ul>${dos}</ul></div>
-      <div class="bvcard dos"><div class="bn bad">Don't</div><ul>${donts}</ul></div>
+    <div class="bvhead"><div class="one">Evaluate a photo</div><div class="sum">Upload an image and tell us how you&rsquo;ll use it. You&rsquo;ll get a quick read on how well it fits the Foundation&rsquo;s photography standard, plus concrete art-direction suggestions &mdash; measured against the same principles shown below.</div></div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="field"><label class="fld" for="phUse">How will this photo be used? <span class="hint">(the more specific, the better the read)</span></label>
+        <input type="text" id="phUse" placeholder="e.g. Hero image for the Here campaign landing page">
+      </div>
+      <div class="field"><label class="fld" for="phFile">Upload a photo <span class="hint">(JPG, PNG, GIF)</span></label>
+        <input type="file" id="phFile" accept="image/png,image/jpeg,image/gif,image/webp" style="padding:8px">
+        <div class="imgpreview" id="phPreview" style="display:none"><img id="phThumb" alt="Uploaded preview"><button type="button" class="btn small secondary" id="phRemove">Remove photo</button></div>
+      </div>
+      <button class="btn" id="phEval">Evaluate photo</button>
+      <div class="srcnote" id="phNote"></div>
+      <div id="phResult"></div>
     </div>
-    ${(PHOTO.examples&&PHOTO.examples.length)?`<div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">Before &amp; after — the principles at work</div><div class="exwrap">${exHtml}</div>`:""}
-    <div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">Example images</div>
+
+    <div class="sectitle" style="${st}">Example images &mdash; what good looks like</div>
     <div class="galhead good">Do &mdash; these work</div>
     <div class="gallery">${galDo}</div>
     <div class="galhead bad">Don't &mdash; avoid these</div>
     <div class="gallery">${galDont}</div>
-    <p class="lead" style="font-size:12px;color:var(--muted);margin:6px 0 0">Note: some examples are watermarked stock comps for reference — swap in licensed or original photography before publishing.</p>
-    <div class="sectitle" style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 10px;font-weight:700">What each persona looks for in a photo</div>
-    <div class="pref">${checklists}</div>
-    <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Tip: upload a photo on the Evaluate tab to have all six react to it against these principles.</p>`;
+    <p class="lead" style="font-size:12px;color:var(--muted);margin:6px 0 0">Note: some examples are watermarked stock comps for reference &mdash; swap in licensed or original photography before publishing.</p>
+
+    <details class="pdisc" style="margin-top:20px"><summary>Photography do's &amp; don'ts</summary>
+      <p style="font-size:13.5px;color:var(--muted);margin:10px 0 12px;line-height:1.55">${esc(PHOTO.intro)}</p>
+      <div class="photogrid">
+        <div class="bvcard dos"><div class="bn good">Do</div><ul>${dos}</ul></div>
+        <div class="bvcard dos"><div class="bn bad">Don't</div><ul>${donts}</ul></div>
+      </div>
+    </details>
+    ${(PHOTO.examples&&PHOTO.examples.length)?`<details class="pdisc"><summary>Before &amp; after &mdash; the principles at work</summary><div class="exwrap" style="margin-top:12px">${exHtml}</div></details>`:""}`;
+  if(PHOTO_UPLOAD){ $("#phThumb").src="data:"+(PHOTO_UPLOAD.mediaType||"image/jpeg")+";base64,"+PHOTO_UPLOAD.data; $("#phPreview").style.display="block"; }
+  $("#phFile").addEventListener("change", e=>handlePhotoFile(e.target.files[0]));
+  $("#phRemove").addEventListener("click", ()=>{ PHOTO_UPLOAD=null; $("#phPreview").style.display="none"; $("#phThumb").src=""; var f=$("#phFile"); if(f) f.value=""; $("#phResult").innerHTML=""; });
+  $("#phEval").addEventListener("click", evaluatePhoto);
+}
+function handlePhotoFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const im=new Image();
+    im.onload=()=>{
+      const max=1024; let w=im.width,h=im.height;
+      if(w>max||h>max){ const s=Math.min(max/w,max/h); w=Math.round(w*s); h=Math.round(h*s); }
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      const ctx=c.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,w,h); ctx.drawImage(im,0,0,w,h);
+      const url=c.toDataURL("image/jpeg",0.85);
+      PHOTO_UPLOAD={ data:url.split(",")[1], mediaType:"image/jpeg" };
+      $("#phThumb").src=url; $("#phPreview").style.display="block";
+      $("#phNote").className="srcnote";
+    };
+    im.onerror=()=>alert("Couldn't read that image — try a JPG or PNG.");
+    im.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function evaluatePhoto(){
+  if(!PHOTO_UPLOAD){ srcNote($("#phNote"),"err","Upload a photo first."); return; }
+  const usage=$("#phUse").value.trim();
+  const btn=$("#phEval"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner light"></span>Reviewing…';
+  srcNote($("#phNote"),"work","Looking at your photo…"); $("#phResult").innerHTML="";
+  try{
+    const r=await fetch("/api/evaluate-photo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:PHOTO_UPLOAD,usage,personalize:personalizePayload()})});
+    const j=await r.json();
+    if(!r.ok){ srcNote($("#phNote"),"err",esc(j.error||"Review failed.")); }
+    else{ $("#phNote").className="srcnote"; renderPhotoResult(j); }
+  }catch(e){ srcNote($("#phNote"),"err","Network error — try again."); }
+  btn.disabled=false; btn.textContent=old;
+}
+function renderPhotoResult(j){
+  const score=Math.max(0,Math.min(10,parseInt(j.score,10)||0));
+  const works=(j.works||[]).filter(Boolean), improve=(j.improve||[]).filter(Boolean);
+  const dimDefs=[["story","Story"],["warmth","Warmth"],["authenticity","Authentic"],["local","Local"],["connection","Connection"]];
+  const dims=(j.dimensions&&typeof j.dimensions==="object")?dimDefs.filter(d=>typeof j.dimensions[d[0]]==="number").map(d=>`<span class="pchip" style="background:${heatColor(j.dimensions[d[0]])}">${d[1]} ${Math.round(j.dimensions[d[0]])}</span>`).join(""):"";
+  $("#phResult").innerHTML=`<div class="rcard" style="margin-top:14px"><div class="rhead">
+      <div><div class="nm">Photography review</div><div class="rl">${esc(j.verdict||"")}</div></div>
+      <div class="score"><div class="num" style="color:${scoreColor(score)}">${score}</div><div class="lab">/ 10</div></div></div>
+      <div class="rbody">
+        <div class="bar"><i style="width:${score*10}%;background:${scoreColor(score)}"></i></div>
+        ${dims?`<div class="pchips" style="margin:12px 0 4px">${dims}</div>`:""}
+        <div class="cols"><div class="good"><h4>What works</h4><ul>${works.length?works.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div>
+          <div class="bad"><h4>To improve</h4><ul>${improve.length?improve.map(x=>`<li>${esc(x)}</li>`).join(""):"<li>—</li>"}</ul></div></div>
+        ${j.fix?`<div class="fix"><b>Art-direction fix:</b> ${esc(j.fix)}</div>`:""}
+      </div></div>`;
 }
 
 function handleImageFile(file){
@@ -1258,6 +1323,45 @@ $("#ownerCsv").addEventListener("click",()=>{ window.location.href="/api/owner-r
 $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
+function goHome(){
+  $$(".tab").forEach(x=>x.classList.remove("active")); $$(".panel").forEach(x=>x.classList.remove("active"));
+  var t=document.querySelector('.tab[data-tab="eval"]'); if(t) t.classList.add("active"); $("#eval").classList.add("active");
+  stopSpeaking(); window.scrollTo({top:0,behavior:"smooth"});
+}
+$("#homeLink").addEventListener("click", goHome);
+
+/* human help — package the thread + brief and route it to a human writer */
+function helpBrief(){
+  var L=["PHILANTHROPY VOICE GUIDE — HUMAN HELP REQUEST", new Date().toLocaleString()];
+  if(PROFILE){ L.push("From: "+(PROFILE.name||"")+(PROFILE.email?" <"+PROFILE.email+">":"")); if(PROFILE.role)L.push("Role: "+PROFILE.role); if(PROFILE.use)L.push("Primary use: "+PROFILE.use); }
+  L.push("");
+  if(LAST){
+    L.push("ASSET TYPE: "+LAST.atype);
+    if(LAST.context) L.push("WHAT THEY'RE TESTING: "+LAST.context);
+    if(LAST.copy) L.push("\nCOPY:\n"+LAST.copy);
+    if(LAST.img) L.push("\nVISUAL: "+LAST.img);
+    L.push("\n--- HOW THE ROOM REACTED ---");
+    (LAST.chosen||[]).forEach(p=>{ var d=(LAST.results||{})[p.id]||{}; if(d.error){ L.push("\n"+p.name+": n/a"); return; }
+      L.push("\n"+p.name+" ("+p.role+") — "+d.score+"/10 · "+(d.verdict||""));
+      if((d.resonates||[]).length) L.push("  Resonates: "+d.resonates.join("; "));
+      if((d.fallsFlat||[]).length) L.push("  Falls flat: "+d.fallsFlat.join("; "));
+      if(d.fix) L.push("  Fix: "+d.fix); });
+  } else { L.push("(No evaluation has been run yet.)"); }
+  if(CHAT && CHAT.length){ L.push("\n--- REFINE CONVERSATION ---"); CHAT.forEach(m=>L.push("\n"+(m.role==="user"?"YOU":"COACH")+": "+m.content)); }
+  L.push("\n— Sent from the Philanthropy Voice Guide");
+  return L.join("\n");
+}
+function humanHelp(){
+  if(!LAST && !(CHAT&&CHAT.length)){ alert("Run an evaluation first — then you can send it for human help."); return; }
+  var brief=helpBrief();
+  try{ const blob=new Blob([brief],{type:"text/plain"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="voice-guide-help-request.txt"; a.click(); URL.revokeObjectURL(url); }catch(e){}
+  var subj="Human help request — Philanthropy Voice Guide";
+  var intro="Hi Mike,\n\nI'd like a human writer's help on this piece. My brief is below — a full copy also downloaded as voice-guide-help-request.txt, which I'll attach.\n\n";
+  var body=intro+brief.slice(0,1400)+(brief.length>1400?"\n\n…(full brief in the attached file)":"")+"\n\n— "+((PROFILE&&PROFILE.name)||"");
+  window.location.href="mailto:mike@beallcreative.com?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+}
+$("#humanHelp").addEventListener("click", humanHelp);
+$("#humanHelpR").addEventListener("click", humanHelp);
 
 boot();
 </script>
