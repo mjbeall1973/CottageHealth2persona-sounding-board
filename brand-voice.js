@@ -43,6 +43,14 @@ const PHOTOGRAPHY = {
     "Faceless buildings or abstract concepts with no person in them",
     "Somber, guilt-heavy, or exploitative imagery",
     "Busy, cluttered, or low-quality snapshots"
+  ],
+  examples: [
+    { instead: "A wide shot of the new hospital building at dusk, no people in frame.", to: "A caregiver walking a patient to the door with the valley hills behind them — the building is the backdrop, the human moment is the story." },
+    { instead: "A stock 'doctor in a white coat, arms crossed' studio portrait.", to: "A real nurse mid-laugh with a longtime patient she clearly knows — warmth and trust you can feel." },
+    { instead: "A gleaming close-up of the new CT scanner, empty and unused.", to: "A daughter's hand on her father's shoulder as he waits for his scan, the machine soft and out of focus behind them." },
+    { instead: "A dim, somber photo of an elderly patient sitting alone (guilt-heavy).", to: "That same neighbor back home on the porch, coffee in hand, family nearby — the life the care made possible." },
+    { instead: "A posed 'big check' donor-recognition photo lined up against a wall.", to: "A donor and a nurse talking like neighbors at a community event, with recognizable Solvang or ranch country in the frame." },
+    { instead: "A crowded collage of logos, equipment, and clip-art icons.", to: "One clear, warm image of a single real moment — let it breathe, and let the caption carry the rest." }
   ]
 };
 PHOTOGRAPHY.promptBlock =
