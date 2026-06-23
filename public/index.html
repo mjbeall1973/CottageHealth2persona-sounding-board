@@ -47,6 +47,9 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .seg button{flex:1;border:none;background:none;padding:8px 6px;border-radius:8px;font:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
 .seg button.on{background:#fff;color:var(--brand);box-shadow:var(--shadow)}
 .srcpanel{display:none}.srcpanel.on{display:block}
+.inputtools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.inputtools .btn.small{flex:0 0 auto}
+#src-url.on{margin:0 0 10px}
 .inline{display:flex;gap:8px}
 .inline input{flex:1}
 .srcnote{font-size:12px;border-radius:8px;padding:8px 10px;margin-top:8px;display:none}
@@ -265,18 +268,23 @@ table.log tr:last-child td{border-bottom:none}
             <option>Newsletter</option><option>Ad / billboard</option><option>Other</option>
           </select>
         </div>
+        <div class="field">
+          <label class="fld" for="evalRegion">Audience region <span class="hint">&mdash; whose ear are we testing for?</span></label>
+          <select id="evalRegion">
+            <option value="both">Coast to valley (both regions)</option>
+            <option value="sb">Santa Barbara</option>
+            <option value="sy">Santa Ynez Valley</option>
+          </select>
+        </div>
 
         <div class="field">
-          <label class="fld">Where's the content?</label>
-          <div class="seg" id="srcseg">
-            <button data-src="paste" class="on">Paste text</button>
-            <button data-src="url">From URL</button>
+          <label class="fld" for="copy">Your content <span class="hint">&mdash; paste or type below, or use the buttons to dictate, add a link, or upload a file</span></label>
+          <div class="inputtools">
+            <button type="button" class="btn small secondary" id="fileBtn">📎 Upload PDF or image</button>
+            <button type="button" class="btn small secondary" id="urlToggle">🔗 From a link</button>
+            <button type="button" class="btn small secondary recbtn" id="dictate" title="Dictate with your microphone"><span class="micdot"></span>🎤 Dictate</button>
+            <input type="file" id="assetFile" accept="application/pdf,image/png,image/jpeg,image/gif,image/webp" hidden>
           </div>
-
-          <div class="srcpanel on" id="src-paste">
-            <span class="hint">Type or paste the copy below.</span>
-          </div>
-
           <div class="srcpanel" id="src-url">
             <div class="inline">
               <input type="url" id="urlInput" placeholder="https://example.org/campaign-page">
@@ -284,30 +292,12 @@ table.log tr:last-child td{border-bottom:none}
             </div>
             <div class="srcnote" id="urlNote"></div>
           </div>
-        </div>
-
-        <div class="field">
-          <div class="reclabel">
-            <label class="fld" for="copy" style="margin:0">Copy <span class="hint">(headline + body — type, paste, or dictate)</span></label>
-            <button type="button" class="btn small secondary recbtn" id="dictate" title="Dictate with your microphone"><span class="micdot"></span>🎤 Dictate</button>
-          </div>
-          <textarea id="copy" rows="7" placeholder="Paste the headline and body copy here — or click Dictate and start talking..."></textarea>
+          <textarea id="copy" rows="8" placeholder="Paste or type your copy here — or use the buttons above to dictate it, pull it from a web page, or upload a PDF or image."></textarea>
           <div class="srcnote" id="dictateNote"></div>
-        </div>
-        <div class="field">
-          <label class="fld" for="pdfInput">Upload a PDF <span class="hint">(reads the whole file — copy and page images judged together)</span></label>
-          <div class="inline">
-            <input type="file" id="pdfInput" accept="application/pdf" style="padding:8px">
-            <button class="btn small" id="extractPdf" style="white-space:nowrap">Read PDF</button>
-          </div>
-          <div class="srcnote" id="pdfNote"></div>
-        </div>
-        <div class="field">
-          <label class="fld" for="imgFile">Or upload an image <span class="hint">(JPG, PNG, GIF — the personas judge the actual photo)</span></label>
-          <input type="file" id="imgFile" accept="image/png,image/jpeg,image/gif,image/webp" style="padding:8px">
+          <div class="srcnote" id="fileNote"></div>
           <div class="imgpreview" id="imgPreview" style="display:none">
-            <img id="imgThumb" alt="Uploaded image preview">
-            <button type="button" class="btn small secondary" id="imgRemove">Remove image</button>
+            <img id="imgThumb" alt="Uploaded preview">
+            <button type="button" class="btn small secondary" id="imgRemove">Remove upload</button>
           </div>
         </div>
         <button class="btn" id="run">Get reactions</button>
@@ -526,13 +516,14 @@ function handleImageFile(file){
       const url=c.toDataURL("image/jpeg",0.85);
       UPLOADED={ data:url.split(",")[1], mediaType:"image/jpeg" }; PDF_IMAGES=null;
       $("#imgThumb").src=url; $("#imgPreview").style.display="block";
+      var n=$("#fileNote"); if(n) srcNote(n,"ok","Image added — the personas will react to the actual photo. Add copy too if you'd like.");
     };
     im.onerror=()=>alert("Couldn't read that image — try a JPG or PNG.");
     im.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 }
-function clearImage(){ UPLOADED=null; PDF_IMAGES=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#imgFile"); if(f) f.value=""; }
+function clearImage(){ UPLOADED=null; PDF_IMAGES=null; $("#imgPreview").style.display="none"; $("#imgThumb").src=""; var f=$("#assetFile"); if(f) f.value=""; }
 
 /* meet the personas — spoken first-person intros via the browser */
 var SPEAKING=null, VOICES=[], AUDIO=null;
@@ -579,13 +570,19 @@ function meetPersona(id){
   speechSynthesis.speak(u);
 }
 
-/* source selector */
-$("#srcseg").addEventListener("click", e=>{
-  const b=e.target.closest("button[data-src]"); if(!b) return;
-  $$("#srcseg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
-  $$(".srcpanel").forEach(x=>x.classList.remove("on")); $("#src-"+b.dataset.src).classList.add("on");
-});
+/* unified input: link toggle + upload (PDF or image) */
 function srcNote(el, kind, msg){ el.className="srcnote show "+kind; el.innerHTML=msg; }
+$("#urlToggle").addEventListener("click", ()=>{
+  const p=$("#src-url"); p.classList.toggle("on");
+  if(p.classList.contains("on")) $("#urlInput").focus();
+});
+$("#fileBtn").addEventListener("click", ()=>$("#assetFile").click());
+$("#assetFile").addEventListener("change", e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  if(f.type==="application/pdf" || /\.pdf$/i.test(f.name)) processPdfFile(f);
+  else handleImageFile(f);
+  e.target.value="";
+});
 
 $("#fetchUrl").addEventListener("click", async ()=>{
   const url=$("#urlInput").value.trim(); const note=$("#urlNote");
@@ -605,11 +602,11 @@ $("#fetchUrl").addEventListener("click", async ()=>{
   btn.disabled=false; btn.textContent=old;
 });
 
-$("#extractPdf").addEventListener("click", async ()=>{
-  const f=$("#pdfInput").files[0]; const note=$("#pdfNote");
-  if(!f){ srcNote(note,"err","Choose a PDF first."); return; }
+async function processPdfFile(f){
+  const note=$("#fileNote");
+  if(!f) return;
   if(!window.pdfjsLib){ srcNote(note,"err","PDF reader is still loading — try again in a few seconds."); return; }
-  const btn=$("#extractPdf"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner light"></span>';
+  const btn=$("#fileBtn"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner"></span> Reading PDF…';
   srcNote(note,"work","Reading the PDF — copy and page images…");
   try{
     const buf=await f.arrayBuffer();
@@ -635,7 +632,7 @@ $("#extractPdf").addEventListener("click", async ()=>{
     srcNote(note,"ok",`Read ${maxPages} page${maxPages>1?"s":""}${pdf.numPages>maxPages?` (of ${pdf.numPages}; first ${maxPages} used)`:""}: ${text.length.toLocaleString()} chars of copy + ${imgs.length} page image${imgs.length>1?"s":""}. The personas will judge the copy and the design together.`);
   }catch(e){ srcNote(note,"err","Couldn't read that PDF — "+esc((e&&e.message)||"error")); }
   btn.disabled=false; btn.textContent=old;
-});
+}
 
 /* dictation — speech-to-text straight into the copy box (browser Web Speech API) */
 var REC=null, RECING=false, REC_BASE="", REC_FINAL="";
@@ -677,6 +674,7 @@ async function run(){
   stopDictation();
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img="";
   const context=$("#context").value.trim();
+  const region=($("#evalRegion")&&$("#evalRegion").value)||"both";
   const sel=$$(".ptog input:checked").map(c=>c.value);
   const imagesArr=[];
   if(PDF_IMAGES && PDF_IMAGES.length) imagesArr.push(...PDF_IMAGES);
@@ -696,7 +694,7 @@ async function run(){
 
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({atype,copy,img,context,personaIds:sel,source,
+      body:JSON.stringify({atype,copy,img,context,region,personaIds:sel,source,
         images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -1042,10 +1040,9 @@ $("#clear").addEventListener("click",()=>{
   clearImage();
   $("#agg").innerHTML="";$("#heat").innerHTML="";$("#resultActions").style.display="none";
   $("#refine").style.display="none"; CHAT=[]; CHAT_CTX=null;
-  $("#urlNote").className="srcnote";$("#pdfNote").className="srcnote";$("#dictateNote").className="srcnote";
+  $("#urlNote").className="srcnote";$("#fileNote").className="srcnote";$("#dictateNote").className="srcnote";$("#src-url").classList.remove("on");
   $("#results").innerHTML='<div class="empty">Add copy, upload a PDF, or upload an image, pick your personas, then hit <b>Get reactions</b>.</div>';
 });
-$("#imgFile").addEventListener("change", e=>handleImageFile(e.target.files[0]));
 $("#imgRemove").addEventListener("click", clearImage);
 $("#chatSend").addEventListener("click", ()=>sendChat());
 $("#chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendChat(); }});
