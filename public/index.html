@@ -201,6 +201,11 @@ table.log tr:last-child td{border-bottom:none}
 .bvcard .spec{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}.bvcard .bnote{font-size:13.5px;margin:0 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
 .foot{font-size:12px;color:var(--muted);margin-top:22px;text-align:center}.foot b{color:var(--ink)}
+.vpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:8px}
+.vpstat{background:#f1f4f8;border-radius:10px;padding:12px;text-align:center}
+.vpv{font-size:24px;font-weight:800;color:var(--brand);line-height:1.15}
+.vpk{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px}
+.vpnote{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:1.55}
 .about{max-width:860px;margin:26px auto 0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:2px 16px}
 .about summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--brand);padding:12px 0;list-style:none}
 .about summary::-webkit-details-marker{display:none}
@@ -262,6 +267,7 @@ table.log tr:last-child td{border-bottom:none}
     <button class="tab" data-tab="ref">The 6 personas</button>
     <button class="tab" data-tab="brand">Brand voice</button>
     <button class="tab" data-tab="photo">Photography</button>
+    <button class="tab" data-tab="setup">My setup</button>
     <button class="tab" data-tab="history">My history</button>
     <button class="tab" data-tab="usage">Usage log</button>
   </div>
@@ -362,6 +368,7 @@ table.log tr:last-child td{border-bottom:none}
   </section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
+  <section class="panel" id="setup"><div id="setupBody"></div></section>
   <section class="panel" id="history">
     <div class="note">Your tests are saved automatically under your name (<b id="histWho"></b>), newest first. Click <b>Reopen</b> to load any past test — its copy, context, and the full reactions — back into the Evaluate tab.</div>
     <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
@@ -406,6 +413,7 @@ table.log tr:last-child td{border-bottom:none}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
+var PROFILE = null, LEARN = null;
 if(window.pdfjsLib){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){} }
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -439,7 +447,8 @@ async function boot(){
   try{ cfg = await (await fetch("/api/config")).json(); }
   catch(e){ document.body.innerHTML="<p style='padding:40px;font-family:sans-serif'>Couldn't load the tool. Please refresh.</p>"; return; }
   PERSONAS = cfg.personas; BRAND_VOICE = cfg.brandVoice; PHOTO = cfg.photography;
-  $("#whoName").textContent = cfg.user || "";
+  loadProfile(cfg.user); loadLearn();
+  $("#whoName").textContent = (PROFILE && PROFILE.name) || cfg.user || "";
   buildToggles(); buildRef();
 }
 
@@ -510,6 +519,7 @@ $$(".tab").forEach(t=>t.addEventListener("click",()=>{
   if(t.dataset.tab==="usage") renderUsage();
   if(t.dataset.tab==="brand") renderBrand();
   if(t.dataset.tab==="photo") renderPhoto();
+  if(t.dataset.tab==="setup") renderSetup();
   if(t.dataset.tab==="history") renderHistory();
 }));
 
@@ -725,7 +735,7 @@ async function run(){
 
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({atype,copy,img,context,region,personaIds:sel,source,
+      body:JSON.stringify({atype,copy,img,context,region,personalize:personalizePayload(),personaIds:sel,source,
         images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -733,6 +743,7 @@ async function run(){
       chosen.forEach(p=>renderCard(p,j.results[p.id]));
       renderAggregate(chosen,j.results);
       renderHeatmap(chosen,j.results);
+      recordLearning(j.results);
       LAST={atype,copy,context,img:(img||(imagesArr.length>1?`[multi-page piece: copy + ${imagesArr.length} page images evaluated]`:(imagesArr.length?"[uploaded image evaluated]":""))),chosen,results:j.results,ts:new Date()};
       $("#resultActions").style.display="flex";
       startRefine(chosen,j.results);
@@ -897,7 +908,7 @@ async function sendChat(text){
   paintChat(true);
   const send=$("#chatSend"); send.disabled=true;
   try{
-    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:CHAT,context:CHAT_CTX})});
+    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:CHAT,context:CHAT_CTX,personalize:personalizePayload()})});
     const j=await r.json();
     CHAT.push({role:"assistant",content: r.ok ? (j.reply||"(no reply)") : ("(Sorry — "+(j.error||"that didn't go through")+".)")});
   }catch(e){ CHAT.push({role:"assistant",content:"(Network error — try again.)"}); }
@@ -1062,6 +1073,102 @@ $("#histList").addEventListener("click", async e=>{
   }catch(e){ alert("Network error — try again."); }
   b.disabled=false; b.textContent=o;
 });
+
+/* ---- personalization & learning (per user, stored in this browser) ---- */
+var ROLE_OPTS=["Annual giving","Major gifts","Communications / Marketing","Donor relations / Stewardship","Events","Grants","Leadership / Executive","Volunteer","Other"];
+var USE_OPTS=["Storytelling","Content development","Donor relations","Appeals & campaigns","Social & digital","Grant writing","General messaging"];
+var DIM_LABEL={inspiration:"inspiration",community:"community focus",warmth:"warmth",empowerment:"donor empowerment",local:"local relevance",onBrand:"on-brand voice",clarity:"clarity"};
+function recommendLean(use){
+  if(["Storytelling","Content development","Social & digital"].includes(use)) return "creative";
+  if(["Grant writing"].includes(use)) return "technical";
+  return "balanced";
+}
+function leanWord(l){ return l==="creative"?"creative":(l==="technical"?"technical":"balanced"); }
+function loadProfile(fallbackName){
+  try{ PROFILE=JSON.parse(localStorage.getItem("pvg_profile")||"null"); }catch(e){ PROFILE=null; }
+  if(!PROFILE) PROFILE={ name:(fallbackName||"you"), email:"", role:"", use:"", lean:"balanced" };
+  if(!PROFILE.name) PROFILE.name=fallbackName||"you";
+  if(!PROFILE.lean) PROFILE.lean="balanced";
+}
+function saveProfile(){ try{ localStorage.setItem("pvg_profile",JSON.stringify(PROFILE)); }catch(e){} }
+function learnKey(){ return "pvg_learn_"+((PROFILE&&PROFILE.name)?PROFILE.name.toLowerCase():"you"); }
+function loadLearn(){
+  try{ LEARN=JSON.parse(localStorage.getItem(learnKey())||"null"); }catch(e){ LEARN=null; }
+  if(!LEARN) LEARN={ runs:0, sumScore:0, dim:{}, avoid:{} };
+}
+function saveLearn(){ try{ localStorage.setItem(learnKey(),JSON.stringify(LEARN)); }catch(e){} }
+function recordLearning(results){
+  if(!LEARN) loadLearn();
+  var vals=Object.keys(results||{}).map(function(k){return results[k];}).filter(function(d){return d&&!d.error;});
+  if(!vals.length) return;
+  var scored=vals.filter(function(d){return !isNaN(parseInt(d.score,10));});
+  if(scored.length){
+    var avg=scored.reduce(function(s,d){return s+(parseInt(d.score,10)||0);},0)/scored.length;
+    LEARN.runs+=1; LEARN.sumScore+=avg;
+  }
+  vals.forEach(function(d){
+    if(d.dimensions) Object.keys(d.dimensions).forEach(function(k){ var v=d.dimensions[k]; if(typeof v==="number"){ LEARN.dim[k]=LEARN.dim[k]||{sum:0,n:0}; LEARN.dim[k].sum+=v; LEARN.dim[k].n+=1; } });
+    (d.avoid||[]).forEach(function(w){ if(w){ var key=String(w).toLowerCase().slice(0,40); LEARN.avoid[key]=(LEARN.avoid[key]||0)+1; } });
+  });
+  saveLearn();
+  if($("#setup")&&$("#setup").classList.contains("active")) renderSetup();
+}
+function learnInsights(){
+  if(!LEARN||!LEARN.runs) return null;
+  var dims=Object.keys(LEARN.dim).map(function(k){return {k:k,avg:LEARN.dim[k].sum/LEARN.dim[k].n};}).filter(function(x){return x.avg===x.avg;});
+  dims.sort(function(a,b){return b.avg-a.avg;});
+  var avoids=Object.keys(LEARN.avoid).map(function(k){return {w:k,n:LEARN.avoid[k]};}).sort(function(a,b){return b.n-a.n;});
+  return { runs:LEARN.runs, avg:(LEARN.sumScore/LEARN.runs), strong:dims[0]||null, weak:dims.length>1?dims[dims.length-1]:null, topAvoid:avoids[0]||null };
+}
+function learnedSummary(){
+  var i=learnInsights(); if(!i) return "";
+  var s="Across "+i.runs+" test"+(i.runs>1?"s":"")+", their average fit is "+(Math.round(i.avg*10)/10)+"/10.";
+  if(i.strong) s+=" Strongest area: "+(DIM_LABEL[i.strong.k]||i.strong.k)+".";
+  if(i.weak) s+=" Recurring watch-area: "+(DIM_LABEL[i.weak.k]||i.weak.k)+".";
+  if(i.topAvoid && i.topAvoid.n>=2) s+=" Often slips into: \""+i.topAvoid.w+"\".";
+  return s;
+}
+function personalizePayload(){
+  if(!PROFILE) return undefined;
+  return { lean:PROFILE.lean, use:PROFILE.use||"", role:PROFILE.role||"", learned:learnedSummary() };
+}
+function renderSetup(){
+  if(!PROFILE) loadProfile();
+  var roleOpts='<option value="">Select…</option>'+ROLE_OPTS.map(function(o){return '<option'+(PROFILE.role===o?' selected':'')+'>'+esc(o)+'</option>';}).join("");
+  var useOpts='<option value="">Select…</option>'+USE_OPTS.map(function(o){return '<option'+(PROFILE.use===o?' selected':'')+'>'+esc(o)+'</option>';}).join("");
+  var rec=PROFILE.use?("Suggested for "+PROFILE.use.toLowerCase()+": a "+leanWord(recommendLean(PROFILE.use))+" lean. Adjust below anytime."):"";
+  var i=learnInsights(), vp;
+  if(i){
+    vp='<div class="vpgrid">'+
+      '<div class="vpstat"><div class="vpv">'+i.runs+'</div><div class="vpk">tests run</div></div>'+
+      '<div class="vpstat"><div class="vpv">'+(Math.round(i.avg*10)/10)+'</div><div class="vpk">avg fit / 10</div></div>'+
+      (i.strong?'<div class="vpstat"><div class="vpv" style="font-size:15px">'+esc(DIM_LABEL[i.strong.k]||i.strong.k)+'</div><div class="vpk">your strength</div></div>':'')+
+      (i.weak?'<div class="vpstat"><div class="vpv" style="font-size:15px">'+esc(DIM_LABEL[i.weak.k]||i.weak.k)+'</div><div class="vpk">watch-area</div></div>':'')+
+    '</div>'+
+    (i.topAvoid&&i.topAvoid.n>=2?'<p class="vpnote">The tool has noticed you sometimes slip into &ldquo;'+esc(i.topAvoid.w)+'&rdquo; — it&rsquo;ll keep coaching you on that.</p>':'')+
+    '<p class="vpnote">The more you use it, the better it learns your voice. This profile lives in your browser.</p>';
+  } else {
+    vp='<p class="vpnote">Run a few tests and your voice profile will appear here — your strengths, watch-areas, and patterns the tool learns about your writing.</p>';
+  }
+  $("#setupBody").innerHTML=
+   '<div class="bvhead"><div class="one">Make it yours, '+esc(PROFILE.name)+'.</div>'+
+     '<div class="sum">Tell the tool a little about you and how you like to work. It tailors its feedback and learns your voice as you go.</div></div>'+
+   '<div class="card" style="margin-bottom:14px">'+
+     '<div class="field"><label class="fld" for="suEmail">Email</label><input type="email" id="suEmail" value="'+esc(PROFILE.email||"")+'" placeholder="you@cottagehealth.org"></div>'+
+     '<div class="field"><label class="fld" for="suRole">Your role</label><select id="suRole">'+roleOpts+'</select></div>'+
+     '<div class="field"><label class="fld" for="suUse">Primary use</label><select id="suUse">'+useOpts+'</select></div>'+
+     '<div class="field"><label class="fld">Feedback lean <span class="hint">— your dial; it reframes suggestions but never overrides the Critical voice criteria</span></label>'+
+       '<div class="seg" id="leanSeg"><button data-lean="creative" class="'+(PROFILE.lean==="creative"?"on":"")+'">Creative</button><button data-lean="balanced" class="'+(PROFILE.lean==="balanced"?"on":"")+'">Balanced</button><button data-lean="technical" class="'+(PROFILE.lean==="technical"?"on":"")+'">Technical</button></div>'+
+       (rec?'<div class="srcnote show work" style="display:block;margin-top:8px">'+esc(rec)+'</div>':'')+
+     '</div>'+
+   '</div>'+
+   '<div class="bvhead"><div class="one">Your voice profile</div><div class="sum">What the tool is learning about your writing — it gets sharper every time you use it.</div></div>'+
+   '<div class="card">'+vp+'</div>';
+  $("#suEmail").addEventListener("input",function(){ PROFILE.email=this.value; saveProfile(); });
+  $("#suRole").addEventListener("change",function(){ PROFILE.role=this.value; saveProfile(); });
+  $("#suUse").addEventListener("change",function(){ PROFILE.use=this.value; if(!PROFILE._leanTouched) PROFILE.lean=recommendLean(this.value); saveProfile(); renderSetup(); });
+  $("#leanSeg").addEventListener("click",function(e){ var b=e.target.closest("button[data-lean]"); if(!b) return; PROFILE.lean=b.dataset.lean; PROFILE._leanTouched=true; saveProfile(); $$("#leanSeg button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); });
+}
 
 /* misc actions */
 $("#run").addEventListener("click",run);
