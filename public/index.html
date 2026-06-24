@@ -25,8 +25,9 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .brandbar .who{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
 .brandbar .who a{color:var(--brand);cursor:pointer}
 .dlrlogo{height:120px;width:auto;display:block}
-.instance{display:flex;flex-direction:column;gap:3px}
-.instance .instname{font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-.2px}
+.instance{display:flex;flex-direction:column;gap:2px;background:var(--brand);border-radius:10px;padding:9px 14px}
+.instance .eyebrow{color:rgba(255,255,255,.85)}
+.instance .instname{font-size:16px;font-weight:600;color:#fff;letter-spacing:-.2px}
 @media(max-width:600px){.dlrlogo{height:78px}.instance .instname{font-size:14px}}
 .herobanner{margin:8px 0 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);line-height:0}
 .herobanner img{display:block;width:100%;height:185px;object-fit:cover;object-position:center 42%}
@@ -283,12 +284,6 @@ table.log tr:last-child td{border-bottom:none}
     <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
     <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
   </div>
-  <svg class="hills" viewBox="0 0 1200 64" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 64 L0 34 C180 14 360 30 540 28 C760 26 980 38 1200 24 L1200 64 Z" fill="#b8862f" opacity="0.13"/>
-    <circle cx="300" cy="28" r="3.4" fill="#6b5b2a" opacity="0.18"/><circle cx="332" cy="30" r="2.6" fill="#6b5b2a" opacity="0.16"/><circle cx="930" cy="33" r="3" fill="#6b5b2a" opacity="0.15"/>
-    <path d="M0 64 L0 46 C220 28 430 44 660 42 C900 40 1050 50 1200 42 L1200 64 Z" fill="#0a5b73" opacity="0.10"/>
-    <path d="M0 64 L0 56 C260 46 520 56 800 54 C1000 53 1100 58 1200 55 L1200 64 Z" fill="#2e8b57" opacity="0.15"/>
-  </svg>
   <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, <b>upload a PDF</b>, or <b>upload an image</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
 
   <div class="tabs">
