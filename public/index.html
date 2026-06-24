@@ -17,18 +17,19 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
 .wrap{max-width:1320px;margin:0 auto;padding:14px 18px 48px}
-.brandbar{display:flex;align-items:center;gap:18px;padding:16px 18px;margin:4px 0 6px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.brandbar{display:flex;align-items:center;gap:0;padding:0;margin:4px 0 6px;background:var(--brand);border:1px solid var(--brand);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.brandlogo{background:#fff;align-self:stretch;display:flex;align-items:center;padding:12px 26px}
 .brandbar .logo svg{height:72px;width:auto;display:block}
-.brandbar .bdiv{width:1px;align-self:stretch;background:var(--line);margin:2px 0}
+.brandbar .bdiv{width:1px;align-self:stretch;background:rgba(255,255,255,.30);margin:0}
 .brandbar .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
 .brandbar h1{font-size:32px;margin:1px 0 0;letter-spacing:-.3px;font-weight:400;color:var(--ink)}
-.brandbar .who{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
-.brandbar .who a{color:var(--brand);cursor:pointer}
+.brandbar .who{margin-left:auto;font-size:12px;color:rgba(255,255,255,.9);text-align:right;padding-right:18px}
+.brandbar .who a{color:#fff;cursor:pointer}
 .dlrlogo{height:120px;width:auto;display:block}
-.instance{display:flex;flex-direction:column;gap:2px;background:var(--brand);border-radius:10px;padding:9px 14px}
+.instance{display:flex;flex-direction:column;gap:3px;padding-left:22px}
 .instance .eyebrow{color:rgba(255,255,255,.85)}
-.instance .instname{font-size:16px;font-weight:600;color:#fff;letter-spacing:-.2px}
-@media(max-width:600px){.dlrlogo{height:78px}.instance .instname{font-size:14px}}
+.instance .instname{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.2px}
+@media(max-width:600px){.dlrlogo{height:70px}.brandlogo{padding:10px 16px}.instance{padding-left:14px}.instance .instname{font-size:14px}}
 .herobanner{margin:8px 0 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);line-height:0}
 .herobanner img{display:block;width:100%;height:185px;object-fit:cover;object-position:center 42%}
 @media(max-width:600px){.herobanner img{height:120px}}
@@ -258,7 +259,7 @@ table.log tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap">
   <div class="brandbar">
-    <img class="dlrlogo" src="donor-listening-room-logo.png" alt="Donor Listening Room">
+    <div class="brandlogo"><img class="dlrlogo" src="donor-listening-room-logo.png" alt="Donor Listening Room"></div>
     <div class="logo" style="display:none">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="img" aria-label="Cottage Health">
         <g>
