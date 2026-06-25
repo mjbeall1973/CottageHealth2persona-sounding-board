@@ -41,6 +41,7 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .primaryhint{font-size:13px;color:var(--muted)}
 .secnavlabel{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin:16px 2px 0}
 .regionmap{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-bottom:16px}
+.regionstack{display:flex;flex-direction:column;gap:14px}
 .tabs{display:flex;gap:6px;margin:8px 0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .tab{padding:9px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
@@ -336,9 +337,10 @@ table.log tr:last-child td{border-bottom:none}
         <div class="field">
           <label class="fld" for="evalRegion">Audience region <span class="hint">&mdash; whose ear are we testing for?</span></label>
           <select id="evalRegion">
-            <option value="both">Coast to valley (both regions)</option>
-            <option value="sb">Santa Barbara</option>
-            <option value="sy">Santa Ynez Valley</option>
+            <option value="all">All regions</option>
+            <option value="central">Central &mdash; Santa Barbara County</option>
+            <option value="northern">Northern &mdash; San Luis Obispo County</option>
+            <option value="southern">Southern &mdash; Ventura County</option>
           </select>
         </div>
 
@@ -414,44 +416,36 @@ table.log tr:last-child td{border-bottom:none}
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
   <section class="panel" id="region">
-    <div class="bvhead"><div class="one">Regional voice</div><div class="sum">Cottage serves coast to valley — two communities that share a voice but are moved by different things.</div></div>
-    <svg class="regionmap" viewBox="0 0 720 360" role="img" aria-label="Map showing the Santa Ynez Valley inland and Santa Barbara on the coast">
-      <rect width="720" height="360" fill="#eef3ef"/>
-      <rect x="0" y="0" width="720" height="172" fill="#e4efe0"/>
-      <text x="22" y="34" font-size="16" font-weight="700" fill="#2c5234">Santa Ynez Valley · inland</text>
-      <circle cx="180" cy="92" r="5" fill="#2e8b57"/><text x="190" y="96" font-size="12" fill="#3b6d3f">Los Olivos</text>
-      <circle cx="430" cy="98" r="5" fill="#2e8b57"/><text x="440" y="102" font-size="12" fill="#3b6d3f">Buellton</text>
-      <circle cx="330" cy="120" r="5" fill="#2e8b57"/><text x="340" y="124" font-size="12" fill="#3b6d3f">Santa Ynez</text>
-      <circle cx="245" cy="138" r="5" fill="#2e8b57"/><text x="255" y="142" font-size="12" fill="#3b6d3f">Solvang</text>
-      <g fill="#c9b79a"><path d="M0 212 L70 150 L140 212 Z"/><path d="M110 212 L190 146 L270 212 Z"/><path d="M240 212 L320 150 L400 212 Z"/><path d="M370 212 L450 148 L530 212 Z"/><path d="M500 212 L580 150 L660 212 Z"/><path d="M615 212 L690 156 L720 198 L720 212 Z"/></g>
-      <text x="22" y="200" font-size="12" fill="#7a6a4a">Santa Ynez Mountains · San Marcos Pass (Hwy 154)</text>
-      <rect x="0" y="212" width="720" height="118" fill="#dfeaf0"/>
-      <text x="22" y="246" font-size="16" font-weight="700" fill="#0a5b73">Santa Barbara · coast</text>
-      <circle cx="210" cy="288" r="5" fill="#0a5b73"/><text x="220" y="292" font-size="12" fill="#134b5f">Goleta</text>
-      <circle cx="370" cy="296" r="5" fill="#0a5b73"/><text x="380" y="300" font-size="12" fill="#134b5f">Santa Barbara</text>
-      <circle cx="540" cy="290" r="5" fill="#0a5b73"/><text x="550" y="294" font-size="12" fill="#134b5f">Montecito</text>
-      <rect x="0" y="330" width="720" height="30" fill="#2f8fa6"/>
-      <text x="22" y="350" font-size="12" fill="#eaf6fb">Pacific Ocean</text>
-    </svg>
-    <div class="pref">
+    <div class="bvhead"><div class="one">Regional voice</div><div class="sum">The network reaches across three distinct communities — Northern, Central, and Southern — each moved by different things. Tune your message to the audience you're reaching.</div></div>
+    <img class="regionmap" src="regions-map.png" alt="Map of the regions: San Luis Obispo County (north), Santa Barbara County (central), and Ventura County (south)">
+    <div class="regionstack">
       <div class="pcard">
-        <div class="top"><div><div class="pname">Santa Barbara — coast</div><div class="prole">Urban, cosmopolitan, established</div></div></div>
-        <h5>What moves them</h5>
-        <ul><li>Keeping world-class care world-class — pride in a leading regional medical center.</li>
-        <li>Legacy and stewardship; an established giving culture and being among trusted peers.</li>
-        <li>Coastal, cosmopolitan touchpoints land — the harbor, the Riviera, State Street.</li></ul>
-        <h5>Tone that works</h5><div class="tone">Polished but warm — excellence made personal.</div>
+        <div class="top"><div><div class="pname">Northern Reach &mdash; San Luis Obispo County</div><div class="prole">Slower, rustic, outdoors- and Cal Poly&ndash;centered &middot; &ldquo;SLO&rdquo; living</div></div></div>
+        <p class="blurb">Unhurried and deeply tied to the outdoors, agriculture, and Cal Poly. People value a balanced, down-to-earth life and loyalty to local institutions.</p>
+        <h5>Who you're reaching</h5>
+        <ul><li><b>Slow-paced Central Coast locals</b> — skeptical of big-city infrastructure, fiercely loyal to local institutions; value relational care over flashy corporate models.</li>
+        <li><b>Active outdoor enthusiasts &amp; students</b> — focused on sports medicine, PT, and rapid recovery to get back to hiking, surfing, and cycling.</li></ul>
+        <h5>Tone that works</h5><div class="tone">Down-to-earth, relational, unhurried.</div>
       </div>
       <div class="pcard">
-        <div class="top"><div><div class="pname">Santa Ynez Valley — inland</div><div class="prole">Rural, close-knit, rooted</div></div></div>
-        <h5>What moves them</h5>
-        <ul><li>Access is everything — care a few miles from home, not an hour over the pass.</li>
-        <li>Tight-knit and neighborly; everyone knows everyone (Solvang, Los Olivos, Buellton).</li>
-        <li>Rooted in land, ranching, and wine-country identity; multi-generational.</li></ul>
-        <h5>Tone that works</h5><div class="tone">Plainspoken and hometown — belonging over prestige.</div>
+        <div class="top"><div><div class="pname">Central Core &mdash; Santa Barbara County</div><div class="prole">High-end and leisure-oriented, under real cost-of-living pressure</div></div></div>
+        <p class="blurb">A community balancing an affluent, wellness-focused lifestyle with a hyper-expensive housing market. They value wellness, prestige, and deep community roots.</p>
+        <h5>Who you're reaching</h5>
+        <ul><li><b>Montecito / Hope Ranch retirees &amp; wealthy remote workers</b> — want premium, hyper-coordinated, concierge care; expect seamless digital tools but high-touch service and privacy.</li>
+        <li><b>UCSB / Isla Vista / Goleta tech &amp; academic transplants</b> — tech-forward and independent; value fast clinical turnarounds, telehealth, and on-demand urgent care.</li>
+        <li><b>Santa Maria / Lompoc working class</b> — a large, often-overlooked agriculture &amp; aerospace segment; family-centric, frequently bilingual (Spanish/English), facing geographic and economic barriers to care.</li></ul>
+        <h5>Tone that works</h5><div class="tone">Polished but warm — and never blind to access and affordability.</div>
+      </div>
+      <div class="pcard">
+        <div class="top"><div><div class="pname">Southern Reach &mdash; Ventura County</div><div class="prole">Transition zone where the Central Coast meets greater LA</div></div></div>
+        <p class="blurb">Where the relaxed coast meets fast-paced, commuter-heavy LA energy. Time is constrained and convenience is king.</p>
+        <h5>Who you're reaching</h5>
+        <ul><li><b>&ldquo;LA spillover&rdquo; commuters</b> — balancing intense work schedules with coastal living; hyper-focused on efficiency, convenience, and evening/weekend availability.</li>
+        <li><b>Coastal suburban families</b> — navigating multi-generational care; think school sports physicals, weekend urgent care, and reliable insurance coverage.</li></ul>
+        <h5>Tone that works</h5><div class="tone">Efficient, convenient, family-practical.</div>
       </div>
     </div>
-    <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Both lean inspirational and inclusive — coast to valley, everyone belongs. Set the audience region on Test Your Message to score copy through that local lens.</p>
+    <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Set the audience region on Test Your Message to score copy through that local lens.</p>
   </section>
   <section class="panel" id="account">
     <details class="acctblock" open><summary>My setup</summary>
@@ -536,7 +530,7 @@ table.log tr:last-child td{border-bottom:none}
     <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
     <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
   </div>
-  <div class="foot"><b>Donor Listening Room</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
+  <div class="foot"><b>Donor Listening Room</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Michael Beall.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -938,7 +932,7 @@ async function run(){
   stopDictation();
   const atype=$("#atype").value, copy=$("#copy").value.trim(), img="";
   const context=$("#context").value.trim();
-  const region=($("#evalRegion")&&$("#evalRegion").value)||"both";
+  const region=($("#evalRegion")&&$("#evalRegion").value)||"all";
   const sel=$$(".ptog input:checked").map(c=>c.value);
   const imagesArr=[];
   if(PDF_IMAGES && PDF_IMAGES.length) imagesArr.push(...PDF_IMAGES);
