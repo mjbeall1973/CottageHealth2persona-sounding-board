@@ -229,6 +229,23 @@ table.log tr:last-child td{border-bottom:none}
 .bvcard .spec{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}.bvcard .bnote{font-size:13.5px;margin:0 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px}
 .foot{font-size:12px;color:var(--muted);margin-top:22px;text-align:center}.foot b{color:var(--ink)}
+.acctblock{border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:var(--shadow);margin-bottom:12px;padding:0 16px}
+.acctblock summary{cursor:pointer;list-style:none;font-size:15px;font-weight:600;color:var(--ink);padding:14px 0}
+.acctblock summary::-webkit-details-marker{display:none}
+.acctblock summary::after{content:"+";float:right;color:var(--brand);font-weight:400;font-size:18px;line-height:1}
+.acctblock[open] summary::after{content:"\2013"}
+.acctblock[open] summary{border-bottom:1px solid var(--line);margin-bottom:14px}
+.acctblock > *:last-child{margin-bottom:16px}
+.devtag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:#fbf0d8;color:#8a6d1f;border-radius:6px;padding:2px 8px;vertical-align:middle;margin-left:8px}
+.famegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:10px}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.fimg{height:130px;background:#e4e8ee}
+.fmeta{padding:11px 13px}
+.ftitle{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.fline{font-size:12.5px;color:var(--muted);line-height:1.45}
+.quotegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:10px}
+.qcard{background:#f1f4f8;border:1px solid var(--line);border-radius:12px;padding:16px;font-size:14px;font-style:italic;color:var(--muted);line-height:1.5}
+.qcard .qattr{font-style:normal;font-weight:600;color:var(--ink);margin-top:10px;font-size:13px}
 .vpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:8px}
 .vpstat{background:#f1f4f8;border-radius:10px;padding:12px;text-align:center}
 .vpv{font-size:24px;font-weight:800;color:var(--brand);line-height:1.15}
@@ -288,13 +305,14 @@ table.log tr:last-child td{border-bottom:none}
   <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, <b>upload a PDF</b>, or <b>upload an image</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="eval">Evaluate</button>
-    <button class="tab" data-tab="ref">Donors</button>
+    <button class="tab active" data-tab="eval">Donor feedback</button>
+    <button class="tab" data-tab="ref">Donor personas</button>
     <button class="tab" data-tab="brand">Brand voice</button>
     <button class="tab" data-tab="photo">Photography</button>
-    <button class="tab" data-tab="setup">My setup</button>
-    <button class="tab" data-tab="history">My history</button>
-    <button class="tab" data-tab="usage">Usage log</button>
+    <button class="tab" data-tab="fame">Hall of Fame</button>
+    <button class="tab" data-tab="insights">Real donor insights</button>
+    <button class="tab" data-tab="mission">Mission experiences</button>
+    <button class="tab" data-tab="account">My account</button>
   </div>
 
   <!-- EVAL -->
@@ -394,22 +412,58 @@ table.log tr:last-child td{border-bottom:none}
   </section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
-  <section class="panel" id="setup"><div id="setupBody"></div></section>
-  <section class="panel" id="history">
-    <div class="note">Your tests are saved automatically under your name (<b id="histWho"></b>), newest first. Click <b>Reopen</b> to load any past test — its copy, context, and the full reactions — back into the Evaluate tab.</div>
-    <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
-    <div id="histList"></div>
+  <section class="panel" id="account">
+    <details class="acctblock" open><summary>My setup</summary>
+      <div id="setupBody"></div>
+    </details>
+    <details class="acctblock"><summary>My history</summary>
+      <div class="note">Your tests are saved automatically under your name (<b id="histWho"></b>), newest first. Click <b>Reopen</b> to load any past test — its copy, context, and the full reactions — back into the Donor feedback tab.</div>
+      <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
+      <div id="histList"></div>
+    </details>
+    <details class="acctblock"><summary>Usage log</summary>
+      <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
+      <div class="stats" id="stats"></div>
+      <div class="chartcard" id="personaChart" style="display:none"><h3>Average fit score by persona</h3><div id="personaBars"></div></div>
+      <div class="chartcard" id="assetChart" style="display:none"><h3>Average fit score by asset type</h3><div id="assetBars"></div></div>
+      <div class="toolbar"><button class="btn small" id="exportCsv">Export CSV</button><button class="btn small secondary" id="refreshLog">Refresh</button></div>
+      <div id="logTable"></div>
+      <div class="ownerwrap">
+        <div class="ownerhead"><h3>Owner report &mdash; users &amp; engagement</h3><button class="btn small" id="ownerCsv">Download owner report (CSV)</button></div>
+        <div id="ownerTable"></div>
+      </div>
+    </details>
   </section>
-  <section class="panel" id="usage">
-    <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
-    <div class="stats" id="stats"></div>
-    <div class="chartcard" id="personaChart" style="display:none"><h3>Average fit score by persona</h3><div id="personaBars"></div></div>
-    <div class="chartcard" id="assetChart" style="display:none"><h3>Average fit score by asset type</h3><div id="assetBars"></div></div>
-    <div class="toolbar"><button class="btn small" id="exportCsv">Export CSV</button><button class="btn small secondary" id="refreshLog">Refresh</button></div>
-    <div id="logTable"></div>
-    <div class="ownerwrap">
-      <div class="ownerhead"><h3>Owner report &mdash; users &amp; engagement</h3><button class="btn small" id="ownerCsv">Download owner report (CSV)</button></div>
-      <div id="ownerTable"></div>
+
+  <section class="panel" id="fame">
+    <div class="bvhead"><div class="one">Hall of Fame</div><div class="sum">A place to collect your proudest work &mdash; and standout examples from other organizations &mdash; so the team can see and learn from what great looks like. Uploading will be enabled in a future update.</div></div>
+    <div class="toolbar"><button class="btn small" disabled>＋ Add an example (coming soon)</button></div>
+    <div class="famegrid">
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Lorem ipsum dolor sit amet</div><div class="fline">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Ut enim ad minim veniam</div><div class="fline">Quis nostrud exercitation ullamco laboris nisi ut aliquip.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Duis aute irure dolor</div><div class="fline">In reprehenderit in voluptate velit esse cillum dolore.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Excepteur sint occaecat</div><div class="fline">Cupidatat non proident, sunt in culpa qui officia deserunt.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Sed ut perspiciatis unde</div><div class="fline">Omnis iste natus error sit voluptatem accusantium doloremque.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Nemo enim ipsam voluptatem</div><div class="fline">Quia voluptas sit aspernatur aut odit aut fugit consequuntur.</div></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="insights">
+    <div class="bvhead"><div class="one">Real donor insights <span class="devtag">Under development</span></div><div class="sum">Real quotes and feedback from donors on actual projects &mdash; so the voices in this tool stay grounded in what your community is truly saying. We&rsquo;ll build this out over time.</div></div>
+    <div class="quotegrid">
+      <div class="qcard">&ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.&rdquo;<div class="qattr">— Donor, lorem campaign</div></div>
+      <div class="qcard">&ldquo;Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.&rdquo;<div class="qattr">— Major gift donor</div></div>
+      <div class="qcard">&ldquo;Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.&rdquo;<div class="qattr">— Annual fund supporter</div></div>
+      <div class="qcard">&ldquo;Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.&rdquo;<div class="qattr">— Community partner</div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="mission">
+    <div class="bvhead"><div class="one">Mission experiences <span class="devtag">Under development</span></div><div class="sum">Eventually this will house hospital tours, mission experiences, ally tools, and other stewardship and prospecting ideas &mdash; practical ways to bring donors closer to the work and turn interest into lasting partnership.</div></div>
+    <div class="famegrid">
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Lorem ipsum tour</div><div class="fline">Sed do eiusmod tempor incididunt ut labore et dolore.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Mission experience</div><div class="fline">Ut enim ad minim veniam quis nostrud exercitation.</div></div></div>
+      <div class="fcard"><div class="fimg"></div><div class="fmeta"><div class="ftitle">Ally toolkit</div><div class="fline">Duis aute irure dolor in reprehenderit in voluptate.</div></div></div>
     </div>
   </section>
 
@@ -546,11 +600,9 @@ $$(".tab").forEach(t=>t.addEventListener("click",()=>{
   $$(".panel").forEach(x=>x.classList.remove("active"));
   t.classList.add("active"); $("#"+t.dataset.tab).classList.add("active");
   stopSpeaking();
-  if(t.dataset.tab==="usage") renderUsage();
   if(t.dataset.tab==="brand") renderBrand();
   if(t.dataset.tab==="photo") renderPhoto();
-  if(t.dataset.tab==="setup") renderSetup();
-  if(t.dataset.tab==="history") renderHistory();
+  if(t.dataset.tab==="account"){ renderSetup(); renderHistory(); renderUsage(); }
 }));
 
 function renderPhoto(){
