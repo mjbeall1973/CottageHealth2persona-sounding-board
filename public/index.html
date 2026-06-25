@@ -406,9 +406,10 @@ table.log tr:last-child td{border-bottom:none}
     <div class="regionbar">
       <span class="regionlbl">Hear each persona as a local from:</span>
       <div class="seg regionseg" id="regionSeg">
-        <button data-region="sb" class="on">🌊 Santa Barbara</button>
-        <button data-region="sy">🍇 Santa Ynez Valley</button>
-        <button data-region="both">Compare both</button>
+        <button data-region="northern">Northern · SLO</button>
+        <button data-region="central" class="on">Central · Santa Barbara</button>
+        <button data-region="southern">Southern · Ventura</button>
+        <button data-region="all">Compare all</button>
       </div>
     </div>
     <div class="pref" id="prefList"></div>
@@ -596,18 +597,19 @@ function profileBlock(p){
     <li><b>Personality:</b> ${esc(f.personality)}</li>
     <li><b>Where they get info:</b> ${esc(f.media)}</li></ul>`;
 }
-var REGION="sb";
-function regionName(r){ return r==="sy"?"🍇 Santa Ynez Valley":"🌊 Santa Barbara"; }
+var REGION="central";
+function regionName(r){ return r==="northern"?"Northern · San Luis Obispo":(r==="southern"?"Southern · Ventura":"Central · Santa Barbara"); }
 function saysBlock(p){
-  const sb=(p.spokenRegions&&p.spokenRegions.sb)||p.spoken||"";
-  const sy=(p.spokenRegions&&p.spokenRegions.sy)||p.spoken||"";
-  if(!sb&&!sy) return "";
-  if(REGION==="both"){
+  const sr=p.spokenRegions||{};
+  const n=sr.northern||p.spoken||"", c=sr.central||p.spoken||"", s=sr.southern||p.spoken||"";
+  if(!n&&!c&&!s) return "";
+  if(REGION==="all"){
     return `<div class="saysit"><h5>If they said it out loud</h5>
-      <div class="saystag">🌊 Santa Barbara</div><p class="saysquote">&ldquo;${esc(sb)}&rdquo;</p>
-      <div class="saystag">🍇 Santa Ynez Valley</div><p class="saysquote">&ldquo;${esc(sy)}&rdquo;</p></div>`;
+      <div class="saystag">Northern · San Luis Obispo</div><p class="saysquote">&ldquo;${esc(n)}&rdquo;</p>
+      <div class="saystag">Central · Santa Barbara</div><p class="saysquote">&ldquo;${esc(c)}&rdquo;</p>
+      <div class="saystag">Southern · Ventura</div><p class="saysquote">&ldquo;${esc(s)}&rdquo;</p></div>`;
   }
-  const t=(REGION==="sy")?sy:sb;
+  const t=REGION==="northern"?n:(REGION==="southern"?s:c);
   return `<div class="saysit"><h5>If they said it out loud &middot; ${regionName(REGION)}</h5><p class="saysquote">&ldquo;${esc(t)}&rdquo;</p></div>`;
 }
 function buildRef(){
@@ -633,8 +635,29 @@ function renderBrand(){
     <div class="bvcard"><div class="bt"><span class="bn">${esc(d.name)}</span><span class="bs">${d.score}</span></div>
       <div class="spec">${esc(d.spectrum)}</div><p class="bnote">${esc(d.note)}</p>
       <div class="chips">${d.words.map(w=>`<span class="chip">${esc(w)}</span>`).join("")}</div></div>`).join("");
+  const sayit=[
+    {a:"You, the donor, make an impact.", b:"Your gift doesn't disappear into an institution — it shows up in an exam room down the street. When you give, our neighbors heal closer to home. That's you, making it possible."},
+    {a:"Together, we can elevate care for the community.", b:"Coast to valley, we rise together. Every gift joins a community determined to make world-class care a hometown promise."},
+    {a:"We're proud to support our local doctors and nurses.", b:"The doctors and nurses who care for us are our neighbors too. Your support puts the tools, training, and technology in their hands to do their best work — right here at home."}
+  ];
+  const reworks=[
+    {a:"Improving the health and wellness of our community.", b:"A stronger, healthier coast-to-valley — built one neighbor at a time."},
+    {a:"Building a healthier tomorrow.", b:"The future of care starts here, and we're building it together."},
+    {a:"Delivering patient-centered, compassionate care.", b:"Care that knows your name — because here, every patient is a neighbor."},
+    {a:"Expanding access to quality, affordable healthcare.", b:"World-class care shouldn't mean leaving home. We're opening the door wider, coast to valley."},
+    {a:"Dedicated to excellence and innovation.", b:"We don't just keep pace with what's next in medicine — we bring it home."},
+    {a:"Where care comes first.", b:"Here, you come first — and care comes home."},
+    {a:"Empowering individuals to make healthy choices.", b:"Healthy starts here. We put the tools to thrive in our neighbors' hands."},
+    {a:"Improving lives, one patient at a time.", b:"Every life changed is a neighbor who gets to stay home — healthy and whole."},
+    {a:"Your most trusted partner in health.", b:"Proven through fire, flood, and every day in between — the care you trust, earned right here."},
+    {a:"Transforming healthcare, inspiring hope.", b:"Bold enough to reimagine care, close enough to call it home — that's hope you can count on."}
+  ];
+  const rows=arr=>arr.map(e=>`<div class="exrow"><div class="excol bad"><span class="exlbl bad">Instead of</span><span>${esc(e.a)}</span></div><div class="exarrow">→</div><div class="excol good"><span class="exlbl good">Say it this way</span><span>${esc(e.b)}</span></div></div>`).join("");
+  const st="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:26px 0 10px;font-weight:700";
   $("#bvBody").innerHTML=`<img class="voicegraphic" src="voice-sliders.png" alt="Cottage Health's brand voice vs. the Foundation's ideal voice — the workshop slider exercise across eight dimensions">
-    <div class="bvhead"><div class="one">${esc(BRAND_VOICE.oneLine)}</div><div class="sum">${esc(BRAND_VOICE.summary)}</div></div><div class="bvgrid">${cards}</div>`;
+    <div class="bvhead"><div class="one">${esc(BRAND_VOICE.oneLine)}</div><div class="sum">${esc(BRAND_VOICE.summary)}</div></div><div class="bvgrid">${cards}</div>
+    <div class="sectitle" style="${st}">Say it in the new voice</div><div class="exwrap">${rows(sayit)}</div>
+    <div class="sectitle" style="${st}">Reworking the usual healthcare lines</div><div class="exwrap">${rows(reworks)}</div>`;
 }
 
 /* tabs */
