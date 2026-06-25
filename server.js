@@ -338,9 +338,10 @@ TIER 2 — word banks to reward: ${TIER2_WORDS}.
 WORDS & PHRASES TO AVOID (tag every one the copy actually uses): ${DO_NOT_USE}.`;
 
 const REGION_NOTES = {
-  sb: "YOUR REGION: You're a local in the city of Santa Barbara — the coast, downtown and State Street, the harbor, the Mesa, Montecito — a more urban, coastal setting. React with that local lens: reward copy and imagery that feel relevant and authentic to coastal Santa Barbara, and note anything that feels generic or out-of-place for where you live.",
-  sy: "YOUR REGION: You're a local in the Santa Ynez Valley — the inland wine-country and ranching towns (Solvang, Los Olivos, Buellton, Santa Ynez), a smaller, rural, tight-knit community where world-class care often means a drive over the pass. React with that local lens: reward copy and imagery that feel relevant and authentic to the valley, and note anything that feels too city-centric or generic for where you live.",
-  both: ""
+  central: "YOUR REGION — The Central Core (Santa Barbara County): an audience balancing a high-end, leisure-oriented lifestyle with the pressure of a hyper-expensive housing market; they value wellness, prestige, and deep community roots. It spans Montecito/Hope Ranch retirees and wealthy remote workers who want premium, hyper-coordinated, concierge, high-touch and private care; UCSB/Isla Vista/Goleta tech and academic transplants who are tech-forward, independent, and want fast clinical turnarounds and telehealth; and a large, often-overlooked Santa Maria/Lompoc working class in agriculture and aerospace — family-centric, frequently bilingual (Spanish/English), and facing real geographic and economic barriers to care. React with this local lens and reward copy/imagery that feel authentic to it.",
+  northern: "YOUR REGION — The Northern Reach (San Luis Obispo County): slower, more rustic, deeply tied to the outdoors, agriculture, and Cal Poly — 'SLO' balanced, unhurried living. Locals are skeptical of big-city infrastructure and fiercely loyal to local institutions, valuing down-to-earth, relational care over flashy corporate models; active outdoor enthusiasts and students focus on sports medicine, physical therapy, and rapid recovery so they can get back to hiking, surfing, and cycling. React with this local lens.",
+  southern: "YOUR REGION — The Southern Reach (Ventura County): the transition zone where the relaxed Central Coast meets the fast-paced, commuter-heavy energy of greater Los Angeles. LA-spillover commuters prize efficiency, convenience, and evening/weekend availability because long commutes constrain their time; coastal suburban families navigate multi-generational care and talk in terms of school sports physicals, weekend urgent-care access, and reliable insurance coverage. React with this local lens.",
+  all: ""
 };
 function personalizeNote(pz) {
   if (!pz || typeof pz !== "object") return "";
@@ -441,7 +442,7 @@ async function evaluateOne(persona, atype, copy, img, images, context, region, p
 
 app.post("/api/evaluate", async (req, res) => {
   const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType } = req.body || {};
-  const cleanRegion = ["sb", "sy", "both"].includes(region) ? region : "both";
+  const cleanRegion = ["central", "northern", "southern", "all"].includes(region) ? region : "all";
   const cleanPz = (personalize && typeof personalize === "object") ? {
     lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
     use: (personalize.use || "").toString().slice(0, 80),
