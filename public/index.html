@@ -34,7 +34,14 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .herobanner img{display:block;width:100%;height:300px;object-fit:cover;object-position:center 40%}
 @media(max-width:600px){.herobanner img{height:160px}}
 .sub{color:var(--muted);font-size:14px;max-width:820px;margin:10px 2px 0}
-.tabs{display:flex;gap:6px;margin:18px 0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.primarynav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 4px}
+.primarytab{background:var(--brand);color:#fff;border:none;border-radius:12px;padding:14px 30px;font-size:18px;font-weight:600;cursor:pointer;box-shadow:var(--shadow)}
+.primarytab:hover{filter:brightness(1.08)}
+.primarytab.active{color:#fff;border-bottom-color:transparent}
+.primaryhint{font-size:13px;color:var(--muted)}
+.secnavlabel{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin:16px 2px 0}
+.regionmap{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-bottom:16px}
+.tabs{display:flex;gap:6px;margin:8px 0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .tab{padding:9px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
 .panel{display:none}.panel.active{display:block}
@@ -291,28 +298,22 @@ table.log tr:last-child td{border-bottom:none}
       <div class="eyebrow">Custom edition for</div>
       <div class="instname">Cottage Health Foundation</div>
     </div>
-    <div class="who"><span id="whoName"></span><br><a id="homeLink">Home</a> &middot; <a id="logout">Sign out</a></div>
+    <div class="who"><span id="whoName"></span><br><a id="homeLink">Home</a> &middot; <a id="acctLink">My account</a> &middot; <a id="logout">Sign out</a></div>
   </div>
   <div class="herobanner"><img src="cottage-hero.jpg" alt="Santa Barbara Cottage Hospital campus"></div>
-  <div class="betabar">
-    <div class="betatxt"><b>Beta version.</b> Please report any errors and share suggestions to help us improve the tool.</div>
-    <button class="btn small" id="betaToggle">Send feedback</button>
+  <div class="primarynav">
+    <button class="tab primarytab active" data-tab="eval">Test Your Message</button>
+    <span class="primaryhint">Start here — paste, dictate, or upload what you want feedback on.</span>
   </div>
-  <div class="betaform" id="betaForm" style="display:none">
-    <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
-    <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
-  </div>
-  <div class="sub">Bounce draft copy and image concepts off six Santa Barbara&ndash;area audiences before they go out the door. Paste your copy, <b>pull it from a web page</b>, <b>upload a PDF</b>, or <b>upload an image</b> &mdash; then each persona reacts in their own voice with a fit score and a concrete fix. Grounded in your brief plus Cottage and local-donor research.</div>
-
+  <div class="secnavlabel">Explore the voice</div>
   <div class="tabs">
-    <button class="tab active" data-tab="eval">Donor feedback</button>
-    <button class="tab" data-tab="ref">Donor personas</button>
     <button class="tab" data-tab="brand">Brand voice</button>
+    <button class="tab" data-tab="ref">Donor personas</button>
+    <button class="tab" data-tab="region">Regional voice</button>
     <button class="tab" data-tab="photo">Photography</button>
-    <button class="tab" data-tab="fame">Hall of Fame</button>
     <button class="tab" data-tab="insights">Real donor insights</button>
     <button class="tab" data-tab="mission">Mission experiences</button>
-    <button class="tab" data-tab="account">My account</button>
+    <button class="tab" data-tab="fame">Hall of Fame</button>
   </div>
 
   <!-- EVAL -->
@@ -412,17 +413,57 @@ table.log tr:last-child td{border-bottom:none}
   </section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
+  <section class="panel" id="region">
+    <div class="bvhead"><div class="one">Regional voice</div><div class="sum">Cottage serves coast to valley — two communities that share a voice but are moved by different things.</div></div>
+    <svg class="regionmap" viewBox="0 0 720 360" role="img" aria-label="Map showing the Santa Ynez Valley inland and Santa Barbara on the coast">
+      <rect width="720" height="360" fill="#eef3ef"/>
+      <rect x="0" y="0" width="720" height="172" fill="#e4efe0"/>
+      <text x="22" y="34" font-size="16" font-weight="700" fill="#2c5234">Santa Ynez Valley · inland</text>
+      <circle cx="180" cy="92" r="5" fill="#2e8b57"/><text x="190" y="96" font-size="12" fill="#3b6d3f">Los Olivos</text>
+      <circle cx="430" cy="98" r="5" fill="#2e8b57"/><text x="440" y="102" font-size="12" fill="#3b6d3f">Buellton</text>
+      <circle cx="330" cy="120" r="5" fill="#2e8b57"/><text x="340" y="124" font-size="12" fill="#3b6d3f">Santa Ynez</text>
+      <circle cx="245" cy="138" r="5" fill="#2e8b57"/><text x="255" y="142" font-size="12" fill="#3b6d3f">Solvang</text>
+      <g fill="#c9b79a"><path d="M0 212 L70 150 L140 212 Z"/><path d="M110 212 L190 146 L270 212 Z"/><path d="M240 212 L320 150 L400 212 Z"/><path d="M370 212 L450 148 L530 212 Z"/><path d="M500 212 L580 150 L660 212 Z"/><path d="M615 212 L690 156 L720 198 L720 212 Z"/></g>
+      <text x="22" y="200" font-size="12" fill="#7a6a4a">Santa Ynez Mountains · San Marcos Pass (Hwy 154)</text>
+      <rect x="0" y="212" width="720" height="118" fill="#dfeaf0"/>
+      <text x="22" y="246" font-size="16" font-weight="700" fill="#0a5b73">Santa Barbara · coast</text>
+      <circle cx="210" cy="288" r="5" fill="#0a5b73"/><text x="220" y="292" font-size="12" fill="#134b5f">Goleta</text>
+      <circle cx="370" cy="296" r="5" fill="#0a5b73"/><text x="380" y="300" font-size="12" fill="#134b5f">Santa Barbara</text>
+      <circle cx="540" cy="290" r="5" fill="#0a5b73"/><text x="550" y="294" font-size="12" fill="#134b5f">Montecito</text>
+      <rect x="0" y="330" width="720" height="30" fill="#2f8fa6"/>
+      <text x="22" y="350" font-size="12" fill="#eaf6fb">Pacific Ocean</text>
+    </svg>
+    <div class="pref">
+      <div class="pcard">
+        <div class="top"><div><div class="pname">Santa Barbara — coast</div><div class="prole">Urban, cosmopolitan, established</div></div></div>
+        <h5>What moves them</h5>
+        <ul><li>Keeping world-class care world-class — pride in a leading regional medical center.</li>
+        <li>Legacy and stewardship; an established giving culture and being among trusted peers.</li>
+        <li>Coastal, cosmopolitan touchpoints land — the harbor, the Riviera, State Street.</li></ul>
+        <h5>Tone that works</h5><div class="tone">Polished but warm — excellence made personal.</div>
+      </div>
+      <div class="pcard">
+        <div class="top"><div><div class="pname">Santa Ynez Valley — inland</div><div class="prole">Rural, close-knit, rooted</div></div></div>
+        <h5>What moves them</h5>
+        <ul><li>Access is everything — care a few miles from home, not an hour over the pass.</li>
+        <li>Tight-knit and neighborly; everyone knows everyone (Solvang, Los Olivos, Buellton).</li>
+        <li>Rooted in land, ranching, and wine-country identity; multi-generational.</li></ul>
+        <h5>Tone that works</h5><div class="tone">Plainspoken and hometown — belonging over prestige.</div>
+      </div>
+    </div>
+    <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Both lean inspirational and inclusive — coast to valley, everyone belongs. Set the audience region on Test Your Message to score copy through that local lens.</p>
+  </section>
   <section class="panel" id="account">
     <details class="acctblock" open><summary>My setup</summary>
       <div id="setupBody"></div>
     </details>
     <details class="acctblock"><summary>My history</summary>
-      <div class="note">Your tests are saved automatically under your name (<b id="histWho"></b>), newest first. Click <b>Reopen</b> to load any past test — its copy, context, and the full reactions — back into the Donor feedback tab.</div>
+      <div class="note">Saved automatically under your name (<b id="histWho"></b>), newest first. <b>Reopen</b> loads one back into Test Your Message.</div>
       <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
       <div id="histList"></div>
     </details>
     <details class="acctblock"><summary>Usage log</summary>
-      <div class="note">This log records every evaluation run across <b>all users</b> of this hosted tool. Use <b>Export CSV</b> to pull the full dataset for analysis.</div>
+      <div class="note">Every evaluation across <b>all users</b>. Export CSV for the full dataset.</div>
       <div class="stats" id="stats"></div>
       <div class="chartcard" id="personaChart" style="display:none"><h3>Average fit score by persona</h3><div id="personaBars"></div></div>
       <div class="chartcard" id="assetChart" style="display:none"><h3>Average fit score by asset type</h3><div id="assetBars"></div></div>
@@ -487,6 +528,14 @@ table.log tr:last-child td{border-bottom:none}
     </ol>
     <p>Critical criteria move the score the most; High criteria meaningfully raise or lower it; Medium criteria nudge it. The heat map shows these as columns so you can see exactly where a piece is strong or weak.</p>
   </details>
+  <div class="betabar">
+    <div class="betatxt"><b>Beta version.</b> Please report any errors and share suggestions to help us improve the tool.</div>
+    <button class="btn small" id="betaToggle">Send feedback</button>
+  </div>
+  <div class="betaform" id="betaForm" style="display:none">
+    <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
+    <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
+  </div>
   <div class="foot"><b>Donor Listening Room</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Accordant Philanthropy.</div>
 </div>
 
@@ -595,15 +644,17 @@ function renderBrand(){
 }
 
 /* tabs */
-$$(".tab").forEach(t=>t.addEventListener("click",()=>{
+function activatePanel(name){
   $$(".tab").forEach(x=>x.classList.remove("active"));
   $$(".panel").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active"); $("#"+t.dataset.tab).classList.add("active");
+  var btn=document.querySelector('.tab[data-tab="'+name+'"]'); if(btn) btn.classList.add("active");
+  var p=$("#"+name); if(p) p.classList.add("active");
   stopSpeaking();
-  if(t.dataset.tab==="brand") renderBrand();
-  if(t.dataset.tab==="photo") renderPhoto();
-  if(t.dataset.tab==="account"){ renderSetup(); renderHistory(); renderUsage(); }
-}));
+  if(name==="brand") renderBrand();
+  if(name==="photo") renderPhoto();
+  if(name==="account"){ renderSetup(); renderHistory(); renderUsage(); }
+}
+$$(".tab").forEach(t=>t.addEventListener("click",()=>activatePanel(t.dataset.tab)));
 
 function renderPhoto(){
   if(!PHOTO){ $("#photoBody").innerHTML="<div class='empty'>Photography guidance unavailable.</div>"; return; }
@@ -1377,12 +1428,9 @@ $("#ownerCsv").addEventListener("click",()=>{ window.location.href="/api/owner-r
 $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export.csv"; });
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
-function goHome(){
-  $$(".tab").forEach(x=>x.classList.remove("active")); $$(".panel").forEach(x=>x.classList.remove("active"));
-  var t=document.querySelector('.tab[data-tab="eval"]'); if(t) t.classList.add("active"); $("#eval").classList.add("active");
-  stopSpeaking(); window.scrollTo({top:0,behavior:"smooth"});
-}
+function goHome(){ activatePanel("eval"); window.scrollTo({top:0,behavior:"smooth"}); }
 $("#homeLink").addEventListener("click", goHome);
+$("#acctLink").addEventListener("click", function(){ activatePanel("account"); window.scrollTo({top:0,behavior:"smooth"}); });
 
 /* human help — package the thread + brief and route it to a human writer */
 function helpBrief(){
