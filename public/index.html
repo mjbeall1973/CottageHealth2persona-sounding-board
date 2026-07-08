@@ -222,7 +222,11 @@ table.heat tr.avg td.name{font-weight:700}
 .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .bgrid label,.bnotes{display:block;font-size:12px;font-weight:600;color:var(--ink)}
 .bgrid select,.bgrid input,.bnotes input{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400}
-.bnotes{margin-top:10px}
+.bnotes{margin-top:12px}
+.bnotes textarea{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400;resize:vertical;min-height:84px}
+.bchecks{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.bcheck{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.bcheck input{width:auto;margin:0}
 .opt{color:var(--muted);font-weight:400}
 .bactions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
 .brhead{display:flex;align-items:center;gap:14px;margin-bottom:10px}
@@ -234,6 +238,10 @@ table.heat tr.avg td.name{font-weight:700}
 .tweakrow label{font-size:12px;font-weight:600;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .tweakrow input[type=color]{width:44px;height:30px;border:1px solid var(--line);border-radius:6px;padding:0;background:#fff;cursor:pointer}
 .tweakchk{flex-direction:row!important;align-items:center!important;gap:6px!important}
+.facesprite{display:inline-block;border-radius:50%;background-repeat:no-repeat;vertical-align:middle}
+.facegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:6px;max-height:220px;overflow:auto;padding:2px}
+.facetile{border:2px solid transparent;border-radius:10px;background-repeat:no-repeat;cursor:pointer;padding:0}
+.facetile.on{border-color:var(--brand);box-shadow:0 0 0 2px #eaf1f3}
 .minihdr{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin:10px 0 4px}
 .minilist{margin:0 0 6px 18px;padding:0}
 @media(max-width:560px){.archgrid{grid-template-columns:repeat(2,1fr)}.bgrid{grid-template-columns:1fr}}
@@ -412,6 +420,7 @@ table.log tr:last-child td{border-bottom:none}
         <h2>Test against</h2>
         <div class="pers-toggles" id="toggles"></div>
         <p class="hint" style="margin:10px 2px 0">Eleanor is selected to start &mdash; check anyone else you want in the room.</p>
+        <button class="btn small secondary" id="openBuilder2" style="margin-top:12px;width:100%">＋ Build your own donor</button>
       </div>
     </div>
     <div class="resultsarea">
@@ -504,10 +513,32 @@ table.log tr:last-child td{border-bottom:none}
                 <option>Corporate spin</option>
                 <option>Guilt-tripping</option>
               </select></label>
+            <label>Personality type <span class="opt">(optional)</span><input id="bPersonality" placeholder="e.g. ENFJ, or 'warm &amp; steady'" maxlength="60"></label>
+            <label>Facts or feelings?
+              <select id="bFacts">
+                <option value="">Let the AI decide</option>
+                <option>Facts &amp; logic</option>
+                <option>Feelings &amp; story</option>
+                <option>A balance of both</option>
+              </select></label>
+            <label>Still working?
+              <select id="bWork">
+                <option value="">Let the AI decide</option>
+                <option>Working</option>
+                <option>Semi-retired</option>
+                <option>Retired</option>
+              </select></label>
+            <label>Faith / religion <span class="opt">(optional)</span><input id="bReligion" placeholder="e.g. Catholic, none, spiritual" maxlength="60"></label>
+            <label>Where they get their info <span class="opt">(optional)</span><input id="bInfo" placeholder="e.g. NPR, Instagram, local paper" maxlength="120"></label>
             <label>Name <span class="opt">(optional)</span><input id="bName" placeholder="Auto if left blank" maxlength="40"></label>
             <label>Age / life stage <span class="opt">(optional)</span><input id="bAge" placeholder="e.g. 60s, retired" maxlength="40"></label>
           </div>
-          <label class="bnotes">Anything else? <span class="opt">(optional)</span><input id="bNotes" placeholder="One detail that makes them them" maxlength="140"></label>
+          <div class="bchecks">
+            <label class="bcheck"><input type="checkbox" id="bKids"> Has kids</label>
+            <label class="bcheck"><input type="checkbox" id="bGrand"> Has grandkids</label>
+          </div>
+          <label class="bnotes">Profile notes <span class="opt">(optional — anything that makes them <em>them</em>)</span>
+            <textarea id="bNotes" rows="4" maxlength="600" placeholder="Their story, quirks, what they care about, how they talk, a memory that shapes their giving…"></textarea></label>
         </div>
 
         <div class="bactions"><button class="btn" id="bGen">✨ Bring them to life</button></div>
@@ -520,14 +551,9 @@ table.log tr:last-child td{border-bottom:none}
         <div class="saysit"><h5>If they said it out loud</h5><p class="saysquote" id="brQuote"></p></div>
         <details class="pdisc"><summary>Full profile</summary><div id="brDetail"></div></details>
         <div class="btweak">
-          <div class="blabel" style="margin-bottom:10px">Tweak the look</div>
-          <div class="tweakrow">
-            <label>Skin<input type="color" id="twSkin"></label>
-            <label>Hair<input type="color" id="twHair"></label>
-            <label>Top<input type="color" id="twClothes"></label>
-            <label>Style<select id="twStyle" style="height:30px;border:1px solid var(--line);border-radius:6px"><option value="short">Short</option><option value="bob">Bob</option><option value="long">Long</option><option value="bun">Bun</option></select></label>
-            <label class="tweakchk"><input type="checkbox" id="twGlasses"> Glasses</label>
-          </div>
+          <div class="blabel" style="margin-bottom:10px">Choose a face</div>
+          <div class="facegrid" id="faceGrid"></div>
+          <button type="button" class="btn small secondary" id="useIllus" style="margin-top:10px">Use an illustration instead</button>
         </div>
         <div class="bactions">
           <button class="btn secondary" id="bRegen">↻ Start over</button>
@@ -671,7 +697,13 @@ function esc(s){return (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;",
 function scoreColor(n){ if(n>=8)return "var(--good)"; if(n>=5)return "var(--warn)"; return "var(--bad)"; }
 function verdictColor(v){ v=(v||"").toLowerCase(); if(v.includes("love"))return "var(--good)"; if(v.includes("interest"))return "#2e8b57"; if(v.includes("lukewarm"))return "var(--warn)"; return "var(--bad)"; }
 
+var FACE_COLS=15, FACE_ROWS=5, FACE_COUNT=75;
+function faceSprite(i, size){
+  const col=i%FACE_COLS, row=Math.floor(i/FACE_COLS);
+  return `<span class="avatar facesprite" role="img" style="width:${size}px;height:${size}px;background-image:url('faces.jpg');background-size:${size*FACE_COLS}px ${size*FACE_ROWS}px;background-position:-${col*size}px -${row*size}px"></span>`;
+}
 function avatar(p, size){
+  if(p && typeof p.face==="number" && p.face>=0) return faceSprite(p.face, size);
   if(p && p.photo) return '<img class="avatar pavatar" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" width="'+size+'" height="'+size+'" loading="lazy">';
   return avatarSVG(p, size);
 }
@@ -768,13 +800,18 @@ function resetBuilder(){
   $("#bArch").innerHTML = BASE_PERSONAS.map((p,i)=>`<button type="button" class="archtile${i===0?" on":""}" data-arch="${p.id}">${avatar(p,44)}<span class="an">${esc(p.name)}</span></button>`).join("");
   $$("#bArch .archtile").forEach(b=>b.addEventListener("click",()=>{ const on=$("#bArch .archtile.on"); if(on)on.classList.remove("on"); b.classList.add("on"); }));
   $$("#bRegion button").forEach(b=>b.classList.toggle("on", b.dataset.r==="central"));
-  ["bName","bAge","bNotes"].forEach(id=>{ const el=$("#"+id); if(el) el.value=""; });
+  ["bName","bAge","bNotes","bPersonality","bReligion","bInfo"].forEach(id=>{ const el=$("#"+id); if(el) el.value=""; });
+  ["bFacts","bWork"].forEach(id=>{ const el=$("#"+id); if(el) el.selectedIndex=0; });
+  ["bKids","bGrand"].forEach(id=>{ const el=$("#"+id); if(el) el.checked=false; });
   ["bCap","bMot","bTurn"].forEach(id=>{ const el=$("#"+id); if(el){ el.value=el.querySelector("option[selected]")?el.querySelector("option[selected]").value:el.options[0].value; } });
 }
 async function genPersona(){
   const arch=$("#bArch .archtile.on"), regBtn=$("#bRegion button.on");
   const body={ archetype: arch?arch.dataset.arch:"", region: regBtn?regBtn.dataset.r:"central",
     capacity:$("#bCap").value, motivation:$("#bMot").value, turnoff:$("#bTurn").value,
+    personality:$("#bPersonality").value.trim(), factsFeelings:$("#bFacts").value,
+    working:$("#bWork").value, religion:$("#bReligion").value.trim(), infoSource:$("#bInfo").value.trim(),
+    kids:$("#bKids").checked, grandkids:$("#bGrand").checked,
     name:$("#bName").value.trim(), age:$("#bAge").value.trim(), notes:$("#bNotes").value.trim() };
   const btn=$("#bGen"); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='<span class="spinner light"></span>Bringing them to life...';
   try{
@@ -785,9 +822,18 @@ async function genPersona(){
   }catch(e){ alert("Network error — try again."); }
   btn.disabled=false; btn.innerHTML=old;
 }
-function renderBuiltAvatar(){ if(BUILT) $("#bAvatar").innerHTML = avatarSVG(BUILT, 96); }
+function renderBuiltAvatar(){ if(BUILT) $("#bAvatar").innerHTML = avatar(BUILT, 96); }
+function renderFaceGrid(){
+  const tile=52; let html="";
+  for(let i=0;i<FACE_COUNT;i++){
+    const col=i%FACE_COLS, row=Math.floor(i/FACE_COLS);
+    html+=`<button type="button" class="facetile${(BUILT&&BUILT.face===i)?" on":""}" data-i="${i}" style="width:${tile}px;height:${tile}px;background-image:url('faces.jpg');background-size:${tile*FACE_COLS}px ${tile*FACE_ROWS}px;background-position:-${col*tile}px -${row*tile}px"></button>`;
+  }
+  $("#faceGrid").innerHTML=html;
+}
 function showBuilt(){
   const p=BUILT; if(!p) return;
+  if(typeof p.face!=="number") p.face=Math.floor(Math.random()*FACE_COUNT);
   $("#bStep").style.display="none"; $("#bResult").style.display="block";
   renderBuiltAvatar();
   $("#brName").textContent=p.name; $("#brRole").textContent=p.role; $("#brBlurb").textContent=p.blurb;
@@ -796,8 +842,7 @@ function showBuilt(){
     + '<div class="minihdr">What moves them</div><ul class="minilist">'+p.motivations.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
     + '<div class="minihdr">What turns them off</div><ul class="minilist">'+p.objections.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
     + '<div class="minihdr">Tone that works</div><div class="tone">'+esc(p.tone)+"</div>";
-  $("#twSkin").value=p.avatar.skin; $("#twHair").value=p.avatar.hair; $("#twClothes").value=p.avatar.clothes;
-  $("#twStyle").value=p.avatar.style; $("#twGlasses").checked=!!p.avatar.glasses;
+  renderFaceGrid();
 }
 function applyTweak(){
   if(!BUILT) return;
@@ -1622,13 +1667,15 @@ $("#chatDownload").addEventListener("click", downloadChat);
 $("#prefList").addEventListener("click", e=>{ const b=e.target.closest(".meetbtn"); if(b) meetPersona(b.dataset.id); });
 $("#prefList").addEventListener("click", e=>{ const rb=e.target.closest(".rmcustom"); if(rb && confirm("Remove this custom persona?")) removeCustom(rb.dataset.id); });
 $("#openBuilder").addEventListener("click", openBuilder);
+$("#openBuilder2").addEventListener("click", openBuilder);
 $("#bClose").addEventListener("click", closeBuilder);
 $("#builder").addEventListener("click", e=>{ if(e.target.id==="builder") closeBuilder(); });
 $("#bRegion").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; $$("#bRegion button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); });
 $("#bGen").addEventListener("click", genPersona);
 $("#bSave").addEventListener("click", saveBuilt);
 $("#bRegen").addEventListener("click", ()=>{ $("#bStep").style.display="block"; $("#bResult").style.display="none"; });
-["twSkin","twHair","twClothes","twStyle","twGlasses"].forEach(id=>{ const el=$("#"+id); if(el){ el.addEventListener("input",applyTweak); el.addEventListener("change",applyTweak); } });
+$("#faceGrid").addEventListener("click", e=>{ const t=e.target.closest(".facetile"); if(!t||!BUILT) return; BUILT.face=parseInt(t.dataset.i,10); $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); t.classList.add("on"); renderBuiltAvatar(); });
+$("#useIllus").addEventListener("click", ()=>{ if(!BUILT) return; delete BUILT.face; $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); renderBuiltAvatar(); });
 $("#regionSeg").addEventListener("click", e=>{
   const b=e.target.closest("button[data-region]"); if(!b) return;
   $$("#regionSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
