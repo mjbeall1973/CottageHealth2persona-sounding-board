@@ -480,7 +480,10 @@ app.post("/api/build-persona", async (req, res) => {
   const seed = PERSONAS.find(p => p.id === b.archetype) || null;
   const regionNote = REGION_NOTES[region] || "";
   const capacity = pStr(b.capacity, 80), motivation = pStr(b.motivation, 80), turnoff = pStr(b.turnoff, 80);
-  const nameHint = pStr(b.name, 40), ageHint = pStr(b.age, 40), notes = pStr(b.notes, 300);
+  const nameHint = pStr(b.name, 40), ageHint = pStr(b.age, 40), notes = pStr(b.notes, 600);
+  const personality = pStr(b.personality, 60), factsFeelings = pStr(b.factsFeelings, 40);
+  const working = pStr(b.working, 40), religion = pStr(b.religion, 60), infoSource = pStr(b.infoSource, 120);
+  const kids = b.kids ? "yes" : "", grandkids = b.grandkids ? "yes" : "";
   const seedText = seed ? `Starting inspiration (create a DISTINCT new individual, do not copy verbatim): ${seed.name}, ${seed.role}. ${seed.blurb}` : "";
   const prompt = `You are designing a realistic fundraising donor persona for the Cottage Health Foundation in the Santa Barbara, California region (which spans Santa Barbara, San Luis Obispo, and Ventura counties).
 
@@ -493,9 +496,16 @@ Build a NEW, distinct persona shaped by these choices:
 - Biggest turn-off: ${turnoff || "unspecified"}
 ${nameHint ? `- Preferred name: ${nameHint}` : ""}
 ${ageHint ? `- Age / life stage: ${ageHint}` : ""}
+${personality ? `- Personality type / temperament: ${personality}` : ""}
+${factsFeelings ? `- Persuaded more by: ${factsFeelings}` : ""}
+${kids ? `- Has children: yes` : ""}
+${grandkids ? `- Has grandchildren: yes` : ""}
+${working ? `- Work status: ${working}` : ""}
+${religion ? `- Faith / religious affiliation: ${religion}` : ""}
+${infoSource ? `- Where they get their information: ${infoSource} (reflect this in the profile "media" field)` : ""}
 ${notes ? `- Extra detail to honor: ${notes}` : ""}
 
-Make them specific, believable, warm, and grounded in this region — a real individual with an inner life, NOT a caricature or a demographic stereotype. Avoid clichés about wealth, ethnicity, or age.
+Make them specific, believable, warm, and grounded in this region — a real individual with an inner life, NOT a caricature or a demographic stereotype. Avoid clichés about wealth, ethnicity, or age. Weave the family, faith, work, and temperament details in naturally where they'd shape how this person gives and responds.
 
 Respond with ONLY minified JSON (no markdown, no commentary) using EXACTLY these keys:
 {"name":"<first name>","role":"<short descriptor, e.g. '58, vineyard owner & longtime donor'>","blurb":"<2 sentences on who they are and how they think about giving>","profile":{"car":"<what they drive>","shops":"<where they shop>","brands":"<brands they like>","personality":"<MBTI-style tag + 2-3 words>","media":"<where they get information>"},"motivations":["<short>","<short>","<short>","<short>"],"objections":["<short>","<short>","<short>","<short>"],"tone":"<one sentence on how to speak to them>","imgYes":["<short>","<short>","<short>"],"imgNo":["<short>","<short>","<short>"],"intro":"<3-4 sentence first-person 'let me introduce myself' in their own voice>","spoken":"<1-2 sentence casual first-person line, as if speaking out loud as a local from this region>","avatar":{"skin":"<hex e.g. #e0a875>","hair":"<hex>","style":"<one of: short, bob, long, bun>","clothes":"<hex>","glasses":<true or false>},"voice":{"gender":"<female or male>","rate":<number 0.9-1.08>,"pitch":<number 0.9-1.1>},"color":"<a hex accent color>"}`;
