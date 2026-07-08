@@ -440,8 +440,114 @@ async function evaluateOne(persona, atype, copy, img, images, context, region, p
   return { error: true, raw: "No response." };
 }
 
+// ---------- custom "build your own" persona helpers ----------
+function pStr(v, n) { return (v == null ? "" : String(v)).slice(0, n).trim(); }
+function pArr(v, cnt, n) { return Array.isArray(v) ? v.map(x => pStr(x, n)).filter(Boolean).slice(0, cnt) : []; }
+function pHex(v, f) { return /^#[0-9a-fA-F]{6}$/.test(String(v || "")) ? String(v) : f; }
+const REGION_LABEL = { central: "Central · Santa Barbara County", northern: "Northern · San Luis Obispo County", southern: "Southern · Ventura County" };
+
+// Reduce an incoming custom persona to only the fields the evaluator needs.
+function sanitizeCustomPersona(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const name = pStr(raw.name, 40); if (!name) return null;
+  let id = pStr(raw.id || name, 50).replace(/[^a-zA-Z0-9_-]/g, "-");
+  if (!id.startsWith("custom-")) id = "custom-" + id;
+  const prof = raw.profile || {};
+  const mot = pArr(raw.motivations, 6, 120), obj = pArr(raw.objections, 6, 120);
+  return {
+    id: id.slice(0, 60),
+    name,
+    role: pStr(raw.role, 80) || "Custom donor persona",
+    color: pHex(raw.color, "#0a5b73"),
+    blurb: pStr(raw.blurb, 400) || name,
+    profile: {
+      car: pStr(prof.car, 120) || "—", shops: pStr(prof.shops, 120) || "—",
+      brands: pStr(prof.brands, 120) || "—", personality: pStr(prof.personality, 120) || "—",
+      media: pStr(prof.media, 120) || "—"
+    },
+    motivations: mot.length ? mot : ["—"],
+    objections: obj.length ? obj : ["—"],
+    tone: pStr(raw.tone, 300) || "—",
+    imgYes: pArr(raw.imgYes, 6, 120),
+    imgNo: pArr(raw.imgNo, 6, 120)
+  };
+}
+
+// Generate a full, region-grounded persona from the builder's choices.
+app.post("/api/build-persona", async (req, res) => {
+  const b = req.body || {};
+  const region = ["central", "northern", "southern"].includes(b.region) ? b.region : "central";
+  const seed = PERSONAS.find(p => p.id === b.archetype) || null;
+  const regionNote = REGION_NOTES[region] || "";
+  const capacity = pStr(b.capacity, 80), motivation = pStr(b.motivation, 80), turnoff = pStr(b.turnoff, 80);
+  const nameHint = pStr(b.name, 40), ageHint = pStr(b.age, 40), notes = pStr(b.notes, 300);
+  const seedText = seed ? `Starting inspiration (create a DISTINCT new individual, do not copy verbatim): ${seed.name}, ${seed.role}. ${seed.blurb}` : "";
+  const prompt = `You are designing a realistic fundraising donor persona for the Cottage Health Foundation in the Santa Barbara, California region (which spans Santa Barbara, San Luis Obispo, and Ventura counties).
+
+${seedText}
+
+Build a NEW, distinct persona shaped by these choices:
+- Region they live in: ${REGION_LABEL[region]}. ${regionNote}
+- Giving capacity: ${capacity || "unspecified"}
+- What moves them most: ${motivation || "unspecified"}
+- Biggest turn-off: ${turnoff || "unspecified"}
+${nameHint ? `- Preferred name: ${nameHint}` : ""}
+${ageHint ? `- Age / life stage: ${ageHint}` : ""}
+${notes ? `- Extra detail to honor: ${notes}` : ""}
+
+Make them specific, believable, warm, and grounded in this region — a real individual with an inner life, NOT a caricature or a demographic stereotype. Avoid clichés about wealth, ethnicity, or age.
+
+Respond with ONLY minified JSON (no markdown, no commentary) using EXACTLY these keys:
+{"name":"<first name>","role":"<short descriptor, e.g. '58, vineyard owner & longtime donor'>","blurb":"<2 sentences on who they are and how they think about giving>","profile":{"car":"<what they drive>","shops":"<where they shop>","brands":"<brands they like>","personality":"<MBTI-style tag + 2-3 words>","media":"<where they get information>"},"motivations":["<short>","<short>","<short>","<short>"],"objections":["<short>","<short>","<short>","<short>"],"tone":"<one sentence on how to speak to them>","imgYes":["<short>","<short>","<short>"],"imgNo":["<short>","<short>","<short>"],"intro":"<3-4 sentence first-person 'let me introduce myself' in their own voice>","spoken":"<1-2 sentence casual first-person line, as if speaking out loud as a local from this region>","avatar":{"skin":"<hex e.g. #e0a875>","hair":"<hex>","style":"<one of: short, bob, long, bun>","clothes":"<hex>","glasses":<true or false>},"voice":{"gender":"<female or male>","rate":<number 0.9-1.08>,"pitch":<number 0.9-1.1>},"color":"<a hex accent color>"}`;
+  try {
+    const msg = await anthropic.messages.create({ model: MODEL, max_tokens: 800, messages: [{ role: "user", content: prompt }] });
+    const text = (msg.content || []).map(x => x.text || "").join("");
+    const d = parseModelJSON(text);
+    if (!d) return res.status(502).json({ error: "Couldn't shape that persona — try again." });
+    const color = pHex(d.color, (seed && seed.color) || "#0a5b73");
+    const av = d.avatar || {}; const vc = d.voice || {};
+    const spoken = pStr(d.spoken, 400);
+    const prof = d.profile || {};
+    const mot = pArr(d.motivations, 6, 120), obj = pArr(d.objections, 6, 120);
+    const persona = {
+      id: "custom-" + Date.now().toString(36) + Math.floor(Math.random() * 1000),
+      name: pStr(d.name, 40) || nameHint || "New persona",
+      role: pStr(d.role, 80) || "Custom donor persona",
+      color, custom: true,
+      blurb: pStr(d.blurb, 400),
+      profile: {
+        car: pStr(prof.car, 120) || "—", shops: pStr(prof.shops, 120) || "—",
+        brands: pStr(prof.brands, 120) || "—", personality: pStr(prof.personality, 120) || "—",
+        media: pStr(prof.media, 120) || "—"
+      },
+      motivations: mot.length ? mot : ["Local impact they can see"],
+      objections: obj.length ? obj : ["Anything that feels salesy"],
+      tone: pStr(d.tone, 300) || "Warm, genuine, plainspoken.",
+      imgYes: pArr(d.imgYes, 6, 120),
+      imgNo: pArr(d.imgNo, 6, 120),
+      intro: pStr(d.intro, 600),
+      spoken,
+      spokenRegions: { [region]: spoken },
+      avatar: {
+        skin: pHex(av.skin, "#e0a875"), hair: pHex(av.hair, "#3a322c"),
+        style: ["short", "bob", "long", "bun"].includes(av.style) ? av.style : "short",
+        clothes: pHex(av.clothes, color), glasses: !!av.glasses
+      },
+      voice: {
+        gender: vc.gender === "male" ? "male" : "female",
+        rate: Math.max(0.85, Math.min(1.12, parseFloat(vc.rate) || 1.0)),
+        pitch: Math.max(0.85, Math.min(1.15, parseFloat(vc.pitch) || 1.0))
+      },
+      region
+    };
+    res.json({ persona });
+  } catch (e) {
+    res.status(500).json({ error: (e && e.message) || "Persona builder error." });
+  }
+});
+
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType } = req.body || {};
+  const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType, customPersonas } = req.body || {};
   const cleanRegion = ["central", "northern", "southern", "all"].includes(region) ? region : "all";
   const cleanPz = (personalize && typeof personalize === "object") ? {
     lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
@@ -462,8 +568,11 @@ app.post("/api/evaluate", async (req, res) => {
   if (totalImgLen > 18000000) return res.status(413).json({ error: "Those images are too large — try fewer pages or a smaller file." });
   if (!cleanCopy && !cleanImg && !imgs.length) return res.status(400).json({ error: "Add some copy, describe a visual, or upload an image/PDF first." });
 
+  const custom = Array.isArray(customPersonas) ? customPersonas.map(sanitizeCustomPersona).filter(Boolean) : [];
+  const pool = PERSONAS.concat(custom);
   const ids = Array.isArray(personaIds) && personaIds.length ? personaIds : PERSONAS.map(p => p.id);
-  const chosen = PERSONAS.filter(p => ids.includes(p.id));
+  const seen = {};
+  const chosen = pool.filter(p => ids.includes(p.id) && !seen[p.id] && (seen[p.id] = 1));
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
