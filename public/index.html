@@ -199,6 +199,44 @@ table.heat tr.avg td.name{font-weight:700}
 .chatbar{display:flex;gap:8px;align-items:flex-end}
 .chatbar textarea{flex:1}
 .meetbtn{margin:4px 0 2px}
+/* build-your-own persona */
+.buildcard{background:linear-gradient(135deg,#eaf1f3,#fff);border:1px dashed var(--brand)}
+.buildcta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.custombadge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fff;background:var(--brand);border-radius:20px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.rmcustom{margin-top:8px}
+.justmade{animation:pop 1.2s ease}
+@keyframes pop{0%{box-shadow:0 0 0 3px var(--brand)}100%{box-shadow:none}}
+.modal{position:fixed;inset:0;background:rgba(20,30,45,.5);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:30px 16px;overflow:auto}
+.modal.open{display:flex}
+.modalbox{background:#fff;border-radius:16px;max-width:640px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(20,30,45,.3);position:relative}
+.modalx{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;line-height:1}
+.btitle{font-size:22px;margin:0 2px 4px}
+.bsub{color:var(--muted);font-size:14px;margin:0 2px 18px}
+.bsec{margin-bottom:18px}
+.blabel{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--brand);font-weight:700;margin-bottom:8px}
+.archgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.archtile{display:flex;flex-direction:column;align-items:center;gap:6px;background:#f7f8fa;border:2px solid var(--line);border-radius:12px;padding:10px 6px;cursor:pointer;font:inherit}
+.archtile .an{font-size:12px;font-weight:600}
+.archtile.on{border-color:var(--brand);background:#eaf1f3}
+.archtile img,.archtile .avatar{border-radius:50%}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bgrid label,.bnotes{display:block;font-size:12px;font-weight:600;color:var(--ink)}
+.bgrid select,.bgrid input,.bnotes input{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400}
+.bnotes{margin-top:10px}
+.opt{color:var(--muted);font-weight:400}
+.bactions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.brhead{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.brname{font-size:20px;font-weight:700}
+.brrole{color:var(--muted);font-size:13px}
+.brblurb{font-size:14px;line-height:1.5;margin-bottom:10px}
+.btweak{background:#f7f8fa;border-radius:12px;padding:12px;margin:12px 0}
+.tweakrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.tweakrow label{font-size:12px;font-weight:600;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.tweakrow input[type=color]{width:44px;height:30px;border:1px solid var(--line);border-radius:6px;padding:0;background:#fff;cursor:pointer}
+.tweakchk{flex-direction:row!important;align-items:center!important;gap:6px!important}
+.minihdr{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin:10px 0 4px}
+.minilist{margin:0 0 6px 18px;padding:0}
+@media(max-width:560px){.archgrid{grid-template-columns:repeat(2,1fr)}.bgrid{grid-template-columns:1fr}}
 .pcard.speaking{box-shadow:0 0 0 2px var(--brand-soft),var(--shadow)}
 .pcard.speaking .avatar{animation:talk .9s ease-in-out infinite}
 @keyframes talk{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
@@ -412,8 +450,92 @@ table.log tr:last-child td{border-bottom:none}
         <button data-region="all">Compare all</button>
       </div>
     </div>
+    <div class="pcard buildcard">
+      <div class="buildcta">
+        <div><div class="pname">Build your own donor ✨</div><div class="prole">Create a custom persona and add them to your test panel</div></div>
+        <button class="btn small" id="openBuilder">＋ Build your own</button>
+      </div>
+    </div>
     <div class="pref" id="prefList"></div>
   </section>
+
+  <!-- Build-your-own persona modal -->
+  <div class="modal" id="builder">
+    <div class="modalbox">
+      <button class="modalx" id="bClose" aria-label="Close">✕</button>
+      <div id="bStep">
+        <h2 class="btitle">Build your own donor</h2>
+        <p class="bsub">Start from a familiar type, set them in a place, then make them yours. We&rsquo;ll bring them to life.</p>
+
+        <div class="bsec"><div class="blabel">1 · Start from a type</div>
+          <div class="archgrid" id="bArch"></div></div>
+
+        <div class="bsec"><div class="blabel">2 · Where do they live?</div>
+          <div class="seg" id="bRegion">
+            <button type="button" data-r="northern">Northern · SLO</button>
+            <button type="button" data-r="central" class="on">Central · Santa Barbara</button>
+            <button type="button" data-r="southern">Southern · Ventura</button>
+          </div></div>
+
+        <div class="bsec"><div class="blabel">3 · Dial them in</div>
+          <div class="bgrid">
+            <label>Giving capacity
+              <select id="bCap">
+                <option>Transformational — 7–8 figure capacity</option>
+                <option>Major gifts — six figures</option>
+                <option selected>Mid-level — $1k–$25k a year</option>
+                <option>Grassroots — any-size community giver</option>
+              </select></label>
+            <label>What moves them most
+              <select id="bMot">
+                <option>Legacy &amp; family name</option>
+                <option>Measurable impact &amp; ROI</option>
+                <option selected>Community &amp; belonging</option>
+                <option>Faith &amp; gratitude</option>
+                <option>Recognition &amp; visibility</option>
+                <option>Advancing medical excellence</option>
+              </select></label>
+            <label>Biggest turn-off
+              <select id="bTurn">
+                <option selected>Anything salesy or pushy</option>
+                <option>Vague asks with no specifics</option>
+                <option>Feeling like just a number</option>
+                <option>Elitism / black-tie-only vibe</option>
+                <option>Corporate spin</option>
+                <option>Guilt-tripping</option>
+              </select></label>
+            <label>Name <span class="opt">(optional)</span><input id="bName" placeholder="Auto if left blank" maxlength="40"></label>
+            <label>Age / life stage <span class="opt">(optional)</span><input id="bAge" placeholder="e.g. 60s, retired" maxlength="40"></label>
+          </div>
+          <label class="bnotes">Anything else? <span class="opt">(optional)</span><input id="bNotes" placeholder="One detail that makes them them" maxlength="140"></label>
+        </div>
+
+        <div class="bactions"><button class="btn" id="bGen">✨ Bring them to life</button></div>
+      </div>
+
+      <div id="bResult" style="display:none">
+        <div class="brhead"><div id="bAvatar"></div>
+          <div><div class="brname" id="brName"></div><div class="brrole" id="brRole"></div></div></div>
+        <div class="brblurb" id="brBlurb"></div>
+        <div class="saysit"><h5>If they said it out loud</h5><p class="saysquote" id="brQuote"></p></div>
+        <details class="pdisc"><summary>Full profile</summary><div id="brDetail"></div></details>
+        <div class="btweak">
+          <div class="blabel" style="margin-bottom:10px">Tweak the look</div>
+          <div class="tweakrow">
+            <label>Skin<input type="color" id="twSkin"></label>
+            <label>Hair<input type="color" id="twHair"></label>
+            <label>Top<input type="color" id="twClothes"></label>
+            <label>Style<select id="twStyle" style="height:30px;border:1px solid var(--line);border-radius:6px"><option value="short">Short</option><option value="bob">Bob</option><option value="long">Long</option><option value="bun">Bun</option></select></label>
+            <label class="tweakchk"><input type="checkbox" id="twGlasses"> Glasses</label>
+          </div>
+        </div>
+        <div class="bactions">
+          <button class="btn secondary" id="bRegen">↻ Start over</button>
+          <button class="btn" id="bSave">＋ Save to my panel</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
   <section class="panel" id="region">
@@ -538,6 +660,10 @@ table.log tr:last-child td{border-bottom:none}
 <script>
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
 var PROFILE = null, LEARN = null;
+var BASE_PERSONAS = [], CUSTOM = [], BUILT = null;
+function customKey(){ return "pvg_custom_"+((PROFILE&&PROFILE.name)||"anon"); }
+function loadCustom(){ try{ CUSTOM=JSON.parse(localStorage.getItem(customKey())||"[]"); }catch(e){ CUSTOM=[]; } if(!Array.isArray(CUSTOM)) CUSTOM=[]; }
+function saveCustom(){ try{ localStorage.setItem(customKey(),JSON.stringify(CUSTOM)); }catch(e){} }
 if(window.pdfjsLib){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){} }
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -574,8 +700,9 @@ async function boot(){
   let cfg;
   try{ cfg = await (await fetch("/api/config")).json(); }
   catch(e){ document.body.innerHTML="<p style='padding:40px;font-family:sans-serif'>Couldn't load the tool. Please refresh.</p>"; return; }
-  PERSONAS = cfg.personas; BRAND_VOICE = cfg.brandVoice; PHOTO = cfg.photography;
-  loadProfile(cfg.user); loadLearn();
+  BASE_PERSONAS = (cfg.personas||[]).slice(); BRAND_VOICE = cfg.brandVoice; PHOTO = cfg.photography;
+  loadProfile(cfg.user); loadLearn(); loadCustom();
+  PERSONAS = BASE_PERSONAS.concat(CUSTOM);
   $("#whoName").textContent = (PROFILE && PROFILE.name) || cfg.user || "";
   buildToggles(); buildRef();
 }
@@ -616,7 +743,7 @@ function buildRef(){
   $("#prefList").innerHTML = PERSONAS.map(p=>`
     <div class="pcard" id="pcard-${p.id}">
       <div class="top">${avatar(p,92)}
-        <div><div class="pname">${esc(p.name)}</div><div class="prole">${esc(p.role)}</div></div></div>
+        <div><div class="pname">${esc(p.name)}${p.custom?'<span class="custombadge">Custom</span>':""}</div><div class="prole">${esc(p.role)}</div></div></div>
       ${p.intro?`<button class="btn small secondary meetbtn" data-id="${p.id}" data-label="▶ Meet ${esc(p.name)}">▶ Meet ${esc(p.name)}</button>`:""}
       <div class="blurb">${esc(p.blurb)}</div>
       ${saysBlock(p)}
@@ -628,7 +755,72 @@ function buildRef(){
         <div class="chk"><div class="yes"><h5>Lean in</h5><ul>${p.imgYes.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div>
           <div class="no"><h5>Avoid</h5><ul>${p.imgNo.map(m=>`<li>${esc(m)}</li>`).join("")}</ul></div></div>
       </details>
+      ${p.custom?`<button class="btn small secondary rmcustom" data-id="${p.id}">✕ Remove</button>`:""}
     </div>`).join("");
+}
+
+// ---------- build-your-own persona ----------
+function openBuilder(){ resetBuilder(); $("#builder").classList.add("open"); }
+function closeBuilder(){ $("#builder").classList.remove("open"); }
+function resetBuilder(){
+  BUILT=null;
+  $("#bStep").style.display="block"; $("#bResult").style.display="none";
+  $("#bArch").innerHTML = BASE_PERSONAS.map((p,i)=>`<button type="button" class="archtile${i===0?" on":""}" data-arch="${p.id}">${avatar(p,44)}<span class="an">${esc(p.name)}</span></button>`).join("");
+  $$("#bArch .archtile").forEach(b=>b.addEventListener("click",()=>{ const on=$("#bArch .archtile.on"); if(on)on.classList.remove("on"); b.classList.add("on"); }));
+  $$("#bRegion button").forEach(b=>b.classList.toggle("on", b.dataset.r==="central"));
+  ["bName","bAge","bNotes"].forEach(id=>{ const el=$("#"+id); if(el) el.value=""; });
+  ["bCap","bMot","bTurn"].forEach(id=>{ const el=$("#"+id); if(el){ el.value=el.querySelector("option[selected]")?el.querySelector("option[selected]").value:el.options[0].value; } });
+}
+async function genPersona(){
+  const arch=$("#bArch .archtile.on"), regBtn=$("#bRegion button.on");
+  const body={ archetype: arch?arch.dataset.arch:"", region: regBtn?regBtn.dataset.r:"central",
+    capacity:$("#bCap").value, motivation:$("#bMot").value, turnoff:$("#bTurn").value,
+    name:$("#bName").value.trim(), age:$("#bAge").value.trim(), notes:$("#bNotes").value.trim() };
+  const btn=$("#bGen"); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='<span class="spinner light"></span>Bringing them to life...';
+  try{
+    const r=await fetch("/api/build-persona",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok||!j.persona){ alert(j.error||"Couldn't build that persona — try again."); }
+    else{ BUILT=j.persona; showBuilt(); }
+  }catch(e){ alert("Network error — try again."); }
+  btn.disabled=false; btn.innerHTML=old;
+}
+function renderBuiltAvatar(){ if(BUILT) $("#bAvatar").innerHTML = avatarSVG(BUILT, 96); }
+function showBuilt(){
+  const p=BUILT; if(!p) return;
+  $("#bStep").style.display="none"; $("#bResult").style.display="block";
+  renderBuiltAvatar();
+  $("#brName").textContent=p.name; $("#brRole").textContent=p.role; $("#brBlurb").textContent=p.blurb;
+  $("#brQuote").innerHTML="&ldquo;"+esc(p.spoken)+"&rdquo;";
+  $("#brDetail").innerHTML = profileBlock(p)
+    + '<div class="minihdr">What moves them</div><ul class="minilist">'+p.motivations.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
+    + '<div class="minihdr">What turns them off</div><ul class="minilist">'+p.objections.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
+    + '<div class="minihdr">Tone that works</div><div class="tone">'+esc(p.tone)+"</div>";
+  $("#twSkin").value=p.avatar.skin; $("#twHair").value=p.avatar.hair; $("#twClothes").value=p.avatar.clothes;
+  $("#twStyle").value=p.avatar.style; $("#twGlasses").checked=!!p.avatar.glasses;
+}
+function applyTweak(){
+  if(!BUILT) return;
+  BUILT.avatar.skin=$("#twSkin").value; BUILT.avatar.hair=$("#twHair").value;
+  BUILT.avatar.clothes=$("#twClothes").value; BUILT.avatar.style=$("#twStyle").value;
+  BUILT.avatar.glasses=$("#twGlasses").checked;
+  renderBuiltAvatar();
+}
+function saveBuilt(){
+  if(!BUILT) return;
+  CUSTOM.push(BUILT); saveCustom();
+  PERSONAS = BASE_PERSONAS.concat(CUSTOM);
+  const newId=BUILT.id; BUILT=null;
+  buildToggles(); buildRef();
+  const cb=document.querySelector('.ptog input[value="'+newId+'"]'); if(cb) cb.checked=true;
+  closeBuilder();
+  const card=document.getElementById("pcard-"+newId);
+  if(card){ card.scrollIntoView({behavior:"smooth",block:"center"}); card.classList.add("justmade"); }
+}
+function removeCustom(id){
+  CUSTOM = CUSTOM.filter(p=>p.id!==id); saveCustom();
+  PERSONAS = BASE_PERSONAS.concat(CUSTOM);
+  buildToggles(); buildRef();
 }
 function renderBrand(){
   const cards=BRAND_VOICE.dimensions.map(d=>`
@@ -976,6 +1168,7 @@ async function run(){
   try{
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({atype,copy,img,context,region,personalize:personalizePayload(),personaIds:sel,source,
+        customPersonas: CUSTOM.filter(p=>sel.includes(p.id)),
         images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -1427,6 +1620,15 @@ $("#chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftK
 $("#refineChips").addEventListener("click", e=>{ const c=e.target.closest("[data-q]"); if(c) sendChat(c.getAttribute("data-q")); });
 $("#chatDownload").addEventListener("click", downloadChat);
 $("#prefList").addEventListener("click", e=>{ const b=e.target.closest(".meetbtn"); if(b) meetPersona(b.dataset.id); });
+$("#prefList").addEventListener("click", e=>{ const rb=e.target.closest(".rmcustom"); if(rb && confirm("Remove this custom persona?")) removeCustom(rb.dataset.id); });
+$("#openBuilder").addEventListener("click", openBuilder);
+$("#bClose").addEventListener("click", closeBuilder);
+$("#builder").addEventListener("click", e=>{ if(e.target.id==="builder") closeBuilder(); });
+$("#bRegion").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; $$("#bRegion button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); });
+$("#bGen").addEventListener("click", genPersona);
+$("#bSave").addEventListener("click", saveBuilt);
+$("#bRegen").addEventListener("click", ()=>{ $("#bStep").style.display="block"; $("#bResult").style.display="none"; });
+["twSkin","twHair","twClothes","twStyle","twGlasses"].forEach(id=>{ const el=$("#"+id); if(el){ el.addEventListener("input",applyTweak); el.addEventListener("change",applyTweak); } });
 $("#regionSeg").addEventListener("click", e=>{
   const b=e.target.closest("button[data-region]"); if(!b) return;
   $$("#regionSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
