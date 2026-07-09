@@ -173,6 +173,9 @@ app.get("/api/owner-report.txt", (req, res) => {
   res.send(L.join("\n"));
 });
 
+// the login page needs its logo before sign-in — serve it (and the favicon) without auth
+app.get("/donor-listening-room-logo.png", (req, res) => res.sendFile(path.join(__dirname, "public", "donor-listening-room-logo.png")));
+
 app.use(requireAuth);
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.use(express.static(path.join(__dirname, "public")));
