@@ -376,6 +376,8 @@ function personalizeNote(pz) {
 }
 const NEUROGIVING = `NEUROGIVING LENS (the brain science of donor decisions — apply this when you react and especially when you write your "fix"; drawn from Cherian Koshy's book "Neurogiving: The Science of Donor Decision-Making"): People decide to give EMOTIONALLY first and justify with logic afterward — so reward copy that leads with genuine feeling and a real, specific story over statistics or a rational/comparative case. Giving is an act of IDENTITY, not a purchase: the strongest copy answers "does this reflect who I am?" and affirms who the donor already is (e.g. "you're the kind of person who shows up") rather than only what a gift buys. The best appeals light up three responses at once — it feels good (reward), it matters to me (empathy), and it's who I am (identity). Make any next step or ask feel EASY, CLEAR, and FAMILIAR; friction, delay, and vagueness cause "generosity decay," the fading of motivation after the impulse to give. Keep it OUTSIDE-IN: donors express personal meaning, they don't give to an institution. ETHICAL GUARDRAIL: never reward manipulation, pressure, guilt, or dark patterns — if a donor would feel uncomfortable knowing how they were being influenced, mark it down. When relevant, make your "fix" a neurogiving-aligned improvement: more emotion and real story, stronger identity framing, or an easier, clearer next step.`;
 
+const COPY_STYLE = `COPY STYLE RULE for any wording you write, suggest, or rewrite (including the "fix" and any revised copy): never use em dashes (—) or en dashes (–). Use a comma, period, colon, or the word "and" instead. This applies only to copy you produce, not to your analysis.`;
+
 function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region, personalize) {
   const regionNote = REGION_NOTES[region] || "";
   const pzNote = personalizeNote(personalize);
@@ -394,6 +396,8 @@ For images, you lean into: ${p.imgYes.join("; ")}. You dislike: ${p.imgNo.join("
 ${BRAND_VOICE.promptSummary}${pzNote ? "\n\n" + pzNote : ""}
 
 ${NEUROGIVING}
+
+${COPY_STYLE}
 
 ${SCORING_GUIDE}
 
@@ -722,6 +726,8 @@ app.post("/api/chat", async (req, res) => {
   }) : "";
   const system = `You are the Cottage Health Foundation's philanthropy voice coach, talking with a staff member about a piece of content they just tested against six audience personas. Help them improve it through a natural back-and-forth: give specific, friendly, practical feedback and suggestions, explain the personas' reactions when useful, and when they ask, rewrite the copy in the Foundation's voice. Keep replies concise — a short paragraph or a tight list. When you provide a revised version, present it clearly (e.g. under a "Revised:" label) so it is easy to copy.
 ${BRAND_VOICE.promptSummary}
+${NEUROGIVING}
+${COPY_STYLE}
 ${SCORING_GUIDE}
 ${pzChat ? pzChat + "\n" : ""}${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
 ${ctx.context ? `WHAT THEY'RE TESTING (their goal): "${String(ctx.context).slice(0, 600)}".\n` : ""}THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
