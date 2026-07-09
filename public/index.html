@@ -1696,7 +1696,11 @@ function humanHelp(){
 $("#humanHelp").addEventListener("click", humanHelp);
 $("#humanHelpR").addEventListener("click", humanHelp);
 
+function pingActivity(){ if(document.visibilityState==="visible"){ fetch("/api/ping",{method:"POST"}).catch(()=>{}); } }
+setInterval(pingActivity, 30000);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") pingActivity(); });
 boot();
+pingActivity();
 </script>
 </body>
 </html>
