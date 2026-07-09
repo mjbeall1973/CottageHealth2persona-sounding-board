@@ -265,6 +265,21 @@ table.heat tr.avg td.name{font-weight:700}
 .gltable th{background:#f7f8fa;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
 .gltable td:first-child{font-weight:600;white-space:nowrap}
 .glfoot{color:var(--muted);font-size:13px;margin-top:14px;font-style:italic}
+/* examples library template */
+.xlcats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.xlcat{font-size:12.5px;padding:5px 12px;border:1px solid var(--line);border-radius:20px;color:var(--muted);background:#fff}
+.xlcat.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.xlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:6px}
+.xlcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.xlthumb{height:118px;background:repeating-linear-gradient(45deg,#f1f4f6,#f1f4f6 12px,#e9edf1 12px,#e9edf1 24px);position:relative}
+.xlscore{position:absolute;top:8px;right:8px;background:#fff;border:1px solid var(--line);border-radius:20px;font-size:11px;font-weight:700;color:var(--muted);padding:2px 8px}
+.xlbody{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.xltag{align-self:flex-start;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);background:#eaf1f3;border-radius:6px;padding:2px 7px}
+.xltitle{font-weight:700;font-size:14.5px;color:var(--ink)}
+.xldesc{font-size:12.5px;color:var(--muted);line-height:1.4;flex:1}
+.xlacts{display:flex;gap:8px;margin-top:4px}
+.xlhow{margin:0;padding-left:18px;font-size:14px;line-height:1.55}
+.xlhow li{margin-bottom:6px}
 .minihdr{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin:10px 0 4px}
 .minilist{margin:0 0 6px 18px;padding:0}
 @media(max-width:560px){.archgrid{grid-template-columns:repeat(2,1fr)}.bgrid{grid-template-columns:1fr}}
@@ -382,6 +397,7 @@ table.log tr:last-child td{border-bottom:none}
     <button class="tab" data-tab="ref">Donor personas</button>
     <button class="tab" data-tab="region">Regional voice</button>
     <button class="tab" data-tab="photo">Photography</button>
+    <button class="tab" data-tab="examples">Examples</button>
   </div>
 
   <!-- EVAL -->
@@ -657,6 +673,47 @@ table.log tr:last-child td{border-bottom:none}
   </section>
   <section class="panel" id="brand"><div id="bvBody"></div></section>
   <section class="panel" id="photo"><div id="photoBody"></div></section>
+  <section class="panel" id="examples">
+    <div class="bvhead">
+      <div class="one">Examples <span class="tmpl">Coming soon</span></div>
+      <div class="sum">A growing library of proven, on-voice work &mdash; real pieces worth learning from. When we add them, each won&rsquo;t just be an example to admire: it&rsquo;ll double as a starting template you can reuse, so strong past work speeds up the next project.</div>
+    </div>
+
+    <div class="xlcats">
+      <span class="xlcat on">All</span>
+      <span class="xlcat">Appeal letters</span>
+      <span class="xlcat">Emails</span>
+      <span class="xlcat">Social</span>
+      <span class="xlcat">Case for support</span>
+      <span class="xlcat">Newsletters</span>
+      <span class="xlcat">Event invites</span>
+      <span class="xlcat">Grants</span>
+    </div>
+    <p class="glnote">Filtering by type is a preview of how the library will be organized.</p>
+
+    <div class="xlgrid">
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Appeal letter</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Email</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Social post</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Case for support</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Newsletter</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+      <div class="xlcard"><div class="xlthumb"><span class="xlscore">&mdash;/10</span></div><div class="xlbody"><span class="xltag">Event invite</span><div class="xltitle">Example headline goes here</div><div class="xldesc">A short note on what makes this piece work and why it&rsquo;s worth reusing.</div><div class="xlacts"><button class="btn small secondary" disabled>View</button><button class="btn small" disabled>Use as template</button></div></div></div>
+    </div>
+
+    <div class="glsec" style="margin-top:18px">
+      <div class="glhd">How this will work</div>
+      <div class="glbody">
+        <ul class="xlhow">
+          <li><b>Curated from real work.</b> High-scoring pieces from Test Your Message &mdash; plus standout examples from the field &mdash; become the library.</li>
+          <li><b>Every example shows its why.</b> The voice score, what resonates, and the moves that make it land.</li>
+          <li><b>One click to reuse.</b> &ldquo;Use as template&rdquo; starts a new draft in that piece&rsquo;s structure and voice, so you build from a proven pattern instead of a blank page.</li>
+          <li><b>Organized to find fast.</b> Filter by type, campaign, or audience.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="glfoot">This page is a template &mdash; no real examples yet. As we collect proven work, we&rsquo;ll add it here and turn each piece into a reusable starting point.</p>
+  </section>
   <section class="panel" id="region">
     <div class="bvhead"><div class="one">Regional voice</div><div class="sum">The network reaches across three distinct communities — Northern, Central, and Southern — each moved by different things. Tune your message to the audience you're reaching.</div></div>
     <img class="regionmap" src="regions-map.png" alt="Map of the regions: San Luis Obispo County (north), Santa Barbara County (central), and Ventura County (south)">
