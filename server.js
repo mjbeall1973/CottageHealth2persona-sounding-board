@@ -67,6 +67,10 @@ db.exec(`
 const insertRun = db.prepare(`INSERT OR REPLACE INTO runs
   (run_id, ts, user, atype, source, context, copy, image_note, persona_ids, results_json, avg_score)
   VALUES (@run_id, @ts, @user, @atype, @source, @context, @copy, @image_note, @persona_ids, @results_json, @avg_score)`);
+// time-on-tool: accumulate active seconds per user per day (from client heartbeats)
+db.exec(`CREATE TABLE IF NOT EXISTS activity (user TEXT, day TEXT, seconds INTEGER, PRIMARY KEY (user, day));`);
+const upsertActivity = db.prepare(`INSERT INTO activity (user, day, seconds) VALUES (@user, @day, @seconds)
+  ON CONFLICT(user, day) DO UPDATE SET seconds = seconds + @seconds`);
 const REPORT_TOKEN = process.env.REPORT_TOKEN || SESSION_SECRET;
 
 // ---------- app ----------
@@ -132,7 +136,8 @@ function ownerRows() {
       COUNT(DISTINCT substr(ts,1,10)) AS active_days
     FROM evaluations GROUP BY user ORDER BY evaluations DESC`).all();
   const fb = {}; db.prepare(`SELECT user, COUNT(*) n FROM feedback GROUP BY user`).all().forEach(r => fb[r.user] = r.n);
-  return rows.map(r => ({ ...r, feedback: fb[r.user] || 0 }));
+  const act = {}; db.prepare(`SELECT user, SUM(seconds) s FROM activity GROUP BY user`).all().forEach(r => act[r.user] = r.s || 0);
+  return rows.map(r => ({ ...r, feedback: fb[r.user] || 0, active_minutes: Math.round((act[r.user] || 0) / 60) }));
 }
 function ownerAuthed(req) {
   if (verifyToken(getCookie(req, "pb_auth"))) return true;
@@ -141,10 +146,10 @@ function ownerAuthed(req) {
 app.get("/api/owner-report.csv", (req, res) => {
   if (!ownerAuthed(req)) return res.status(401).json({ error: "Not authorized." });
   const rows = ownerRows();
-  const head = ["user", "evaluations", "avg_score", "active_days", "first_seen", "last_seen", "feedback_submitted"];
+  const head = ["user", "evaluations", "avg_score", "minutes_on_tool", "active_days", "first_seen", "last_seen", "feedback_submitted"];
   const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
   const lines = [head.join(",")];
-  rows.forEach(r => lines.push([r.user, r.evaluations, r.avg_score == null ? "" : (Math.round(r.avg_score * 10) / 10), r.active_days, r.first_seen, r.last_seen, r.feedback].map(q).join(",")));
+  rows.forEach(r => lines.push([r.user, r.evaluations, r.avg_score == null ? "" : (Math.round(r.avg_score * 10) / 10), r.active_minutes, r.active_days, r.first_seen, r.last_seen, r.feedback].map(q).join(",")));
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="voice-guide-owner-report.csv"');
   res.send(lines.join("\n"));
@@ -160,7 +165,7 @@ app.get("/api/owner-report.txt", (req, res) => {
   L.push(new Date().toLocaleString());
   L.push(`\nTotals: ${totalRuns} evaluations · ${rows.length} users · overall avg ${overall == null ? "—" : (Math.round(overall * 10) / 10)}/10`);
   L.push("\nUSERS (most active first):");
-  rows.forEach(r => L.push(`- ${r.user}: ${r.evaluations} evals, avg ${r.avg_score == null ? "—" : (Math.round(r.avg_score * 10) / 10)}/10, ${r.active_days} active day(s), last ${String(r.last_seen).slice(0, 10)}${r.feedback ? `, ${r.feedback} feedback` : ""}`));
+  rows.forEach(r => L.push(`- ${r.user}: ${r.evaluations} evals, avg ${r.avg_score == null ? "—" : (Math.round(r.avg_score * 10) / 10)}/10, ${r.active_minutes} min on tool, ${r.active_days} active day(s), last ${String(r.last_seen).slice(0, 10)}${r.feedback ? `, ${r.feedback} feedback` : ""}`));
   L.push("\nRECENT FEEDBACK:");
   if (!fb.length) L.push("- (none yet)");
   fb.forEach(f => L.push(`- [${String(f.ts).slice(0, 10)}] ${f.user}: ${f.text}`));
@@ -171,6 +176,14 @@ app.get("/api/owner-report.txt", (req, res) => {
 app.use(requireAuth);
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.use(express.static(path.join(__dirname, "public")));
+
+// time-on-tool heartbeat (each ping = ~30s of active use)
+const PING_SECONDS = 30;
+app.post("/api/ping", (req, res) => {
+  const day = new Date().toISOString().slice(0, 10);
+  try { upsertActivity.run({ user: req.userEmail || "user", day, seconds: PING_SECONDS }); } catch (e) {}
+  res.json({ ok: true });
+});
 
 // ---------- config for the frontend ----------
 app.get("/api/config", (req, res) => {
