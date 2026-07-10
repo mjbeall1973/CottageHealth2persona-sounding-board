@@ -28,9 +28,9 @@ const PERSONAS = [
     audio: "eleanor.mp3",
     spoken: "Oh, hello there. So... where to begin. I've been here longer than most, dear — seen the good years and the hard ones, all of it. People will tell you I'm generous, and I am. But don't try to pull one over on me. I can tell in a heartbeat whether someone means it or they're just... selling. So slow down. Talk to me like a person. Be real with me. That's all I've ever asked.",
     spokenRegions: {
-      northern: "Oh, hello. I keep a place up the coast near San Luis — slower, simpler, and I prefer it that way. I've no patience for big-city polish; talk to me plainly and honestly, and you'll have me.",
-      central: "Hello, dear. Montecito's been home a long while — I've watched State Street change and the galas come and go. I can spot a sales pitch a mile off, so slow down, be genuine, and mean it.",
-      southern: "Hello. We settled down Ventura way to be near the grandchildren — quieter than LA, thank goodness. Don't rush me or dress it up; be real, be respectful, and I'll listen."
+      south: "Hello, dear. Montecito's been home a long while, and I think of it as something to be looked after, not added to. Speak plainly, be genuine, and show me you'll steward it well.",
+      valley: "Hello. We keep a place out past Los Olivos now, and the valley has its own quiet rules. Don't dress it up; show up in person, be real, and I'll listen.",
+      north: "Hello. I've spent time up in Santa Maria, and what moves me there is simpler than any gala: are working families actually cared for. Be sincere, and show me it reaches them."
     },
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
@@ -55,9 +55,9 @@ const PERSONAS = [
     intro: "I'm Marcus. I built my business here, and I don't sit still. I want to back bold ideas — the kind that change what this region can do — and I want to see the results. Show me the vision and the numbers, make me part of something ambitious, and don't waste my time with fluff. I move fast, and I bring people with me. Impress me, and I'll help you think bigger.",
     spoken: "Hey — Marcus. I'll keep this quick, 'cause, honestly, that's kinda my whole thing. Built my business here, I move fast, I back big ideas. Don't give me the slow, stuffy pitch — give me the vision, give me the number, show me it's actually gonna do something. You do that? I'm in. And I'll bring people with me.",
     spokenRegions: {
-      northern: "Marcus. I've got a place near SLO — Cal Poly talent, good wine, room to build. I move fast, so skip the slow pitch; give me the vision and the number and I'm in.",
-      central: "Marcus — built my company here in Santa Barbara, Funk Zone before it was cool. I back bold swings. Don't give me stuffy; give me the vision and the number, and I'll bring half of State Street with me.",
-      southern: "Marcus. I run between Ventura and LA all week — my time's tight, so be quick. Show me the vision, the number, and the ROI, and I'll move on it today."
+      south: "Marcus. Built my company here on the coast. I move fast, but I know this town rewards taste over hype, so give me the vision and the substance, not superlatives.",
+      valley: "Marcus. Got a vineyard out in the valley now. Out here they trust you if you show up and it works, so skip the pitch and tell me plainly what it does and how it lasts.",
+      north: "Marcus. I run operations up in Santa Maria and Lompoc. What matters here is jobs and access. Show me it helps working families get care, and I'm in."
     },
     voice: { gender: "male", rate: 1.03, pitch: 0.95 }
   },
@@ -82,9 +82,9 @@ const PERSONAS = [
     intro: "Hi, I'm Linda. I've lived here most of my life, and Cottage took care of my family when we needed it. I give every year — not because I'm wealthy, but because this is my community and these are my neighbors. I want to know my gift matters, even a small one. Talk to me like a friend, show me a real person whose life got better, and I'm all in.",
     spoken: "Hi hon, I'm Linda! Oh gosh, I've been around here a long time. This hospital took such good care of my family when we needed it — so yeah, I give every year. Not a ton, but whatever I can. I just wanna know it matters, y'know? Show me a real person, a real story. Talk to me like a neighbor, not a checkbook. That's really all I need.",
     spokenRegions: {
-      northern: "Hi hon, I'm Linda! Lived near SLO most of my life — Pismo walks, the farmers market, that whole slow Central Coast thing. Tell me a real story about a neighbor and I'm in, whatever I can give.",
-      central: "Hi hon, I'm Linda! Santa Barbara's home — I'm not wealthy by these parts, but I give every year because it's my community. Show me a real neighbor, talk to me plain, and I'm there.",
-      southern: "Hi hon, I'm Linda! Down in Ventura, raising a busy family between school and work. I give what I can — just show me it matters and talk to me like a friend, not a checkbook."
+      south: "Hi hon, I'm Linda! Santa Barbara's home. I'm not wealthy by these parts, but I give because this place took care of us. Talk to me plain and show me a real neighbor.",
+      valley: "Hi hon, I'm Linda! Out here in the valley everybody knows everybody. Tell me about the nurse who's been at our hospital twenty years, and I'm all in.",
+      north: "¡Hola! I'm Linda, up in Santa Maria. Family's everything here. Tell me my mother will be seen, and that someone will speak Spanish, and you've got me."
     },
     voice: { gender: "female", rate: 0.98, pitch: 1.05 }
   },
@@ -109,9 +109,9 @@ const PERSONAS = [
     intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
     spoken: "Dr. Rivera. Look, I'll keep it real with you — I'm on the floor every day, so I don't have a lot of patience for spin. What gets me? Stuff that actually helps us take care of people. The equipment, the training, the programs that move the needle for patients. Don't dress it up, and please don't use my staff as a photo op. Just tell me what it does for the people in those beds. Do that, and you've got me.",
     spokenRegions: {
-      northern: "Dr. Rivera. I practice up near SLO — small-town medicine, and we wear a lot of hats. Don't spin me; tell me what it does for patients and you've got my respect.",
-      central: "Dr. Rivera. I'm on the floor here in Santa Barbara most days. What moves me is what actually helps patients — equipment, training, programs. Skip the gloss, tell me the real impact.",
-      southern: "Dr. Rivera. Down in Ventura we're busy and stretched. Don't use my staff as props — tell me what it does for the families coming through our doors, and I'm with you."
+      south: "Dr. Rivera. On the coast, what moves me is excellence we can't outsource; there's no backup twenty minutes away. Skip the gloss and tell me the real impact on patients.",
+      valley: "Dr. Rivera. Out in the valley we're a long way over the pass. Don't spin me. Tell me it keeps care here, close, and good, and I'm with you.",
+      north: "Dr. Rivera. Up north our families work hard and wait too long for care. Tell me it means access, appointments, someone who speaks their language, and you've got my respect."
     },
     voice: { gender: "male", rate: 0.96, pitch: 0.9 }
   },
@@ -136,9 +136,9 @@ const PERSONAS = [
     intro: "Hey, I'm Maya. I'm younger, I'm healthy, and honestly I'm not thinking about hospitals much — but I love this place. The beach, the people, our little corner of California. I'm not ready to write a big check, but invite me in — a volunteer day, an event, a way to belong — and keep it real. Make me feel part of something good, and I'll show up, and I'll bring my friends.",
     spoken: "Hey hey, I'm Maya! Okay so — real talk, I'm young, I'm healthy, I'm not really thinking about hospitals, ngl. But I love it here. Like, the beach, the people, our whole little corner of California. So don't hit me with a big guilt-trip ask, that's such a turn-off. Just invite me in — a volunteer thing, an event, whatever — keep it real and kinda fun, and yeah, I'll totally show up. Probably drag my friends along too.",
     spokenRegions: {
-      northern: "Hey hey, I'm Maya! I'm up around SLO — hikes, the beach, Cal Poly crowd, super chill. Don't guilt-trip me; invite me to something fun and real and I'll show up with friends.",
-      central: "Hey hey, I'm Maya! Santa Barbara girl — beach mornings, the Funk Zone, State Street. Skip the big ask; invite me in, keep it real and fun, and yeah, I'm there.",
-      southern: "Hey hey, I'm Maya! I'm down in Ventura, half my life on the 101. Make it easy and worth my time — a quick volunteer thing or event — and I'm in with my friends."
+      south: "Hey hey, I'm Maya! Santa Barbara girl. I love this place and want to keep it what it is, so don't sell me, just invite me in and keep it real.",
+      valley: "Hey hey, I'm Maya! Valley life, horses and tasting rooms on the weekend. Keep it low-key and real and I'll show up with friends.",
+      north: "Hey hey, I'm Maya! Santa Maria, big family, always something going on. Make it warm and about us, and I'm there, primos included."
     },
     voice: { gender: "female", rate: 1.06, pitch: 1.08 }
   },
@@ -163,9 +163,9 @@ const PERSONAS = [
     intro: "I'm James. I run a business in town, and I believe in giving back where I live and work. When I sponsor something, I'm looking for a real partnership — good for the community, and good for my company and my team. Show me the win-win, make the recognition meaningful, and let's build something lasting together, not a one-time ask.",
     spoken: "James — good to meet ya. So, I run a business here in town, and I'm big on giving back. But I'll be straight with you: I'm a business guy. When I put my name on something, I wanna see it work both ways. Good for the community, sure — but good for my team and my brand too. Show me that win-win, make the recognition real, and let's build something that lasts. Not some one-and-done thing.",
     spokenRegions: {
-      northern: "James — I run a business up near SLO, tight-knit town, everybody knows everybody. I'll give back if it's a real partnership — good for the community and good for my brand.",
-      central: "James, good to meet ya. I run a business in Santa Barbara — State Street traffic, tourists, the works. Show me the win-win and make the recognition real, and let's build something lasting.",
-      southern: "James. My business sits in Ventura, one foot toward LA. I'm all about efficiency and a clear win-win — good for the community, good for my team and brand. Make it concrete."
+      south: "James. I run a business on State Street. This town rewards understatement, so show me a real community win, not a marketing splash, and let's build something lasting.",
+      valley: "James. My business is out in the valley, tight-knit, and word of mouth is everything. Show me it's good for neighbors and I'll back it, quietly and for real.",
+      north: "James. I run a company up in Santa Maria with a lot of families on the payroll. Employee giving, real access for workers, that's what moves me. Make it concrete."
     },
     voice: { gender: "male", rate: 1.0, pitch: 0.92 }
   }
