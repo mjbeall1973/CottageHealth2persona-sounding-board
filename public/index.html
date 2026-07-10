@@ -282,6 +282,7 @@ table.heat tr.avg td.name{font-weight:700}
 .xlhow li{margin-bottom:6px}
 .nglist{display:grid;gap:8px}
 .ngitem{border-left:3px solid var(--brand);background:#f7f8fa;padding:9px 13px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.45}
+.spine{margin-top:10px;font-size:13px;font-weight:600;color:var(--brand);background:#eaf1f3;border-radius:8px;padding:8px 12px}
 .minihdr{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin:10px 0 4px}
 .minilist{margin:0 0 6px 18px;padding:0}
 @media(max-width:560px){.archgrid{grid-template-columns:repeat(2,1fr)}.bgrid{grid-template-columns:1fr}}
@@ -423,9 +424,9 @@ table.log tr:last-child td{border-bottom:none}
           <label class="fld" for="evalRegion">Audience region <span class="hint">&mdash; whose ear are we testing for?</span></label>
           <select id="evalRegion">
             <option value="all">All regions</option>
-            <option value="central">Central &mdash; Santa Barbara County</option>
-            <option value="northern">Northern &mdash; San Luis Obispo County</option>
-            <option value="southern">Southern &mdash; Ventura County</option>
+            <option value="south">South County &mdash; Santa Barbara</option>
+            <option value="valley">The Valley &mdash; Santa Ynez</option>
+            <option value="north">North County &mdash; Santa Maria &amp; Lompoc</option>
           </select>
         </div>
 
@@ -492,9 +493,9 @@ table.log tr:last-child td{border-bottom:none}
     <div class="regionbar">
       <span class="regionlbl">Hear each persona as a local from:</span>
       <div class="seg regionseg" id="regionSeg">
-        <button data-region="northern">Northern · SLO</button>
-        <button data-region="central" class="on">Central · Santa Barbara</button>
-        <button data-region="southern">Southern · Ventura</button>
+        <button data-region="south" class="on">South County · Santa Barbara</button>
+        <button data-region="valley">The Valley · Santa Ynez</button>
+        <button data-region="north">North County · Santa Maria</button>
         <button data-region="all">Compare all</button>
       </div>
     </div>
@@ -520,9 +521,9 @@ table.log tr:last-child td{border-bottom:none}
 
         <div class="bsec"><div class="blabel">2 · Where do they live?</div>
           <div class="seg" id="bRegion">
-            <button type="button" data-r="northern">Northern · SLO</button>
-            <button type="button" data-r="central" class="on">Central · Santa Barbara</button>
-            <button type="button" data-r="southern">Southern · Ventura</button>
+            <button type="button" data-r="south" class="on">South County · SB</button>
+            <button type="button" data-r="valley">The Valley · Santa Ynez</button>
+            <button type="button" data-r="north">North County · Santa Maria</button>
           </div></div>
 
         <div class="bsec"><div class="blabel">3 · Dial them in</div>
@@ -717,33 +718,46 @@ table.log tr:last-child td{border-bottom:none}
     <p class="glfoot">This page is a template &mdash; no real examples yet. As we collect proven work, we&rsquo;ll add it here and turn each piece into a reusable starting point.</p>
   </section>
   <section class="panel" id="region">
-    <div class="bvhead"><div class="one">Regional voice</div><div class="sum">The network reaches across three distinct communities — Northern, Central, and Southern — each moved by different things. Tune your message to the audience you're reaching.</div></div>
-    <img class="regionmap" src="regions-map.png" alt="Map of the regions: San Luis Obispo County (north), Santa Barbara County (central), and Ventura County (south)">
+    <div class="bvhead"><div class="one">Regional voice</div><div class="sum">Santa Barbara County is really three communication cultures &mdash; South Coast understatement, Valley plainness, and North County warmth-and-access. Each has its own psychology, and it changes how you write to donors there. Set the region on Test Your Message to score copy through that local lens.</div></div>
     <div class="regionstack">
       <div class="pcard">
-        <div class="top"><div><div class="pname">Northern Reach &mdash; San Luis Obispo County</div><div class="prole">Slower, rustic, outdoors- and Cal Poly&ndash;centered &middot; &ldquo;SLO&rdquo; living</div></div></div>
-        <p class="blurb">Unhurried and deeply tied to the outdoors, agriculture, and Cal Poly. People value a balanced, down-to-earth life and loyalty to local institutions.</p>
-        <h5>Who you're reaching</h5>
-        <ul><li><b>Slow-paced Central Coast locals</b> — skeptical of big-city infrastructure, fiercely loyal to local institutions; value relational care over flashy corporate models.</li>
-        <li><b>Active outdoor enthusiasts &amp; students</b> — focused on sports medicine, PT, and rapid recovery to get back to hiking, surfing, and cycling.</li></ul>
-        <h5>Tone that works</h5><div class="tone">Down-to-earth, relational, unhurried.</div>
+        <div class="top"><div><div class="pname">South County &mdash; Santa Barbara</div><div class="prole">Santa Barbara &middot; Montecito &middot; Goleta &middot; the South Coast</div></div></div>
+        <p class="blurb">Deliberately apart from LA and proud of it. Sees itself as the custodian of something rare and finite, so the mental model is <b>stewardship, not growth</b>. Highly educated, hype-allergic, and quick to read past superlatives.</p>
+        <h5>What drives them</h5>
+        <ul>
+          <li><b>Place is identity.</b> Living here is a chosen affiliation, and giving is gratitude for getting to be here.</li>
+          <li><b>Quality over scale.</b> Excellence at human size; suspicious of institutions that feel like they&rsquo;re becoming something else.</li>
+          <li><b>We take care of our own.</b> Isolation and the 2018 Thomas Fire and debris flow made self-reliance real, and Cottage was the safety net.</li>
+        </ul>
+        <h5>How to write to them</h5>
+        <div class="tone">Understated, warm, literate, unhurried &mdash; a well-written letter from a trusted neighbor, never gloss or urgency. Excellence framed as an obligation, because there&rsquo;s no backup 20 minutes away.</div>
+        <div class="spine">Spine: &ldquo;This hospital is part of what makes this place possible.&rdquo;</div>
       </div>
       <div class="pcard">
-        <div class="top"><div><div class="pname">Central Core &mdash; Santa Barbara County</div><div class="prole">High-end and leisure-oriented, under real cost-of-living pressure</div></div></div>
-        <p class="blurb">A community balancing an affluent, wellness-focused lifestyle with a hyper-expensive housing market. They value wellness, prestige, and deep community roots.</p>
-        <h5>Who you're reaching</h5>
-        <ul><li><b>Montecito / Hope Ranch retirees &amp; wealthy remote workers</b> — want premium, hyper-coordinated, concierge care; expect seamless digital tools but high-touch service and privacy.</li>
-        <li><b>UCSB / Isla Vista / Goleta tech &amp; academic transplants</b> — tech-forward and independent; value fast clinical turnarounds, telehealth, and on-demand urgent care.</li>
-        <li><b>Santa Maria / Lompoc working class</b> — a large, often-overlooked agriculture &amp; aerospace segment; family-centric, frequently bilingual (Spanish/English), facing geographic and economic barriers to care.</li></ul>
-        <h5>Tone that works</h5><div class="tone">Polished but warm — and never blind to access and affordability.</div>
+        <div class="top"><div><div class="pname">The Valley &mdash; Santa Ynez</div><div class="prole">Solvang &middot; Santa Ynez &middot; Los Olivos &middot; Ballard &middot; Buellton &middot; Los Alamos</div></div></div>
+        <p class="blurb">The real thing behind the postcard: agricultural, working, rooted. Judged by whether things work, whether they last, and whether you <b>show up in person</b>. Skeptical of being managed &ldquo;over the hill.&rdquo;</p>
+        <h5>What drives them</h5>
+        <ul>
+          <li><b>Self-sufficiency.</b> 30+ minutes over the pass from tertiary care; the hospital is infrastructure, not an amenity. They need to know it will still be there, still theirs, and still good.</li>
+          <li><b>Continuity.</b> Multi-generational ranching families, the Chumash, Danish Solvang heritage. &ldquo;Since 1964&rdquo; beats &ldquo;state of the art.&rdquo;</li>
+          <li><b>Neighborliness as duty.</b> Barn-raising culture; neighbors taking care of neighbors, not visionary transformation.</li>
+        </ul>
+        <h5>How to write to them</h5>
+        <div class="tone">Plainer than Santa Barbara. Direct, concrete, short sentences, no gloss, dry humor. Real local names matter, and the community fact-checks them. Let distance and time (the 154 at night, fog, fire season) speak plainly.</div>
+        <div class="spine">Spine: &ldquo;Your hospital, in your valley.&rdquo;</div>
       </div>
       <div class="pcard">
-        <div class="top"><div><div class="pname">Southern Reach &mdash; Ventura County</div><div class="prole">Transition zone where the Central Coast meets greater LA</div></div></div>
-        <p class="blurb">Where the relaxed coast meets fast-paced, commuter-heavy LA energy. Time is constrained and convenience is king.</p>
-        <h5>Who you're reaching</h5>
-        <ul><li><b>&ldquo;LA spillover&rdquo; commuters</b> — balancing intense work schedules with coastal living; hyper-focused on efficiency, convenience, and evening/weekend availability.</li>
-        <li><b>Coastal suburban families</b> — navigating multi-generational care; think school sports physicals, weekend urgent care, and reliable insurance coverage.</li></ul>
-        <h5>Tone that works</h5><div class="tone">Efficient, convenient, family-practical.</div>
+        <div class="top"><div><div class="pname">North County &mdash; Santa Maria &amp; Lompoc</div><div class="prole">Working California, reaching toward SLO and Ventura/Oxnard</div></div></div>
+        <p class="blurb">Ag, food processing, logistics, Vandenberg and the military. Value is <b>jobs, access, and respect for regular people</b>, with a real, earned wariness of South Coast institutions &ldquo;descending to help.&rdquo;</p>
+        <h5>What drives them</h5>
+        <ul>
+          <li><b>Access over aspiration.</b> Trust is earned by whether I can get an appointment, whether someone speaks Spanish, whether my family is treated well without insurance.</li>
+          <li><b>Family and faith.</b> Majority-Latino and multigenerational; family is the decision unit, and Catholic and evangelical leaders are the most credible messengers.</li>
+          <li><b>Broad-based giving.</b> Church collections, employee giving at big ag and aerospace employers, and quieter relationship-driven major gifts.</li>
+        </ul>
+        <h5>How to write to them</h5>
+        <div class="tone">Direct, warm, family-framed, and bilingual &mdash; Spanish as origination, not translation. Feature workers, parents, grandparents, and kids. South Coast understatement reads as cold here.</div>
+        <div class="spine">Note: SLO leans literate and civic like Santa Barbara but friendlier; Ventura and Oxnard mirror North County, while Thousand Oaks and Camarillo read affluent-suburban.</div>
       </div>
     </div>
     <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Set the audience region on Test Your Message to score copy through that local lens.</p>
@@ -876,19 +890,19 @@ function profileBlock(p){
     <li><b>Personality:</b> ${esc(f.personality)}</li>
     <li><b>Where they get info:</b> ${esc(f.media)}</li></ul>`;
 }
-var REGION="central";
-function regionName(r){ return r==="northern"?"Northern · San Luis Obispo":(r==="southern"?"Southern · Ventura":"Central · Santa Barbara"); }
+var REGION="south";
+function regionName(r){ return r==="valley"?"The Valley · Santa Ynez":(r==="north"?"North County · Santa Maria":"South County · Santa Barbara"); }
 function saysBlock(p){
   const sr=p.spokenRegions||{};
-  const n=sr.northern||p.spoken||"", c=sr.central||p.spoken||"", s=sr.southern||p.spoken||"";
-  if(!n&&!c&&!s) return "";
+  const s=sr.south||p.spoken||"", v=sr.valley||p.spoken||"", n=sr.north||p.spoken||"";
+  if(!s&&!v&&!n) return "";
   if(REGION==="all"){
     return `<div class="saysit"><h5>If they said it out loud</h5>
-      <div class="saystag">Northern · San Luis Obispo</div><p class="saysquote">&ldquo;${esc(n)}&rdquo;</p>
-      <div class="saystag">Central · Santa Barbara</div><p class="saysquote">&ldquo;${esc(c)}&rdquo;</p>
-      <div class="saystag">Southern · Ventura</div><p class="saysquote">&ldquo;${esc(s)}&rdquo;</p></div>`;
+      <div class="saystag">South County · Santa Barbara</div><p class="saysquote">&ldquo;${esc(s)}&rdquo;</p>
+      <div class="saystag">The Valley · Santa Ynez</div><p class="saysquote">&ldquo;${esc(v)}&rdquo;</p>
+      <div class="saystag">North County · Santa Maria</div><p class="saysquote">&ldquo;${esc(n)}&rdquo;</p></div>`;
   }
-  const t=REGION==="northern"?n:(REGION==="southern"?s:c);
+  const t=REGION==="valley"?v:(REGION==="north"?n:s);
   return `<div class="saysit"><h5>If they said it out loud &middot; ${regionName(REGION)}</h5><p class="saysquote">&ldquo;${esc(t)}&rdquo;</p></div>`;
 }
 function buildRef(){
@@ -919,7 +933,7 @@ function resetBuilder(){
   $("#bStep").style.display="block"; $("#bResult").style.display="none";
   $("#bArch").innerHTML = BASE_PERSONAS.map((p,i)=>`<button type="button" class="archtile${i===0?" on":""}" data-arch="${p.id}">${avatar(p,44)}<span class="an">${esc(p.name)}</span></button>`).join("");
   $$("#bArch .archtile").forEach(b=>b.addEventListener("click",()=>{ const on=$("#bArch .archtile.on"); if(on)on.classList.remove("on"); b.classList.add("on"); }));
-  $$("#bRegion button").forEach(b=>b.classList.toggle("on", b.dataset.r==="central"));
+  $$("#bRegion button").forEach(b=>b.classList.toggle("on", b.dataset.r==="south"));
   ["bName","bAge","bNotes","bPersonality","bReligion","bInfo"].forEach(id=>{ const el=$("#"+id); if(el) el.value=""; });
   ["bFacts","bWork"].forEach(id=>{ const el=$("#"+id); if(el) el.selectedIndex=0; });
   ["bKids","bGrand"].forEach(id=>{ const el=$("#"+id); if(el) el.checked=false; });
@@ -927,7 +941,7 @@ function resetBuilder(){
 }
 async function genPersona(){
   const arch=$("#bArch .archtile.on"), regBtn=$("#bRegion button.on");
-  const body={ archetype: arch?arch.dataset.arch:"", region: regBtn?regBtn.dataset.r:"central",
+  const body={ archetype: arch?arch.dataset.arch:"", region: regBtn?regBtn.dataset.r:"south",
     capacity:$("#bCap").value, motivation:$("#bMot").value, turnoff:$("#bTurn").value,
     personality:$("#bPersonality").value.trim(), factsFeelings:$("#bFacts").value,
     working:$("#bWork").value, religion:$("#bReligion").value.trim(), infoSource:$("#bInfo").value.trim(),
