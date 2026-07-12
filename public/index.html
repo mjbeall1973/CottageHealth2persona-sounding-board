@@ -355,6 +355,9 @@ table.log tr:last-child td{border-bottom:none}
 .about p b{color:var(--ink)}
 .aboutcrit{margin:0 0 12px;padding-left:22px;font-size:13px;color:var(--muted);line-height:1.85}
 .aboutcrit li{margin-bottom:2px}
+.abouth{font-size:14.5px;font-weight:700;color:var(--brand);margin:20px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.aboutlist{margin:0 0 12px;padding-left:20px;line-height:1.6}
+.aboutlist li{margin-bottom:7px}
 .wtag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-radius:5px;padding:1px 6px;margin-right:7px;vertical-align:1px}
 .wt-crit{background:#fdeceb;color:#a93535}
 .wt-high{background:#e6f1f4;color:#0a5b73}
@@ -804,6 +807,35 @@ table.log tr:last-child td{border-bottom:none}
       <li><span class="wtag wt-med">Medium</span> Clarity &amp; readability</li>
     </ol>
     <p>Critical criteria move the score the most; High criteria meaningfully raise or lower it; Medium criteria nudge it. The heat map shows these as columns so you can see exactly where a piece is strong or weak.</p>
+
+    <div class="abouth">What AI gets wrong, and what to watch for</div>
+    <p>This tool is useful, but it is still AI, and AI has a predictable set of failure modes. Read every result with these in mind.</p>
+    <ul class="aboutlist">
+      <li><b>It makes things up.</b> Hallucinated statistics, invented outcomes, and fabricated patient stories arrive looking exactly as confident as real ones. Verify every fact, number, and quote. This tool can never be cited as a source of anything.</li>
+      <li><b>It writes with tells.</b> AI prose leans on symmetry and triads, uniform paragraph lengths, and a giveaway lexicon: <i>delve, robust, leverage, journey, transformative, landscape, tapestry, testament, underscore, foster, seamless,</i> and &ldquo;it&rsquo;s not just X, it&rsquo;s Y.&rdquo; Em dashes are now a widely known tell too.</li>
+      <li><b>It hedges.</b> AI balances and qualifies where a human would commit. Writing that takes a position reads as authored; writing that carefully sees both sides reads as generated.</li>
+      <li><b>It is frictionless.</b> Real institutions have tension: the campaign that stalled, the physician who pushed back, the gap between the vision and the building you actually have. Copy with no friction reads flat, and therefore false.</li>
+      <li><b>It writes about people, not from inside them.</b> It describes an audience from the outside instead of writing from within a donor&rsquo;s hesitation or a skeptic&rsquo;s doubt.</li>
+      <li><b>It drifts to category language.</b> Trained on a mountain of generic nonprofit copy, it reaches for &ldquo;state-of-the-art facilities serving vulnerable populations&rdquo; instead of the one witnessed detail that could only come from being there.</li>
+      <li><b>It carries bias.</b> Its training data flattens and stereotypes. Watch it especially closely when it renders working-class, Latino, rural, immigrant, or patient voices, and when it quietly assumes what a &ldquo;donor&rdquo; looks like.</li>
+      <li><b>It is directional, not authoritative.</b> The personas are role-play. Their reactions are a thoughtful second opinion, never evidence, and never a substitute for talking with real donors.</li>
+    </ul>
+
+    <div class="abouth">Using AI ethically in fundraising</div>
+    <p>There is no single binding standard yet, but two frameworks function as the sector&rsquo;s de facto rules, and this tool is built to sit inside them.</p>
+    <p><b>Fundraising.AI&rsquo;s Framework for Responsible and Beneficial AI</b> is the most fundraising-specific. It was developed with input from more than 90 nonprofit sector experts, is reviewed biannually, and rests on ten pillars: privacy and security; data ethics; inclusiveness and bias mitigation; accountability, transparency, and explainability; continuous learning; collaboration; legal compliance; social impact; sustainability; and mission alignment. Three of its operating norms are adopted here verbatim: <b>AI supports but never replaces human work, all public-facing content is reviewed by a human, and AI is not used to make decisions about people.</b></p>
+    <p><b>AFP&rsquo;s Code of Ethical Standards</b> does not name AI, but its existing standards govern it. Standard 12 requires that development marketing and communications be accurate, which means you own every claim the AI drafts. A hallucinated statistic or an invented patient story in a case statement is an ethics violation, not a tool error. The donor privacy standards matter even more here: donor and prospect information is the confidential intellectual property of the organization and may not be shared with or transferred to other entities, which most counsel now interpret to include pasting donor data into consumer AI tools that train on their inputs.</p>
+    <p style="margin-bottom:8px"><b>In practice, for case statements, internal docs, and email:</b></p>
+    <ul class="aboutlist">
+      <li><b>Accuracy accountability.</b> Every fact, outcome statistic, and quote gets human-verified. AI cannot be cited as a source.</li>
+      <li><b>Donor data hygiene.</b> No PII, wealth-screening data, or gift history into non-enterprise AI tools. Anonymize personas before using them as prompts.</li>
+      <li><b>Patient stories.</b> In healthcare, never feed identifiable patient details into AI. HIPAA exposure sits on top of the philanthropy ethics layer.</li>
+      <li><b>Authenticity of voice.</b> AI cannot fabricate a first-person testimonial, a signed letter&rsquo;s sentiment, or a &ldquo;personal&rdquo; note that was never personal. A CEO letter drafted with AI assistance and genuinely reviewed and owned by the CEO is fine. A handwritten-feel donor note generated at scale is not.</li>
+      <li><b>Disclosure.</b> The sector has not settled this. The working consensus: internal docs and standard comms do not require disclosure, but anything presenting itself as a person&rsquo;s own expression does. The cleanest position is to disclose an AI-assisted process in your methodology rather than document by document.</li>
+    </ul>
+
+    <div class="abouth">How this tool writes</div>
+    <p>Because of all of the above, every suggestion and rewrite this tool produces is held to a human-voice standard. It varies sentence length hard, trades category language for witnessed detail, takes a position instead of hedging, lets paragraphs breathe unevenly, writes from inside the donor rather than about them, names the friction before resolving it, and never touches the AI lexicon or an em dash. It will not invent a statistic, a quote, or a patient story. Where a real fact is needed, it says so and leaves you a placeholder to go verify. The structure and the iteration are the machine&rsquo;s. The judgment, the interviews, and the specifics are yours.</p>
   </details>
   <div class="betabar">
     <div class="betatxt"><b>Beta version.</b> Please report any errors and share suggestions to help us improve the tool.</div>
