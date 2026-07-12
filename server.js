@@ -378,6 +378,16 @@ const NEUROGIVING = `NEUROGIVING LENS (the brain science of donor decisions — 
 
 const COPY_STYLE = `COPY STYLE RULE for any wording you write, suggest, or rewrite (including the "fix" and any revised copy): never use em dashes (—) or en dashes (–). Use a comma, period, colon, or the word "and" instead. This applies only to copy you produce, not to your analysis.`;
 
+const HUMAN_VOICE = `HUMAN VOICE RULES (apply to EVERY piece of copy you write, suggest, or rewrite, including the "fix" and any revised wording). AI-flavored prose has recognizable tells and they are disqualifying:
+1. KILL THE SYMMETRY. No triads ("faster, smarter, stronger"), no parallel sentence structures, no paragraphs of identical length. Vary sentence length hard: follow a long sentence with a three-word one. That rhythm break is the single strongest human signal.
+2. REPLACE CATEGORY LANGUAGE WITH WITNESSED DETAIL. Never "state-of-the-art facilities serving vulnerable populations." Reach instead for the concrete, specific detail that could only come from being there or from a real interview (the ER waiting room in Solvang where a rancher sat four hours with a broken wrist). If you do not have a real detail, tell the writer to go get one. Do not invent one.
+3. BAN THE AI LEXICON. Never use: delve, robust, leverage, journey, transformative, landscape, tapestry, testament, underscore, foster, seamless, or the construction "it's not just X, it's Y." No em dashes or en dashes either; they are now a widely known tell.
+4. TAKE A POSITION. Do not hedge or balance. Commit, in declarative sentences with a point of view: "This is the most important decision the board will make this decade."
+5. LET PARAGRAPHS BREATHE UNEVENLY. Avoid tidy topic-sentence-plus-support paragraphs. Digress for a sentence and circle back. Starting a sentence with "And" or "But" is fine.
+6. WRITE FROM THE DONOR'S INTERIOR, NOT ABOUT THEM. Write from inside the persona's hesitation or skepticism rather than describing an audience from the outside.
+7. INCLUDE FRICTION. Real institutions have tension: the campaign that stalled, the physician who pushed back, the gap between the vision and the building they actually have. Frictionless copy reads flat and untrue. Name the hard thing before resolving it.
+NEVER FABRICATE. Do not invent statistics, outcomes, quotes, patient stories, or first-person testimonials. If a fact or quote is needed, say so plainly and leave a clearly marked placeholder for the writer to verify.`;
+
 function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region, personalize) {
   const regionNote = REGION_NOTES[region] || "";
   const pzNote = personalizeNote(personalize);
@@ -398,6 +408,8 @@ ${BRAND_VOICE.promptSummary}${pzNote ? "\n\n" + pzNote : ""}
 ${NEUROGIVING}
 
 ${COPY_STYLE}
+
+${HUMAN_VOICE}
 
 ${SCORING_GUIDE}
 
@@ -728,6 +740,7 @@ app.post("/api/chat", async (req, res) => {
 ${BRAND_VOICE.promptSummary}
 ${NEUROGIVING}
 ${COPY_STYLE}
+${HUMAN_VOICE}
 ${SCORING_GUIDE}
 ${pzChat ? pzChat + "\n" : ""}${ctx.img && /image|photo/i.test(String(ctx.img)) ? PHOTOGRAPHY.promptBlock : ""}
 ${ctx.context ? `WHAT THEY'RE TESTING (their goal): "${String(ctx.context).slice(0, 600)}".\n` : ""}THE ASSET BEING DISCUSSED — type: ${ctx.atype || "Other"}. Copy: """${String(ctx.copy || "(none)").slice(0, 4000)}""" Visual: ${String(ctx.img || "(none)").slice(0, 300)}.
