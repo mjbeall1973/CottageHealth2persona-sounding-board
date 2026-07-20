@@ -388,15 +388,19 @@ const HUMAN_VOICE = `HUMAN VOICE RULES (apply to EVERY piece of copy you write, 
 7. INCLUDE FRICTION. Real institutions have tension: the campaign that stalled, the physician who pushed back, the gap between the vision and the building they actually have. Frictionless copy reads flat and untrue. Name the hard thing before resolving it.
 NEVER FABRICATE. Do not invent statistics, outcomes, quotes, patient stories, or first-person testimonials. If a fact or quote is needed, say so plainly and leave a clearly marked placeholder for the writer to verify.`;
 
-function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region, personalize) {
+function buildPrompt(p, atype, copy, img, hasImage, context, imageCount, region, personalize, lean) {
   const regionNote = REGION_NOTES[region] || "";
   const pzNote = personalizeNote(personalize);
+  const leanNote = lean === "facts"
+    ? `CURRENT DONOR FRAME — FACTS. This is the single strongest factor in your reaction and your score right now. Today you are reading in a facts-and-logic frame. Judge the copy above all else on whether it earns your trust with substance: concrete specifics, real numbers and outcomes, proof, credibility, and clarity. Be markedly tougher on vague, purely emotional, or hand-wavy copy, and reward hard evidence. Let this frame move your score, your "resonates" and "fallsFlat", and your "fix" more than anything else.`
+    : `CURRENT DONOR FRAME — FEELINGS. This is the single strongest factor in your reaction and your score right now. Today you are reading in a feelings-and-story frame. Judge the copy above all else on emotional resonance: a real and specific human story, warmth, identity, and heart. Be markedly tougher on dry, clinical, data-only, or transactional copy, and reward genuine feeling. Let this frame move your score, your "resonates" and "fallsFlat", and your "fix" more than anything else.`;
   return `You are role-playing a marketing audience persona to pressure-test a fundraising asset for the Cottage Health Foundation, which supports Santa Barbara Cottage Hospital, Santa Ynez Valley Cottage Hospital and Goleta Valley Cottage Hospital in the Santa Barbara, California area.
 
 REACT AS THIS PERSON, in first person, honestly and specifically. Do not be polite for its own sake.
 
 PERSONA — ${p.name}, ${p.role}.${regionNote ? `\n${regionNote}` : ""}
 Background: ${p.blurb}
+${leanNote}
 Lifestyle (use this to make your voice specific and concrete): you drive ${p.profile.car}; you shop at ${p.profile.shops}; brands you like: ${p.profile.brands}; personality type: ${p.profile.personality}; where you get information: ${p.profile.media}.
 What moves you: ${p.motivations.join("; ")}.
 What turns you off: ${p.objections.join("; ")}.
@@ -438,10 +442,10 @@ function sanitizeDims(d) {
   return any ? out : null;
 }
 
-async function evaluateOne(persona, atype, copy, img, images, context, region, personalize) {
+async function evaluateOne(persona, atype, copy, img, images, context, region, personalize, lean) {
   const imgs = Array.isArray(images) ? images : [];
   const hasImage = imgs.length > 0;
-  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length, region, personalize);
+  const promptText = buildPrompt(persona, atype, copy, img, hasImage, context, imgs.length, region, personalize, lean);
   const content = hasImage
     ? imgs.map(im => ({ type: "image", source: { type: "base64", media_type: im.mediaType || "image/jpeg", data: im.data } })).concat([{ type: "text", text: promptText }])
     : promptText;
@@ -593,7 +597,8 @@ Respond with ONLY minified JSON (no markdown, no commentary) using EXACTLY these
 });
 
 app.post("/api/evaluate", async (req, res) => {
-  const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType, customPersonas } = req.body || {};
+  const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType, customPersonas, leans } = req.body || {};
+  const cleanLeans = (leans && typeof leans === "object") ? leans : {};
   const cleanRegion = ["south", "valley", "north", "all"].includes(region) ? region : "all";
   const cleanPz = (personalize && typeof personalize === "object") ? {
     lean: ["creative", "balanced", "technical"].includes(personalize.lean) ? personalize.lean : "balanced",
@@ -622,7 +627,10 @@ app.post("/api/evaluate", async (req, res) => {
   if (!chosen.length) return res.status(400).json({ error: "Pick at least one persona." });
 
   const results = {};
-  await Promise.all(chosen.map(async p => { results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext, cleanRegion, cleanPz); }));
+  await Promise.all(chosen.map(async p => {
+    const lean = ["facts", "feelings"].includes(cleanLeans[p.id]) ? cleanLeans[p.id] : "feelings";
+    results[p.id] = await evaluateOne(p, atype || "Other", cleanCopy, cleanImg, imgs, cleanContext, cleanRegion, cleanPz, lean);
+  }));
 
   // log every persona reaction
   const runId = crypto.randomUUID();
