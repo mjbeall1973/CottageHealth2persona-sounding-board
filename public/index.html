@@ -75,9 +75,19 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .srcnote.err{background:#fdeceb;color:var(--bad);border:1px solid #f3cfcd}
 .srcnote.work{background:#f1f4f8;color:var(--muted);border:1px solid var(--line)}
 .pers-toggles{display:flex;flex-direction:column;gap:8px}
-.ptog{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:.12s}
-.ptog:hover{border-color:var(--brand)}.ptog input{margin-top:3px}
+.ptogwrap{border:1px solid var(--line);border-radius:10px;transition:.12s}
+.ptogwrap:hover{border-color:var(--brand)}
+.ptog{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;cursor:pointer}
+.ptog input{margin-top:3px}
 .ptog .pn{font-weight:600;font-size:13.5px}.ptog .pd{font-size:12px;color:var(--muted)}
+.leanrow{display:flex;align-items:center;gap:8px;padding:0 10px 8px 12px;flex-wrap:wrap}
+.leanlbl{font-size:11px;color:var(--muted);font-weight:600}
+.leanseg{display:inline-flex;border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.leanbtn{font-size:11px;font-weight:700;padding:3px 12px;border:none;background:#fff;color:var(--muted);cursor:pointer;line-height:1.5}
+.leanbtn.feel.on{background:#e07d2f;color:#fff}
+.leanbtn.fact.on{background:#2b6cb0;color:#fff}
+.deldonor{margin-left:auto;background:none;border:none;color:#b23b3b;font-size:11px;font-weight:600;cursor:pointer;padding:2px 4px}
+.deldonor:hover{text-decoration:underline}
 .swatch{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
 .btn{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:.12s}
 .btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:default;filter:none}
@@ -852,7 +862,7 @@ table.log tr:last-child td{border-bottom:none}
 <script>
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
 var PROFILE = null, LEARN = null;
-var BASE_PERSONAS = [], CUSTOM = [], BUILT = null;
+var BASE_PERSONAS = [], CUSTOM = [], BUILT = null, LEANS = {};
 function customKey(){ return "pvg_custom_"+((PROFILE&&PROFILE.name)||"anon"); }
 function loadCustom(){ try{ CUSTOM=JSON.parse(localStorage.getItem(customKey())||"[]"); }catch(e){ CUSTOM=[]; } if(!Array.isArray(CUSTOM)) CUSTOM=[]; }
 function saveCustom(){ try{ localStorage.setItem(customKey(),JSON.stringify(CUSTOM)); }catch(e){} }
@@ -906,11 +916,23 @@ async function boot(){
 }
 
 function buildToggles(){
-  $("#toggles").innerHTML = PERSONAS.map(p=>`
-    <label class="ptog"><input type="checkbox" value="${p.id}" ${p.id==="eleanor"?"checked":""}>
-      ${avatar(p,64)}
-      <span><span class="pn">${esc(p.name)}</span>
-      <span class="pd">${esc(p.role)}</span></span></label>`).join("");
+  $("#toggles").innerHTML = PERSONAS.map(p=>{
+    const lean = LEANS[p.id] || "feelings";
+    return `<div class="ptogwrap">
+      <label class="ptog"><input type="checkbox" value="${p.id}" ${p.id==="eleanor"?"checked":""}>
+        ${avatar(p,64)}
+        <span><span class="pn">${esc(p.name)}${p.custom?'<span class="custombadge">Custom</span>':""}</span>
+        <span class="pd">${esc(p.role)}</span></span></label>
+      <div class="leanrow">
+        <span class="leanlbl">Reading as</span>
+        <div class="leanseg" data-id="${p.id}">
+          <button type="button" class="leanbtn feel${lean==="feelings"?" on":""}" data-id="${p.id}" data-lean="feelings">Feelings</button>
+          <button type="button" class="leanbtn fact${lean==="facts"?" on":""}" data-id="${p.id}" data-lean="facts">Facts</button>
+        </div>
+        ${p.custom?`<button type="button" class="deldonor" data-id="${p.id}">✕ Delete donor</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
 }
 function profileBlock(p){
   if(!p.profile) return "";
@@ -1389,6 +1411,7 @@ async function run(){
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({atype,copy,img,context,region,personalize:personalizePayload(),personaIds:sel,source,
         customPersonas: CUSTOM.filter(p=>sel.includes(p.id)),
+        leans: sel.reduce((o,id)=>{o[id]=LEANS[id]||"feelings";return o;},{}),
         images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -1841,6 +1864,15 @@ $("#refineChips").addEventListener("click", e=>{ const c=e.target.closest("[data
 $("#chatDownload").addEventListener("click", downloadChat);
 $("#prefList").addEventListener("click", e=>{ const b=e.target.closest(".meetbtn"); if(b) meetPersona(b.dataset.id); });
 $("#prefList").addEventListener("click", e=>{ const rb=e.target.closest(".rmcustom"); if(rb && confirm("Remove this custom persona?")) removeCustom(rb.dataset.id); });
+$("#toggles").addEventListener("click", function(e){
+  var lb=e.target.closest(".leanbtn");
+  if(lb){ LEANS[lb.dataset.id]=lb.dataset.lean;
+    var seg=lb.closest(".leanseg");
+    Array.prototype.forEach.call(seg.querySelectorAll(".leanbtn"), function(b){ b.classList.toggle("on", b===lb); });
+    return; }
+  var db=e.target.closest(".deldonor");
+  if(db){ if(confirm("Delete this donor? This removes them from your panel.")) removeCustom(db.dataset.id); }
+});
 $("#openBuilder").addEventListener("click", openBuilder);
 $("#openBuilder2").addEventListener("click", openBuilder);
 $("#bClose").addEventListener("click", closeBuilder);
