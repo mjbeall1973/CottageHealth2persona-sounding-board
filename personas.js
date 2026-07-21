@@ -1,68 +1,68 @@
-// personas.js — the six Santa Barbara-area audience personas.
+// personas.js — the Santa Barbara-area audience personas.
 // SINGLE SOURCE OF TRUTH. Edit here, redeploy, and it shows up everywhere.
 //   avatar  — illustrated portrait: skin/hair/clothes hex, style short|bob|long|bun, glasses bool
 //   profile — lifestyle dimensions (car, shops, brands, personality, media)
 //   intro   — first-person "Meet me" script, read aloud by the browser on the personas tab
 //   voice   — browser speech hints: gender (female|male), rate, pitch
+//   lean    — this persona's default facts/feelings frame ("facts" or "feelings")
 
 const PERSONAS = [
   {
-    id: "eleanor", color: "#7a4ea3", name: "Eleanor",
-    role: "70, multi-generational old-money donor",
-    blurb: "Legacy Santa Barbara family. Has given to Cottage for decades and sits in the social circle of major benefactors. Thinks in terms of institutions, stewardship, and what endures.",
-    motivations: ["Legacy and family name carried forward", "Lasting medical excellence (cardiology, neurosciences, children's)", "Discretion, tradition, and being among trusted peers", "Confidence the institution is well-run"],
-    objections: ["Anything trendy, gimmicky, or 'salesy'", "Urgency, pressure, or transactional asks", "Sloppy writing or design", "Digital-only with no personal touch"],
-    tone: "Refined, gracious, understated. Personal and relationship-led. Speaks to permanence and excellence, never hype.",
-    imgYes: ["Timeless, elegant photography", "The hospital, named spaces, craftsmanship", "Real people of stature, dignified portraits", "Quiet, classic color and typography"],
-    imgNo: ["Stock-photo clichés", "Loud graphics, neon, busy collage", "Emoji or meme aesthetics", "Anything that looks cheap or rushed"],
+    id: "walter", color: "#2b6cb0", name: "Walter", lean: "facts",
+    role: "70s, self-made, hard-nosed facts-and-numbers donor",
+    blurb: "Built his own business over decades and gives generously, but scrutinizes every dollar. Serious, plainspoken, and skeptical of anything that can't be backed up. He wants proof, not persuasion.",
+    motivations: ["Hard proof the money is well spent — outcomes, numbers, accountability", "A disciplined, well-run institution", "Specifics and evidence over sentiment", "Lasting results he can actually measure"],
+    objections: ["Emotional appeals with no substance behind them", "No data, no specifics, no clear result", "Hype, superlatives, and glossy spin", "Any hint the money isn't carefully stewarded"],
+    tone: "Serious, direct, evidence-first. Earn his trust with facts, figures, and proof, never with flourish or feeling. Respect his time and his intelligence.",
+    imgYes: ["Credible, documentary, no-nonsense", "Real facilities and equipment actually in use", "Results and outcomes made tangible", "Clean, sober, uncluttered design"],
+    imgNo: ["Staged emotion or manufactured warmth", "Glossy hype and hero shots", "Vague inspirational fluff", "Anything that looks like marketing spin"],
     profile: {
-      car: "A quietly elegant, impeccably kept older Mercedes S-Class — never flashy",
-      shops: "Montecito boutiques, Nordstrom, Saks — by appointment more than online",
-      brands: "Hermès, Loro Piana, Tiffany & Co., Brooks Brothers",
-      personality: "ISFJ — 'The Steward': loyal, dutiful, tradition-minded",
-      media: "Wall Street Journal, the local society pages, NPR, handwritten notes"
+      car: "A well-kept older pickup or a sensible sedan — function over flash",
+      shops: "Costco and the hardware store; buys quality once and keeps it",
+      brands: "Durable, proven, no-nonsense names; loyalty earned over years",
+      personality: "ISTJ — 'The Inspector': analytical, skeptical, evidence-led",
+      media: "Wall Street Journal, annual reports, the numbers, people he has trusted for years"
     },
-    avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#6b5b7a", glasses: true },
-    photo: "eleanor.jpg",
-    intro: "Hello. My name is Eleanor. I've called this place home for as long as I can remember. I've watched it change, grow, stumble, and rise again — and through it all, I've remained. My friends will tell you I have a generous heart. They'll also tell you I have high standards. Both are true. You see, I've learned a thing or two over the years. One of them is that authenticity matters. I can spot insincerity from a mile away. So when you speak with me, take your time. Slow down. Be clear about what you want. And above all, be genuine. Because honesty, respect, and sincerity never go out of style.",
-    audio: "eleanor.mp3",
-    spoken: "Oh, hello there. So... where to begin. I've been here longer than most, dear — seen the good years and the hard ones, all of it. People will tell you I'm generous, and I am. But don't try to pull one over on me. I can tell in a heartbeat whether someone means it or they're just... selling. So slow down. Talk to me like a person. Be real with me. That's all I've ever asked.",
+    avatar: { skin: "#e8c9a0", hair: "#b8b8b8", style: "short", clothes: "#2b6cb0", glasses: false },
+    photo: "walter.jpg",
+    intro: "Walter. I built what I have over a long time, and I did it by paying attention to the numbers. I give, and I give seriously, but I want to know exactly where it goes and what it does. Don't sell me. Show me the facts, show me the result, and show me you run a tight ship. Do that, and I will be one of your steadiest supporters. Waste my time with fluff, and I am gone.",
+    spoken: "Walter. I'll be blunt, because that's how I am. I've given to plenty of causes, and the ones that keep me are the ones that show their work. Don't tell me it's transformational. Tell me what it cost, what it did, and how you know. Numbers. Proof. A straight answer. That is what earns my check, and it is the only thing that does.",
     spokenRegions: {
-      south: "Hello, dear. Montecito's been home a long while, and I think of it as something to be looked after, not added to. Speak plainly, be genuine, and show me you'll steward it well.",
-      valley: "Hello. We keep a place out past Los Olivos now, and the valley has its own quiet rules. Don't dress it up; show up in person, be real, and I'll listen.",
-      north: "Hello. I've spent time up in Santa Maria, and what moves me there is simpler than any gala: are working families actually cared for. Be sincere, and show me it reaches them."
+      south: "Walter. I've been on this coast a long time and I've watched a lot of money get wasted. Show me the numbers and the result, plainly, and I'll take you seriously.",
+      valley: "Walter. Out in the valley we judge a thing by whether it works and whether it lasts. Skip the pitch. Show me proof it holds up, and you'll have my attention.",
+      north: "Walter. Up north, folks work hard for their money and expect the same discipline from an institution. Show me it's well run and the dollars reach real care, with proof, and I'm listening."
+    },
+    voice: { gender: "male", rate: 0.9, pitch: 0.85 }
+  },
+  {
+    id: "winnie", color: "#7a4ea3", name: "Winnie", lean: "feelings",
+    role: "70s, longtime major donor, moved by heart and relationships",
+    blurb: "A legacy Santa Barbara family and a giver for decades. She gives from the heart — moved by real people, genuine relationships, and what a gift means, not what it measures. She can spot insincerity in a heartbeat.",
+    motivations: ["A genuine emotional connection and real relationships", "Being moved by a true, human story", "Legacy, meaning, and what endures", "Sincerity, warmth, and trust"],
+    objections: ["Coldness, or numbers with no heart", "Anything trendy, gimmicky, or 'salesy'", "Urgency, pressure, or transactional asks", "Digital-only with no personal, human touch"],
+    tone: "Warm, gracious, personal, story-led. Move her with sincerity, meaning, and heart, never with data alone. Slow down and be genuine.",
+    imgYes: ["Timeless, elegant photography with real feeling", "Real people and genuine emotion, dignified", "A warm human moment or relationship", "Quiet, classic color and typography"],
+    imgNo: ["Cold, clinical, or purely data-driven", "Stock-photo clichés", "Loud graphics, neon, busy collage", "Anything that looks cheap or insincere"],
+    profile: {
+      car: "A quietly elegant, impeccably kept older Mercedes — never flashy",
+      shops: "Montecito boutiques, Nordstrom — by appointment more than online",
+      brands: "Hermès, Loro Piana, Tiffany & Co.",
+      personality: "ISFJ — 'The Steward': loyal, warm, tradition-minded",
+      media: "The local society pages, NPR, handwritten notes, longtime friends"
+    },
+    avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#7a4ea3", glasses: true },
+    photo: "eleanor.jpg",
+    intro: "Hello. My name is Winnie. I've called this place home for as long as I can remember, and I've given to it with an open heart the whole while. What moves me isn't a number on a page. It's a real person, a true story, a moment that means something. I can tell in an instant whether someone is being sincere. So slow down, speak to me like a person, and let me feel why it matters. Do that, and you'll have not just my gift but my devotion.",
+    spoken: "Oh, hello there, dear. I've been here longer than most, and I've given from the heart the whole time. Don't hand me a spreadsheet and expect me to feel something. Tell me about a real person. Let me feel it. I can always tell when someone means it, and that, more than anything, is what opens my heart and my checkbook.",
+    spokenRegions: {
+      south: "Hello, dear. Montecito's been home a long while, and what still moves me is a real, human story, told sincerely. Speak from the heart and you'll have me.",
+      valley: "Hello. We keep a place out past Los Olivos now, and the valley has its own quiet warmth. Don't dress it up; show me the people, let me feel it, and I'll listen.",
+      north: "Hello. I've spent time up in Santa Maria, and what moves me there is simple and human: a family cared for, told with real feeling. Be sincere, and it reaches me."
     },
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
-    id: "marcus", color: "#1f7a8c", name: "Marcus",
-    role: "Middle-aged, newer-money, influential",
-    blurb: "Made his money in tech/wine/real estate, energetic and well-connected in the market. Wants to back bold ideas and be seen leading them. Allergic to anything that feels slow or stuffy.",
-    motivations: ["Measurable impact and clear ROI on a gift", "Innovation, ambition, being early on something big", "Visibility and peer leadership", "Momentum — things actually getting done"],
-    objections: ["Stuffy, old-fashioned, or vague tone", "No data, no specifics, no goal", "Feeling like just another name on a list", "Slow or bureaucratic framing"],
-    tone: "Confident, modern, ambitious, data-forward. Lead with the vision and the number. Make the opportunity feel catalytic.",
-    imgYes: ["Dynamic, modern, high-energy shots", "New facilities, technology, innovation", "Leaders and doers in motion", "Bold, clean, contemporary design"],
-    imgNo: ["Static, dated, formal-portrait feel", "Cluttered or text-heavy visuals", "Generic 'charity' imagery", "Anything that reads as old-guard"],
-    profile: {
-      car: "A Tesla Model S or Porsche Taycan — wants the newest, cleanest tech",
-      shops: "Direct-to-consumer and online; the Apple Store; premium outdoor gear",
-      brands: "Apple, Tesla, Patagonia, Allbirds, cult Santa Ynez wine labels",
-      personality: "ENTJ — 'The Commander': ambitious, decisive, impatient with slow",
-      media: "Podcasts, LinkedIn, Bloomberg, founder newsletters"
-    },
-    avatar: { skin: "#e0a875", hair: "#2e2a26", style: "short", clothes: "#1f7a8c", glasses: false },
-    photo: "marcus.jpg",
-    intro: "I'm Marcus. I built my business here, and I don't sit still. I want to back bold ideas — the kind that change what this region can do — and I want to see the results. Show me the vision and the numbers, make me part of something ambitious, and don't waste my time with fluff. I move fast, and I bring people with me. Impress me, and I'll help you think bigger.",
-    spoken: "Hey — Marcus. I'll keep this quick, 'cause, honestly, that's kinda my whole thing. Built my business here, I move fast, I back big ideas. Don't give me the slow, stuffy pitch — give me the vision, give me the number, show me it's actually gonna do something. You do that? I'm in. And I'll bring people with me.",
-    spokenRegions: {
-      south: "Marcus. Built my company here on the coast. I move fast, but I know this town rewards taste over hype, so give me the vision and the substance, not superlatives.",
-      valley: "Marcus. Got a vineyard out in the valley now. Out here they trust you if you show up and it works, so skip the pitch and tell me plainly what it does and how it lasts.",
-      north: "Marcus. I run operations up in Santa Maria and Lompoc. What matters here is jobs and access. Show me it helps working families get care, and I'm in."
-    },
-    voice: { gender: "male", rate: 1.03, pitch: 0.95 }
-  },
-  {
-    id: "linda", color: "#2e8b57", name: "Linda",
+    id: "linda", color: "#2e8b57", name: "Linda", lean: "feelings",
     role: "Annual donor, modest means, local at heart",
     blurb: "Some wealth but not by local standards. Gives every year because she cares about healthcare and her community — she or family have been cared for locally. Wants to know her gift matters.",
     motivations: ["Local impact she can see and feel", "Knowing any-size gift truly counts", "Gratitude — caring for neighbors and family", "Being part of the Cottage 'family'"],
@@ -116,7 +116,7 @@ const PERSONAS = [
     voice: { gender: "male", rate: 0.96, pitch: 0.9 }
   },
   {
-    id: "maya", color: "#0a7ea4", name: "Maya",
+    id: "maya", color: "#0a7ea4", name: "Maya", lean: "feelings",
     role: "Younger public, no immediate need",
     blurb: "Healthy, younger Santa Barbaran with no pressing healthcare need. Not ready to make a big gift, but wants to feel good about a local brand and start a low-key relationship with the Foundation.",
     motivations: ["Local pride and community identity", "Feeling part of something good", "Easy, low-commitment ways in (events, volunteering, follows)", "Authenticity and social proof"],
@@ -141,33 +141,6 @@ const PERSONAS = [
       north: "Hey hey, I'm Maya! Santa Maria, big family, always something going on. Make it warm and about us, and I'm there, primos included."
     },
     voice: { gender: "female", rate: 1.06, pitch: 1.08 }
-  },
-  {
-    id: "sponsor", color: "#8c5e2a", name: "James",
-    role: "Corporate / community business sponsor",
-    blurb: "Owns or leads a prominent Santa Barbara business. Sponsors community causes for brand goodwill, employee pride, and visibility. Weighs what a partnership does for the business as well as the community.",
-    motivations: ["Visible community goodwill and brand alignment", "Employee morale and local reputation", "Tangible recognition (logo, event presence, PR)", "An ongoing partnership, not a one-off ask"],
-    objections: ["Pure charity asks with nothing for the business", "Unclear what the sponsorship actually delivers", "Misalignment with the company's brand or values", "Transactional, one-and-done framing"],
-    tone: "Partnership-oriented and professional. Lead with mutual benefit and visibility. Show the win-win and make recognition concrete.",
-    imgYes: ["Community events with crowds and energy", "Local businesses and people together", "Recognizable Santa Barbara settings", "Polished but warm partnership imagery"],
-    imgNo: ["Somber, pure-charity guilt imagery", "No sense of community or audience", "Clinical-only or sterile shots", "Visuals that hide the partnership/recognition angle"],
-    profile: {
-      car: "An Audi Q7 or Lexus RX — polished but not ostentatious",
-      shops: "Local menswear, the pro shop at the club, business-class everything",
-      brands: "Established, community-recognizable names; backs local first",
-      personality: "ESTJ — 'The Executive': organized, results- and relationship-driven",
-      media: "The business journal, Chamber of Commerce, LinkedIn, the golf course"
-    },
-    avatar: { skin: "#e0a875", hair: "#3a322c", style: "short", clothes: "#2c3e57", glasses: false },
-    photo: "sponsor.jpg",
-    intro: "I'm James. I run a business in town, and I believe in giving back where I live and work. When I sponsor something, I'm looking for a real partnership — good for the community, and good for my company and my team. Show me the win-win, make the recognition meaningful, and let's build something lasting together, not a one-time ask.",
-    spoken: "James — good to meet ya. So, I run a business here in town, and I'm big on giving back. But I'll be straight with you: I'm a business guy. When I put my name on something, I wanna see it work both ways. Good for the community, sure — but good for my team and my brand too. Show me that win-win, make the recognition real, and let's build something that lasts. Not some one-and-done thing.",
-    spokenRegions: {
-      south: "James. I run a business on State Street. This town rewards understatement, so show me a real community win, not a marketing splash, and let's build something lasting.",
-      valley: "James. My business is out in the valley, tight-knit, and word of mouth is everything. Show me it's good for neighbors and I'll back it, quietly and for real.",
-      north: "James. I run a company up in Santa Maria with a lot of families on the payroll. Employee giving, real access for workers, that's what moves me. Make it concrete."
-    },
-    voice: { gender: "male", rate: 1.0, pitch: 0.92 }
   }
 ];
 
