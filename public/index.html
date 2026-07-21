@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Donor Listening Room — Cottage Health Foundation</title>
+<title>Resonate — Cottage Health Foundation</title>
 <style>
 :root{
   color-scheme: light;
@@ -26,6 +26,10 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15
 .brandbar .who{margin-left:auto;font-size:12px;color:rgba(255,255,255,.9);text-align:right;padding-right:18px}
 .brandbar .who a{color:#fff;cursor:pointer}
 .dlrlogo{height:120px;width:auto;display:block}
+.rmark{display:flex;flex-direction:column}
+.rlogo{font-size:38px;font-weight:800;letter-spacing:-.6px;color:var(--brand);line-height:1}
+.rtag{font-size:13px;color:var(--muted);margin-top:7px;font-weight:500;max-width:280px}
+@media(max-width:600px){.rlogo{font-size:26px}.rtag{font-size:11px;margin-top:5px}}
 .instance{display:flex;flex-direction:column;gap:3px;padding-left:22px}
 .instance .eyebrow{color:rgba(255,255,255,.85)}
 .instance .instname{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.2px}
@@ -384,7 +388,7 @@ table.log tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap">
   <div class="brandbar">
-    <div class="brandlogo"><img class="dlrlogo" src="donor-listening-room-logo.png" alt="Donor Listening Room"></div>
+    <div class="brandlogo"><div class="rmark"><div class="rlogo">Resonate</div><div class="rtag">Your voice, pressure-tested by your donors.</div></div></div>
     <div class="logo" style="display:none">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="img" aria-label="Cottage Health">
         <g>
@@ -855,7 +859,7 @@ table.log tr:last-child td{border-bottom:none}
     <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
     <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
   </div>
-  <div class="foot"><b>Donor Listening Room</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing &mdash; a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Michael Beall.</div>
+  <div class="foot"><b>Resonate</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing, a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Michael Beall.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1639,9 +1643,9 @@ $("#downloadReport").addEventListener("click", ()=>{
       ${(d.avoid||[]).length?`<p style="color:#a93535"><b>Avoid-list flags:</b> ${esc(d.avoid.join(", "))}</p>`:""}
       ${d.fix?`<p style="background:#fbf6ea;padding:8px;border-radius:8px"><b>Fix:</b> ${esc(d.fix)}</p>`:""}
     </div>`;}).join("");
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Philanthropy Voice Guide report</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resonate report</title>
     <style>body{font-family:-apple-system,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1c2430}</style></head>
-    <body><h1>Philanthropy Voice Guide</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
+    <body><h1>Resonate</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
     ${LAST.copy?`<h3>Copy tested</h3><pre style="white-space:pre-wrap;background:#f7f8fa;padding:12px;border-radius:8px">${esc(LAST.copy)}</pre>`:""}
     ${LAST.img?`<h3>Visual</h3><p>${esc(LAST.img)}</p>`:""}
     <h3>Reactions</h3>${cards}
@@ -1923,14 +1927,14 @@ function helpBrief(){
       if(d.fix) L.push("  Fix: "+d.fix); });
   } else { L.push("(No evaluation has been run yet.)"); }
   if(CHAT && CHAT.length){ L.push("\n--- REFINE CONVERSATION ---"); CHAT.forEach(m=>L.push("\n"+(m.role==="user"?"YOU":"COACH")+": "+m.content)); }
-  L.push("\n— Sent from the Philanthropy Voice Guide");
+  L.push("\nSent from Resonate");
   return L.join("\n");
 }
 function humanHelp(){
   if(!LAST && !(CHAT&&CHAT.length)){ alert("Run an evaluation first — then you can send it for human help."); return; }
   var brief=helpBrief();
   try{ const blob=new Blob([brief],{type:"text/plain"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="voice-guide-help-request.txt"; a.click(); URL.revokeObjectURL(url); }catch(e){}
-  var subj="Human help request — Philanthropy Voice Guide";
+  var subj="Human help request, Resonate";
   var intro="Hi Mike,\n\nI'd like a human writer's help on this piece. My brief is below — a full copy also downloaded as voice-guide-help-request.txt, which I'll attach.\n\n";
   var body=intro+brief.slice(0,1400)+(brief.length>1400?"\n\n…(full brief in the attached file)":"")+"\n\n— "+((PROFILE&&PROFILE.name)||"");
   window.location.href="mailto:mike@beallcreative.com?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
