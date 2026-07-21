@@ -872,6 +872,7 @@ table.log tr:last-child td{border-bottom:none}
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
 var PROFILE = null, LEARN = null;
 var BASE_PERSONAS = [], CUSTOM = [], BUILT = null, LEANS = {};
+function leanOf(id){ return LEANS[id] || ((PERSONAS.find(function(p){return p.id===id;})||{}).lean) || "feelings"; }
 function customKey(){ return "pvg_custom_"+((PROFILE&&PROFILE.name)||"anon"); }
 function loadCustom(){ try{ CUSTOM=JSON.parse(localStorage.getItem(customKey())||"[]"); }catch(e){ CUSTOM=[]; } if(!Array.isArray(CUSTOM)) CUSTOM=[]; }
 function saveCustom(){ try{ localStorage.setItem(customKey(),JSON.stringify(CUSTOM)); }catch(e){} }
@@ -926,9 +927,9 @@ async function boot(){
 
 function buildToggles(){
   $("#toggles").innerHTML = PERSONAS.map(p=>{
-    const lean = LEANS[p.id] || "feelings";
+    const lean = leanOf(p.id);
     return `<div class="ptogwrap">
-      <label class="ptog"><input type="checkbox" value="${p.id}" ${p.id==="eleanor"?"checked":""}>
+      <label class="ptog"><input type="checkbox" value="${p.id}" ${(p.id==="walter"||p.id==="winnie")?"checked":""}>
         ${avatar(p,64)}
         <span><span class="pn">${esc(p.name)}${p.custom?'<span class="custombadge">Custom</span>':""}</span>
         <span class="pd">${esc(p.role)}</span></span></label>
@@ -1420,7 +1421,7 @@ async function run(){
     const r=await fetch("/api/evaluate",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({atype,copy,img,context,region,personalize:personalizePayload(),personaIds:sel,source,
         customPersonas: CUSTOM.filter(p=>sel.includes(p.id)),
-        leans: sel.reduce((o,id)=>{o[id]=LEANS[id]||"feelings";return o;},{}),
+        leans: sel.reduce((o,id)=>{o[id]=leanOf(id);return o;},{}),
         images: imagesArr.length?imagesArr:undefined})});
     const j=await r.json();
     if(!r.ok){ alert(j.error||"Evaluation failed."); }
@@ -1467,7 +1468,7 @@ function renderCard(p,d){
 
 /* playful, in-character quip from the persona who's reacting — tiered by their own score */
 const PERSONA_QUIPS={
-  eleanor:{ e:{hi:"🥂",mid:"🤔",lo:"🧐"}, hi:[
+  winnie:{ e:{hi:"🥂",mid:"🤔",lo:"🧐"}, hi:[
       "Well — this is rather lovely. I'd be proud to see my name beside it.",
       "Tasteful and true. You may sit at my table any time.",
       "Quietly wonderful, dear. This is how it's done."],
@@ -1477,16 +1478,16 @@ const PERSONA_QUIPS={
     lo:[ "Oh my. This won't do at all — but we'll keep it between us, won't we?",
       "I've seen finer. Begin again, and mind the manners of it.",
       "Bless you for trying. Now do start over, with more grace."]},
-  marcus:{ e:{hi:"🚀",mid:"📈",lo:"⛔"}, hi:[
-      "Now we're talking. Ship it and let's go bigger.",
-      "This moves the needle. I'm in — what's next?",
-      "Bold and sharp. That's how you lead a market."],
-    mid:[ "Decent. But 'decent' doesn't lead a market — sharpen it.",
-      "Halfway there. Give me the number and the vision and we're golden.",
-      "Okay start. Now make it ambitious enough to brag about."],
-    lo:[ "Hard pass. No vision, no data, no deal — redo it.",
-      "That's a swing and a miss. Come back when it's bold.",
-      "I'm out. Too slow, too safe. Think ten times bigger."]},
+  walter:{ e:{hi:"✔️",mid:"🧮",lo:"✖️"}, hi:[
+      "The numbers hold up. That earns my check.",
+      "Clear, proven, accountable. Good. I'm in.",
+      "No fluff, just proof. That is how you keep me."],
+    mid:[ "Halfway there. Show me the figures and the result.",
+      "Premise is fine. Now back it up with hard numbers.",
+      "Decent, but I don't fund 'decent.' Give me evidence."],
+    lo:[ "No. All feeling, no proof. Come back with the facts.",
+      "That's a pitch, not a case. Show me the data.",
+      "I'm out. No numbers, no accountability, no deal."]},
   linda:{ e:{hi:"🥰",mid:"🙂",lo:"😟"}, hi:[
       "Oh, this is wonderful — it made me tear up a little!",
       "That's the heart of it. I'd give to this in a heartbeat.",
@@ -1517,16 +1518,6 @@ const PERSONA_QUIPS={
     lo:[ "Oof, this ain't it. No guilt-trips please — try again!",
       "Hard scroll-past for me. Make it feel less... corporate?",
       "Yeah, no. Keep it real and fun and I'll come back."]},
-  sponsor:{ e:{hi:"🤝",mid:"📊",lo:"🚫"}, hi:[
-      "Strong. I can see the partnership — and the win-win. Let's talk.",
-      "This works for the community and the brand. I'm interested.",
-      "Now that's a deal worth putting our name on."],
-    mid:[ "Solid start. Show me what's in it for both sides and I'm closer.",
-      "Promising. Make the recognition concrete and we have a deal.",
-      "Good bones — now sell me the mutual benefit."],
-    lo:[ "Not yet. There's nothing here for a partner to say yes to.",
-      "I'm not seeing the win-win. Rework it and bring it back.",
-      "Pure charity ask, no upside. Give me a reason to sign."]}
 };
 function personaQuip(id, score){
   const q=PERSONA_QUIPS[id]; if(!q) return "";
