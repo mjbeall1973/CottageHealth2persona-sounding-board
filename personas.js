@@ -89,7 +89,7 @@ const PERSONAS = [
     voice: { gender: "female", rate: 0.98, pitch: 1.05 }
   },
   {
-    id: "clinician", color: "#c0641a", name: "Dr. Rivera",
+    id: "clinician", color: "#c0641a", name: "Dr. Rivera", lean: "facts",
     role: "Clinician & internal influencer",
     blurb: "A respected doctor/nurse seen as a community influencer. Deeply believes in the mission and wants the Foundation to fund the work on the front lines — equipment, education, patient care.",
     motivations: ["Resources that directly improve patient care", "Respect for frontline staff and their expertise", "Professional development and program support", "Mission integrity — care over spin"],
