@@ -91,8 +91,12 @@ textarea:focus,select:focus,input:focus{outline:none;border-color:var(--brand);b
 .srcnote.err{background:#fdeceb;color:var(--bad);border:1px solid #f3cfcd}
 .srcnote.work{background:#f1f4f8;color:var(--muted);border:1px solid var(--line)}
 .pers-toggles{display:flex;flex-direction:column;gap:8px}
-.ptogwrap{border:1px solid var(--line);border-radius:10px;transition:.12s}
+.ptogwrap{border:1px solid var(--line);border-radius:10px;transition:.15s}
 .ptogwrap:hover{border-color:var(--brand)}
+.ptogwrap:has(.ptog input:not(:checked)){opacity:.42;background:#fafbfc}
+.ptogwrap:has(.ptog input:not(:checked)):hover{opacity:.85}
+.choosehint{display:none;font-size:11px;color:var(--brand);font-weight:700;letter-spacing:.3px;margin-left:6px;white-space:nowrap}
+.ptogwrap:has(.ptog input:not(:checked)) .choosehint{display:inline}
 .ptog{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;cursor:pointer}
 .ptog input{margin-top:3px}
 .ptog .pn{font-weight:600;font-size:13.5px}.ptog .pd{font-size:12px;color:var(--muted)}
@@ -251,6 +255,14 @@ table.heat tr.avg td.name{font-weight:700}
 .bnotes{margin-top:12px}
 .bnotes textarea{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-weight:400;resize:vertical;min-height:84px}
 .bchecks{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.dialwrap{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;background:#fafbfc}
+.dialhd{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.45}
+.sldrow{display:grid;grid-template-columns:104px 1fr 104px;align-items:center;gap:10px;margin:11px 0}
+.sldrow .sldL{text-align:right;font-size:12px;color:var(--muted);font-weight:600}
+.sldrow .sldR{text-align:left;font-size:12px;color:var(--muted);font-weight:600}
+.sldrow.leanL .sldL,.sldrow.leanR .sldR{color:var(--brand)}
+.sld{width:100%;accent-color:var(--brand);cursor:pointer;height:20px}
+@media(max-width:560px){.sldrow{grid-template-columns:74px 1fr 74px;gap:6px}.sldrow .sldL,.sldrow .sldR{font-size:11px}}
 .bcheck{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
 .bcheck input{width:auto;margin:0}
 .opt{color:var(--muted);font-weight:400}
@@ -605,6 +617,29 @@ table.log tr:last-child td{border-bottom:none}
                 <option>Semi-retired</option>
                 <option>Retired</option>
               </select></label>
+            <label>Ethnicity / background <span class="opt">(optional)</span>
+              <select id="bEth">
+                <option value="">Let the AI decide</option>
+                <option>White</option>
+                <option>Latino / Hispanic</option>
+                <option>Black / African American</option>
+                <option>Asian</option>
+                <option>Native American</option>
+                <option>Middle Eastern</option>
+                <option>Multiracial</option>
+              </select></label>
+            <label>Time in the area
+              <select id="bTenure">
+                <option value="">Let the AI decide</option>
+                <option value="new">New to the area</option>
+                <option value="longtime">Long-time resident</option>
+              </select></label>
+            <label>Relationship to Cottage
+              <select id="bRel">
+                <option value="">Let the AI decide</option>
+                <option value="grateful">Grateful (they or family were cared for)</option>
+                <option value="neighbor">Just a neighbor (no direct tie yet)</option>
+              </select></label>
             <label>Faith / religion <span class="opt">(optional)</span><input id="bReligion" placeholder="e.g. Catholic, none, spiritual" maxlength="60"></label>
             <label>Where they get their info <span class="opt">(optional)</span><input id="bInfo" placeholder="e.g. NPR, Instagram, local paper" maxlength="120"></label>
             <label>Name <span class="opt">(optional)</span><input id="bName" placeholder="Auto if left blank" maxlength="40"></label>
@@ -613,6 +648,10 @@ table.log tr:last-child td{border-bottom:none}
           <div class="bchecks">
             <label class="bcheck"><input type="checkbox" id="bKids"> Has kids</label>
             <label class="bcheck"><input type="checkbox" id="bGrand"> Has grandkids</label>
+          </div>
+          <div class="dialwrap">
+            <div class="dialhd">Personality dial <span class="opt">(optional)</span> — drag toward whichever side fits. Leave centered for balanced.</div>
+            <div id="dialRows"></div>
           </div>
           <label class="bnotes">Profile notes <span class="opt">(optional — anything that makes them <em>them</em>)</span>
             <textarea id="bNotes" rows="4" maxlength="600" placeholder="Their story, quirks, what they care about, how they talk, a memory that shapes their giving…"></textarea></label>
@@ -628,12 +667,10 @@ table.log tr:last-child td{border-bottom:none}
         <div class="saysit"><h5>If they said it out loud</h5><p class="saysquote" id="brQuote"></p></div>
         <details class="pdisc"><summary>Full profile</summary><div id="brDetail"></div></details>
         <div class="btweak">
-          <div class="blabel" style="margin-bottom:10px">Choose a face</div>
-          <button type="button" class="btn small" id="genFace" style="margin-bottom:8px">✨ Generate a real-looking face with AI</button>
-          <div id="genFaceMsg" style="font-size:12.5px;color:var(--muted);margin-bottom:12px;display:none"></div>
-          <div class="blabel" style="font-size:12px;color:var(--muted);margin-bottom:8px">Or pick a stock photo</div>
-          <div class="facegrid" id="faceGrid"></div>
-          <button type="button" class="btn small secondary" id="useIllus" style="margin-top:10px">Use an illustration instead</button>
+          <div class="blabel" style="margin-bottom:10px">Give them a face</div>
+          <button type="button" class="btn" id="genFace" style="margin-bottom:8px">✨ Generate a real-looking face with AI</button>
+          <div id="genFaceMsg" style="font-size:12.5px;color:var(--muted);margin-bottom:6px;display:none"></div>
+          <button type="button" class="btn small secondary" id="useIllus" style="margin-top:4px">Use a simple illustration instead</button>
         </div>
         <div class="bactions">
           <button class="btn secondary" id="bRegen">↻ Start over</button>
@@ -950,7 +987,7 @@ function buildToggles(){
     return `<div class="ptogwrap">
       <label class="ptog"><input type="checkbox" value="${p.id}" ${(p.id==="walter"||p.id==="winnie")?"checked":""}>
         ${avatar(p,64)}
-        <span><span class="pn">${esc(p.name)}${p.custom?'<span class="custombadge">Custom</span>':""}</span>
+        <span><span class="pn">${esc(p.name)}${p.custom?'<span class="custombadge">Custom</span>':""}<span class="choosehint">+ tap to add</span></span>
         <span class="pd">${esc(p.role)}</span></span></label>
       <div class="leanrow">
         <span class="leanlbl">Reading as</span>
@@ -1009,6 +1046,21 @@ function buildRef(){
 }
 
 // ---------- build-your-own persona ----------
+var DIAL=[
+  {id:"warm",L:"Warm",R:"Reserved"},
+  {id:"agree",L:"Agreeable",R:"Devil's advocate"},
+  {id:"formal",L:"Formal",R:"Casual"},
+  {id:"concrete",L:"Concrete",R:"Abstract"},
+  {id:"decisive",L:"Decisive",R:"Exploratory"},
+  {id:"earnest",L:"Earnest",R:"Playful"},
+  {id:"confident",L:"Confident",R:"Hedged"}
+];
+function updateDialRow(id){ var el=$("#s_"+id), row=$("#row_"+id); if(!el||!row) return; var v=parseInt(el.value,10); row.classList.toggle("leanL", v<=-3); row.classList.toggle("leanR", v>=3); }
+function renderDial(){
+  $("#dialRows").innerHTML = DIAL.map(d=>`<div class="sldrow" id="row_${d.id}"><span class="sldL">${d.L}</span><input type="range" class="sld" id="s_${d.id}" min="-10" max="10" step="1" value="0"><span class="sldR">${d.R}</span></div>`).join("");
+  DIAL.forEach(d=>{ var el=$("#s_"+d.id); el.addEventListener("input",()=>updateDialRow(d.id)); updateDialRow(d.id); });
+}
+function gatherDial(){ var o={}; DIAL.forEach(d=>{ var el=$("#s_"+d.id); o[d.id]= el?parseInt(el.value,10):0; }); return o; }
 function openBuilder(){ resetBuilder(); $("#builder").classList.add("open"); }
 function closeBuilder(){ $("#builder").classList.remove("open"); }
 function resetBuilder(){
@@ -1018,9 +1070,10 @@ function resetBuilder(){
   $$("#bArch .archtile").forEach(b=>b.addEventListener("click",()=>{ const on=$("#bArch .archtile.on"); if(on)on.classList.remove("on"); b.classList.add("on"); }));
   $$("#bRegion button").forEach(b=>b.classList.toggle("on", b.dataset.r==="south"));
   ["bName","bAge","bNotes","bPersonality","bReligion","bInfo"].forEach(id=>{ const el=$("#"+id); if(el) el.value=""; });
-  ["bFacts","bWork"].forEach(id=>{ const el=$("#"+id); if(el) el.selectedIndex=0; });
+  ["bFacts","bWork","bEth","bTenure","bRel"].forEach(id=>{ const el=$("#"+id); if(el) el.selectedIndex=0; });
   ["bKids","bGrand"].forEach(id=>{ const el=$("#"+id); if(el) el.checked=false; });
   ["bCap","bMot","bTurn"].forEach(id=>{ const el=$("#"+id); if(el){ el.value=el.querySelector("option[selected]")?el.querySelector("option[selected]").value:el.options[0].value; } });
+  renderDial();
 }
 async function genPersona(){
   const arch=$("#bArch .archtile.on"), regBtn=$("#bRegion button.on");
@@ -1028,6 +1081,8 @@ async function genPersona(){
     capacity:$("#bCap").value, motivation:$("#bMot").value, turnoff:$("#bTurn").value,
     personality:$("#bPersonality").value.trim(), factsFeelings:$("#bFacts").value,
     working:$("#bWork").value, religion:$("#bReligion").value.trim(), infoSource:$("#bInfo").value.trim(),
+    ethnicity:$("#bEth").value, tenure:$("#bTenure").value, relationship:$("#bRel").value,
+    dial:gatherDial(),
     kids:$("#bKids").checked, grandkids:$("#bGrand").checked,
     name:$("#bName").value.trim(), age:$("#bAge").value.trim(), notes:$("#bNotes").value.trim() };
   const btn=$("#bGen"); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='<span class="spinner light"></span>Bringing them to life...';
@@ -1040,14 +1095,6 @@ async function genPersona(){
   btn.disabled=false; btn.innerHTML=old;
 }
 function renderBuiltAvatar(){ if(BUILT) $("#bAvatar").innerHTML = avatar(BUILT, 96); }
-function renderFaceGrid(){
-  const tile=52; let html="";
-  for(let i=0;i<FACE_COUNT;i++){
-    const col=i%FACE_COLS, row=Math.floor(i/FACE_COLS);
-    html+=`<button type="button" class="facetile${(BUILT&&BUILT.face===i)?" on":""}" data-i="${i}" style="width:${tile}px;height:${tile}px;background-image:url('faces.jpg');background-size:${tile*FACE_COLS}px ${tile*FACE_ROWS}px;background-position:-${col*tile}px -${row*tile}px"></button>`;
-  }
-  $("#faceGrid").innerHTML=html;
-}
 async function genFace(){
   if(!BUILT) return;
   const btn=$("#genFace"), msg=$("#genFaceMsg");
@@ -1056,6 +1103,8 @@ async function genFace(){
     age: ($("#bAge")&&$("#bAge").value.trim())||"",
     region: BUILT.region||"south",
     factsFeelings: ($("#bFacts")&&$("#bFacts").value)||"",
+    ethnicity: ($("#bEth")&&$("#bEth").value)||"",
+    tenure: ($("#bTenure")&&$("#bTenure").value)||"",
     vibe: BUILT.role||""
   };
   btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='<span class="spinner light"></span>Creating a face...';
@@ -1063,10 +1112,9 @@ async function genFace(){
   try{
     const r=await fetch("/api/generate-face",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const j=await r.json();
-    if(!r.ok||!j.image){ msg.style.color="#b23b3b"; msg.textContent=j.error||"Couldn't generate a face — try again, or pick a stock photo below."; }
+    if(!r.ok||!j.image){ msg.style.color="#b23b3b"; msg.textContent=j.error||"Couldn't generate a face — try again in a moment."; }
     else{
       BUILT.faceImg=j.image; delete BUILT.face;
-      $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on"));
       renderBuiltAvatar();
       msg.style.color="var(--muted)"; msg.textContent="Fresh AI face applied. Not a real person, nothing to license. Generate again for a different look.";
     }
@@ -1075,7 +1123,6 @@ async function genFace(){
 }
 function showBuilt(){
   const p=BUILT; if(!p) return;
-  if(typeof p.face!=="number") p.face=Math.floor(Math.random()*FACE_COUNT);
   $("#bStep").style.display="none"; $("#bResult").style.display="block";
   renderBuiltAvatar();
   $("#brName").textContent=p.name; $("#brRole").textContent=p.role; $("#brBlurb").textContent=p.blurb;
@@ -1084,7 +1131,6 @@ function showBuilt(){
     + '<div class="minihdr">What moves them</div><ul class="minilist">'+p.motivations.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
     + '<div class="minihdr">What turns them off</div><ul class="minilist">'+p.objections.map(m=>"<li>"+esc(m)+"</li>").join("")+"</ul>"
     + '<div class="minihdr">Tone that works</div><div class="tone">'+esc(p.tone)+"</div>";
-  renderFaceGrid();
 }
 function applyTweak(){
   if(!BUILT) return;
@@ -1926,8 +1972,7 @@ $("#bGen").addEventListener("click", genPersona);
 $("#bSave").addEventListener("click", saveBuilt);
 $("#bRegen").addEventListener("click", ()=>{ $("#bStep").style.display="block"; $("#bResult").style.display="none"; });
 $("#genFace").addEventListener("click", genFace);
-$("#faceGrid").addEventListener("click", e=>{ const t=e.target.closest(".facetile"); if(!t||!BUILT) return; delete BUILT.faceImg; BUILT.face=parseInt(t.dataset.i,10); $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); t.classList.add("on"); renderBuiltAvatar(); });
-$("#useIllus").addEventListener("click", ()=>{ if(!BUILT) return; delete BUILT.face; delete BUILT.faceImg; $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); renderBuiltAvatar(); });
+$("#useIllus").addEventListener("click", ()=>{ if(!BUILT) return; delete BUILT.face; delete BUILT.faceImg; renderBuiltAvatar(); $("#genFaceMsg").style.display="none"; });
 $("#regionSeg").addEventListener("click", e=>{
   const b=e.target.closest("button[data-region]"); if(!b) return;
   $$("#regionSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
