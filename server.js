@@ -26,7 +26,10 @@ const MAX_SOURCE_CHARS = 16000; // cap text pulled from URLs/PDFs before sending
 if (!process.env.ANTHROPIC_API_KEY) {
   console.warn("\n[!] ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key.\n");
 }
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// maxRetries lets the SDK auto-retry transient 429 (rate limit) / 529 (overloaded) / 5xx
+// errors with backoff — the main cause of a single persona coming back blank ("n/a")
+// while the others render. Give the call generous headroom too.
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 4, timeout: 60000 });
 
 // ---------- database ----------
 const db = new Database(DB_PATH);
@@ -428,12 +431,50 @@ React as THIS persona, then score the asset using the HOW TO SCORE rules above (
 {"score": <integer 0-10 per the HOW TO SCORE rules>, "headline": "<<=14 words, your gut reaction in first person>", "resonates": ["<short>", ...up to 3], "fallsFlat": ["<short>", ...up to 3], "onVoice": ["<exact Tier 1 / Tier 2 word or phrase the copy actually used>", ...up to 6, [] if none], "avoid": ["<exact avoid-list word or phrase the copy actually used (include institutional 'we/our/us')>", ...up to 6, [] if none], "fix": "<the single highest-priority change per the PRIORITY hierarchy>", "verdict": "<one of: Love it, Interested, Lukewarm, Not for me>", "dimensions": {"inspiration": <0-10>, "community": <0-10>, "warmth": <0-10>, "empowerment": <0-10>, "local": <0-10>, "onBrand": <0-10>, "clarity": <0-10>}}`;
 }
 
+// Attempt to repair a truncated JSON object (e.g. the reply was cut off mid-string
+// or before the closing braces): close any dangling string, then balance the open
+// brackets/braces. Salvages partial reactions instead of dropping a persona to "n/a".
+function repairTruncatedJSON(s) {
+  let str = s;
+  // If we're inside an unterminated string, drop the tail back to the last complete
+  // "key": "value" or array element so we don't close a half-written token.
+  const stack = [];
+  let inStr = false, esc = false;
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (inStr) {
+      if (esc) { esc = false; }
+      else if (c === "\\") { esc = true; }
+      else if (c === '"') { inStr = false; }
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{" || c === "[") stack.push(c);
+    else if (c === "}" || c === "]") stack.pop();
+  }
+  if (inStr) {
+    // cut back to the last delimiter that safely ends a value
+    const cut = Math.max(str.lastIndexOf('",'), str.lastIndexOf('"]'), str.lastIndexOf('"}'));
+    if (cut > 0) { str = str.slice(0, cut + 1); }
+    else { str += '"'; }
+    // recompute the bracket stack after trimming
+    return repairTruncatedJSON(str);
+  }
+  // strip a trailing comma, then close whatever is still open
+  str = str.replace(/,\s*$/, "");
+  for (let i = stack.length - 1; i >= 0; i--) str += stack[i] === "{" ? "}" : "]";
+  try { const o = JSON.parse(str); if (o && typeof o === "object") return o; } catch (e) {}
+  return null;
+}
+
 function parseModelJSON(text) {
   if (!text) return null;
   let t = String(text).replace(/```json/gi, "").replace(/```/g, "").trim();
   try { const o = JSON.parse(t); if (o && typeof o === "object") return o; } catch (e) {}
   const a = t.indexOf("{"), b = t.lastIndexOf("}");
   if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  // last resort: the object opened but was never properly closed (truncated reply)
+  if (a >= 0) { const rep = repairTruncatedJSON(t.slice(a)); if (rep) return rep; }
   return null;
 }
 
@@ -452,14 +493,17 @@ async function evaluateOne(persona, atype, copy, img, images, context, region, p
   const content = hasImage
     ? imgs.map(im => ({ type: "image", source: { type: "base64", media_type: im.mediaType || "image/jpeg", data: im.data } })).concat([{ type: "text", text: promptText }])
     : promptText;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const ATTEMPTS = 3;
+  let lastRaw = "";
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
     try {
       const msg = await anthropic.messages.create({
         model: MODEL,
-        max_tokens: 600,
+        max_tokens: 1000,
         messages: [{ role: "user", content }]
       });
       const text = (msg.content || []).map(b => b.text || "").join("");
+      lastRaw = text || lastRaw;
       const d = parseModelJSON(text);
       if (d) {
         return {
@@ -475,12 +519,15 @@ async function evaluateOne(persona, atype, copy, img, images, context, region, p
           raw: null
         };
       }
-      if (attempt === 1) return { error: true, raw: (text || "").slice(0, 500) };
+      if (attempt === ATTEMPTS - 1) return { error: true, raw: (text || "").slice(0, 500) };
     } catch (e) {
-      if (attempt === 1) return { error: true, raw: (e && e.message) || "API error" };
+      lastRaw = (e && e.message) || lastRaw;
+      if (attempt === ATTEMPTS - 1) return { error: true, raw: (e && e.message) || "API error" };
     }
+    // exponential backoff with jitter before the next attempt (0.4s, ~0.9s, ...)
+    await new Promise(s => setTimeout(s, 400 * Math.pow(2, attempt) + Math.random() * 250));
   }
-  return { error: true, raw: "No response." };
+  return { error: true, raw: lastRaw ? String(lastRaw).slice(0, 500) : "No response." };
 }
 
 // ---------- custom "build your own" persona helpers ----------
