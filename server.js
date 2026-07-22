@@ -597,6 +597,58 @@ Respond with ONLY minified JSON (no markdown, no commentary) using EXACTLY these
   }
 });
 
+// ---- AI face generation (Flux 1.1 Pro via Replicate) ----
+const REPLICATE_TOKEN = process.env.REPLICATE_API_TOKEN || "";
+const FLUX_MODEL = process.env.FLUX_MODEL || "black-forest-labs/flux-1.1-pro";
+const FACE_REGION_FLAVOR = {
+  south: "who lives on the Santa Barbara coast of California",
+  valley: "who lives in the Santa Ynez Valley ranch and wine country of California",
+  north: "who lives in the working agricultural communities of Santa Maria and Lompoc, California"
+};
+function buildFacePrompt(b) {
+  const gender = b.gender === "male" ? "man" : b.gender === "female" ? "woman" : "person";
+  const age = pStr(b.age, 40);
+  const agePhrase = age ? ("about " + age + " years old") : "middle-aged to older";
+  const region = ["south", "valley", "north"].includes(b.region) ? b.region : "south";
+  const vibe = pStr(b.vibe, 200);
+  const lean = b.factsFeelings === "facts" ? "composed, thoughtful, reserved expression"
+    : b.factsFeelings === "feelings" ? "warm, kind, gently smiling expression"
+    : "natural, relaxed expression";
+  const extra = vibe ? (" Context: " + vibe + ".") : "";
+  return `Candid, realistic documentary-style headshot photograph of an ordinary everyday ${agePhrase} ${gender} ${FACE_REGION_FLAVOR[region]}. ${lean}. A real regular person, NOT a fashion model or celebrity, natural imperfect skin texture and real pores, soft natural window light, simple softly blurred neutral background, head and shoulders, looking toward the camera, shot on an 85mm lens at f2.8, photojournalistic portrait, no makeup glamour.${extra} No text, no watermark, no logo.`;
+}
+app.post("/api/generate-face", async (req, res) => {
+  if (!REPLICATE_TOKEN) return res.status(400).json({ error: "AI face generation isn't switched on yet. Add a REPLICATE_API_TOKEN in the server environment to enable it." });
+  const b = req.body || {};
+  const prompt = pStr(b.prompt, 700) || buildFacePrompt(b);
+  try {
+    const r = await fetch(`https://api.replicate.com/v1/models/${FLUX_MODEL}/predictions`, {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + REPLICATE_TOKEN, "Content-Type": "application/json", "Prefer": "wait" },
+      body: JSON.stringify({ input: { prompt, aspect_ratio: "1:1", output_format: "jpg", safety_tolerance: 2, prompt_upsampling: true } })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (data && data.error) return res.status(502).json({ error: String(data.error) });
+    let out = Array.isArray(data.output) ? data.output[0] : data.output;
+    // If Replicate didn't return synchronously, poll the status URL.
+    if (!out && data.urls && data.urls.get) {
+      for (let i = 0; i < 20 && !out; i++) {
+        await new Promise(s => setTimeout(s, 1500));
+        const pr = await fetch(data.urls.get, { headers: { "Authorization": "Bearer " + REPLICATE_TOKEN } });
+        const pd = await pr.json().catch(() => ({}));
+        if (pd.status === "succeeded") out = Array.isArray(pd.output) ? pd.output[0] : pd.output;
+        else if (pd.status === "failed" || pd.status === "canceled") return res.status(502).json({ error: "Face generation failed, please try again." });
+      }
+    }
+    if (!out) return res.status(504).json({ error: "Face generation timed out, please try again." });
+    const imgResp = await fetch(out);
+    const buf = Buffer.from(await imgResp.arrayBuffer());
+    res.json({ image: "data:image/jpeg;base64," + buf.toString("base64"), prompt });
+  } catch (e) {
+    res.status(500).json({ error: (e && e.message) || "Face generation error." });
+  }
+});
+
 app.post("/api/evaluate", async (req, res) => {
   const { atype, copy, img, context, region, personalize, personaIds, source, images, imageData, imageMediaType, customPersonas, leans } = req.body || {};
   const cleanLeans = (leans && typeof leans === "object") ? leans : {};
