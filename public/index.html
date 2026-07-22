@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Walter &amp; Winnie · Cottage Health Foundation</title>
+<title>our voice lab · Cottage Health Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cutive&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme: light;
@@ -17,38 +20,35 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px}
 .wrap{max-width:1320px;margin:0 auto;padding:14px 18px 48px}
-.brandbar{display:flex;align-items:center;gap:0;padding:0;margin:4px 0 6px;background:var(--brand);border:1px solid var(--brand);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.brandlogo{background:#fff;align-self:stretch;display:flex;align-items:center;padding:12px 26px}
-.brandbar .logo svg{height:72px;width:auto;display:block}
-.brandbar .bdiv{width:1px;align-self:stretch;background:rgba(255,255,255,.30);margin:0}
-.brandbar .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
-.brandbar h1{font-size:32px;margin:1px 0 0;letter-spacing:-.3px;font-weight:400;color:var(--ink)}
-.brandbar .who{margin-left:auto;font-size:12px;color:rgba(255,255,255,.9);text-align:right;padding-right:18px}
-.brandbar .who a{color:#fff;cursor:pointer}
-.dlrlogo{height:120px;width:auto;display:block}
-.rmark{display:flex;flex-direction:column;align-items:flex-start}
-.wwlogo{height:52px;width:auto;max-width:100%;display:block;align-self:flex-start}
-.rtag{font-size:13px;color:var(--muted);margin-top:8px;font-weight:500;max-width:300px}
-@media(max-width:600px){.wwlogo{height:36px}.rtag{font-size:11px;margin-top:5px}}
-.instance{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding-left:22px}
-.instance .eyebrow{color:rgba(255,255,255,.85)}
-.instance .instname{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.2px}
-.chlogo{margin-top:3px}
-.chlogo svg{height:38px;width:auto;display:block}
+/* --- top black nav bar --- */
+.topbar{display:flex;align-items:center;gap:24px;background:#0b0b0c;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 28px;margin:4px 0 8px}
+.ovlbrand{flex:0 0 auto;display:block;cursor:pointer;line-height:0}
+.ovlbrand img{height:58px;width:auto;display:block}
+.topnav{display:flex;align-items:center;gap:28px;flex-wrap:wrap;flex:1}
+.topnav .tab{background:none;border:none;padding:4px 0;cursor:pointer;color:#f2f3ee;font-size:20px;font-weight:400;font-family:"American Typewriter","Cutive","Courier New",monospace;border-bottom:2px solid transparent}
+.topnav .tab:hover{color:#cdd92b}
+.topnav .tab.active{color:#cdd92b;border-bottom-color:#cdd92b}
+.topbar .who{margin-left:auto;font-size:12px;color:rgba(255,255,255,.72);text-align:right;white-space:nowrap}
+.topbar .who a{color:#fff;cursor:pointer}
+.topbar .who a:hover{color:#cdd92b}
+@media(max-width:860px){.topbar{flex-wrap:wrap;gap:12px 18px;padding:12px 16px}.topnav{gap:14px 18px}.topnav .tab{font-size:16px}.ovlbrand img{height:46px}.topbar .who{margin-left:0;width:100%;text-align:left}}
+/* cottage logo (used in the hero teal panel) stays solid white */
+.chlogo svg{height:44px;width:auto;display:block}
 .chlogo svg path{fill:#fff}
 .chlogo svg text{fill:#fff}
-@media(max-width:600px){.chlogo svg{height:28px}}
-@media(max-width:600px){.dlrlogo{height:70px}.brandlogo{padding:10px 16px}.instance{padding-left:14px}.instance .instname{font-size:14px}}
+@media(max-width:700px){.chlogo svg{height:32px}}
 .herobanner{position:relative;margin:8px 0 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);height:300px;background:#0a2230}
 .herobanner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block;transition:opacity .5s ease}
-.heroveil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,20,28,.86) 0%,rgba(6,20,28,.62) 42%,rgba(6,20,28,.30) 78%,rgba(6,20,28,.20) 100%)}
-.heroquote{position:absolute;left:0;right:0;bottom:0;padding:26px 32px;z-index:2}
-.heroeyebrow{font-size:11px;letter-spacing:1.7px;text-transform:uppercase;color:#cfe6ee;font-weight:700;margin-bottom:9px;opacity:.92}
-.heroq{font-size:31px;line-height:1.28;font-weight:400;font-style:italic;color:#fff;max-width:500px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
-.heroa{margin-top:11px;font-size:13.5px;color:#dfeaf0;opacity:.9}
+.heroveil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,20,25,.34) 0%,rgba(10,20,25,.10) 42%,rgba(10,20,25,.20) 66%,rgba(10,20,25,.52) 100%)}
+.herocottage{position:absolute;left:0;top:30%;z-index:2;background:var(--brand);color:#fff;padding:20px 36px 22px 26px;border-radius:0 24px 24px 0;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.herocottage .hc-eyebrow{font-family:"American Typewriter","Cutive","Courier New",monospace;font-size:15px;color:rgba(255,255,255,.9);margin-bottom:9px}
+.heroquote{position:absolute;right:40px;bottom:34px;left:auto;max-width:640px;text-align:left;z-index:2}
+.heroeyebrow{font-family:"American Typewriter","Cutive","Courier New",monospace;font-size:15px;letter-spacing:0;text-transform:none;color:#eef3ec;font-weight:400;margin-bottom:10px;opacity:.95;text-shadow:0 1px 3px rgba(0,0,0,.55)}
+.heroq{font-family:"American Typewriter","Cutive","Courier New",monospace;font-size:30px;line-height:1.32;font-weight:400;font-style:normal;color:#fff;max-width:640px;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.heroa{margin-top:12px;font-family:"American Typewriter","Cutive","Courier New",monospace;font-size:14px;color:#eef3ec;opacity:.92;text-shadow:0 1px 3px rgba(0,0,0,.55)}
 .heronew{position:absolute;top:13px;right:15px;z-index:3;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.30);color:#fff;border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(3px)}
 .heronew:hover{background:rgba(255,255,255,.30)}
-@media(max-width:600px){.herobanner{height:230px}.heroq{font-size:22px;max-width:320px}.heroquote{padding:18px 18px}.heroeyebrow{margin-bottom:6px}}
+@media(max-width:700px){.herobanner{height:320px}.herocottage{top:10px;padding:12px 20px 12px 14px}.heroquote{right:14px;bottom:14px;max-width:78%}.heroq{font-size:18px}.heroeyebrow{font-size:12px;margin-bottom:5px}}
 .sub{color:var(--muted);font-size:14px;max-width:820px;margin:10px 2px 0}
 .primarynav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 4px}
 .primarytab{background:var(--brand);color:#fff;border:none;border-radius:12px;padding:14px 30px;font-size:18px;font-weight:600;cursor:pointer;box-shadow:var(--shadow)}
@@ -411,11 +411,23 @@ table.log tr:last-child td{border-bottom:none}
 </head>
 <body>
 <div class="wrap">
-  <div class="brandbar">
-    <div class="brandlogo"><div class="rmark"><img class="wwlogo" src="ww-logo.png" alt="Walter &amp; Winnie"><div class="rtag">Your voice, pressure-tested by your donors.</div></div></div>
-    <div class="bdiv"></div>
-    <div class="instance instlogo">
-      <div class="eyebrow">Custom edition for</div>
+  <div class="topbar">
+    <a class="ovlbrand" id="homeBrand" title="Home"><img src="ovl-logo.png" alt="our voice lab"></a>
+    <nav class="topnav">
+      <button class="tab" data-tab="brand">our voice</button>
+      <button class="tab" data-tab="guidelines">brand guidelines</button>
+      <button class="tab" data-tab="ref">personas</button>
+      <button class="tab" data-tab="region">regions</button>
+      <button class="tab" data-tab="photo">photography</button>
+      <button class="tab" data-tab="examples">templates</button>
+    </nav>
+    <div class="who"><span id="whoName"></span> &middot; <a id="acctLink">account</a> &middot; <a id="logout">sign out</a></div>
+  </div>
+  <div class="herobanner" id="hero">
+    <img id="heroImg" src="cottage-hero.jpg" alt="">
+    <div class="heroveil"></div>
+    <div class="herocottage">
+      <div class="hc-eyebrow">custom edition for</div>
       <div class="chlogo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="img" aria-label="Cottage Health Foundation">
         <g>
@@ -426,11 +438,6 @@ table.log tr:last-child td{border-bottom:none}
       </svg>
       </div>
     </div>
-    <div class="who"><span id="whoName"></span><br><a id="homeLink">Home</a> &middot; <a id="acctLink">My account</a> &middot; <a id="logout">Sign out</a></div>
-  </div>
-  <div class="herobanner" id="hero">
-    <img id="heroImg" src="cottage-hero.jpg" alt="">
-    <div class="heroveil"></div>
     <button type="button" class="heronew" id="heroNew" title="Show me another">&#8635;&nbsp; New</button>
     <div class="heroquote">
       <div class="heroeyebrow" id="heroEyebrow"></div>
@@ -441,15 +448,6 @@ table.log tr:last-child td{border-bottom:none}
   <div class="primarynav">
     <button class="tab primarytab active" data-tab="eval">Test Your Message</button>
     <span class="primaryhint">Start here — paste, dictate, or upload what you want feedback on.</span>
-  </div>
-  <div class="secnavlabel">Explore the voice</div>
-  <div class="tabs">
-    <button class="tab" data-tab="brand">Our Voice</button>
-    <button class="tab" data-tab="guidelines">Brand guidelines</button>
-    <button class="tab" data-tab="ref">Personas</button>
-    <button class="tab" data-tab="region">Regions</button>
-    <button class="tab" data-tab="photo">Photography</button>
-    <button class="tab" data-tab="examples">Templates</button>
   </div>
 
   <!-- EVAL -->
@@ -919,7 +917,7 @@ table.log tr:last-child td{border-bottom:none}
     <textarea id="betaText" rows="2" placeholder="What's working, what's broken, or what would make this better?"></textarea>
     <div><button class="btn small" id="betaSend">Submit feedback</button> <span class="hint" id="betaMsg"></span></div>
   </div>
-  <div class="foot"><b>Walter &amp; Winnie</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing, a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Michael Beall.</div>
+  <div class="foot"><b>our voice lab</b> &middot; Cottage Health Foundation edition &middot; AI role-play for early message testing, a directional gut check, not a substitute for real donor conversations. &middot; Prepared by Michael Beall.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1729,9 +1727,9 @@ $("#downloadReport").addEventListener("click", ()=>{
       ${(d.avoid||[]).length?`<p style="color:#a93535"><b>Avoid-list flags:</b> ${esc(d.avoid.join(", "))}</p>`:""}
       ${d.fix?`<p style="background:#fbf6ea;padding:8px;border-radius:8px"><b>Fix:</b> ${esc(d.fix)}</p>`:""}
     </div>`;}).join("");
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Walter &amp; Winnie report</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>our voice lab report</title>
     <style>body{font-family:-apple-system,Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1c2430}</style></head>
-    <body><h1>Walter &amp; Winnie</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
+    <body><h1>our voice lab</h1><p style="color:#5d6675">${esc(LAST.ts.toLocaleString())} · ${esc(LAST.atype)}</p>
     ${LAST.copy?`<h3>Copy tested</h3><pre style="white-space:pre-wrap;background:#f7f8fa;padding:12px;border-radius:8px">${esc(LAST.copy)}</pre>`:""}
     ${LAST.img?`<h3>Visual</h3><p>${esc(LAST.img)}</p>`:""}
     <h3>Reactions</h3>${cards}
@@ -1992,7 +1990,7 @@ $("#exportCsv").addEventListener("click",()=>{ window.location.href="/api/export
 $("#refreshLog").addEventListener("click",renderUsage);
 $("#logout").addEventListener("click", async ()=>{ await fetch("/api/logout",{method:"POST"}); window.location.href="/login.html"; });
 function goHome(){ activatePanel("eval"); window.scrollTo({top:0,behavior:"smooth"}); }
-$("#homeLink").addEventListener("click", goHome);
+$("#homeBrand").addEventListener("click", goHome);
 $("#acctLink").addEventListener("click", function(){ activatePanel("account"); window.scrollTo({top:0,behavior:"smooth"}); });
 
 /* human help — package the thread + brief and route it to a human writer */
@@ -2013,14 +2011,14 @@ function helpBrief(){
       if(d.fix) L.push("  Fix: "+d.fix); });
   } else { L.push("(No evaluation has been run yet.)"); }
   if(CHAT && CHAT.length){ L.push("\n--- REFINE CONVERSATION ---"); CHAT.forEach(m=>L.push("\n"+(m.role==="user"?"YOU":"COACH")+": "+m.content)); }
-  L.push("\nSent from Walter & Winnie");
+  L.push("\nSent from our voice lab");
   return L.join("\n");
 }
 function humanHelp(){
   if(!LAST && !(CHAT&&CHAT.length)){ alert("Run an evaluation first — then you can send it for human help."); return; }
   var brief=helpBrief();
   try{ const blob=new Blob([brief],{type:"text/plain"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="voice-guide-help-request.txt"; a.click(); URL.revokeObjectURL(url); }catch(e){}
-  var subj="Human help request, Walter & Winnie";
+  var subj="Human help request, our voice lab";
   var intro="Hi Mike,\n\nI'd like a human writer's help on this piece. My brief is below — a full copy also downloaded as voice-guide-help-request.txt, which I'll attach.\n\n";
   var body=intro+brief.slice(0,1400)+(brief.length>1400?"\n\n…(full brief in the attached file)":"")+"\n\n— "+((PROFILE&&PROFILE.name)||"");
   window.location.href="mailto:mike@beallcreative.com?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
@@ -2038,7 +2036,7 @@ pingActivity();
 /* ---- Hero: rotating daily inspiration over a local backdrop ---- */
 (function(){
   var HERO_IMGS=["cottage-hero.jpg","ex_solvang.jpg","ex_vineyard.jpg","ex_wharf.jpg","ex_cattle.jpg"];
-  var EYEBROW={story:"On storytelling",ai:"Watch the machine",craft:"On the craft",you:"Walter &amp; Winnie"};
+  var EYEBROW={story:"On storytelling",ai:"Watch the machine",craft:"On the craft",you:"our voice lab"};
   var QUOTES=[
     /* --- The tool's own philosophy --- */
     {k:"you",t:"Don't retell a story. Relive it. Put the reader back in the room where it happened."},
@@ -2084,7 +2082,7 @@ pingActivity();
     var qEl=document.getElementById("heroQ"), aEl=document.getElementById("heroA"), eEl=document.getElementById("heroEyebrow");
     if(qEl){ qEl.innerHTML="&ldquo;"+q.t+"&rdquo;"; }
     if(aEl){ aEl.innerHTML=q.a?("&mdash; "+q.a):""; }
-    if(eEl){ eEl.innerHTML=EYEBROW[q.k]||""; }
+    if(eEl){ eEl.textContent="our voice lab"; }
   }
   function setDailyImage(){
     var el=document.getElementById("heroImg"); if(!el) return;
