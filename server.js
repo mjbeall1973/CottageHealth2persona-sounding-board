@@ -176,6 +176,8 @@ app.get("/api/owner-report.txt", (req, res) => {
 // the login page needs its logo before sign-in — serve it (and the favicon) without auth
 app.get("/donor-listening-room-logo.png", (req, res) => res.sendFile(path.join(__dirname, "public", "donor-listening-room-logo.png")));
 app.get("/ww-logo.png", (req, res) => res.sendFile(path.join(__dirname, "public", "ww-logo.png")));
+app.get("/ovl-logo-dark.png", (req, res) => res.sendFile(path.join(__dirname, "public", "ovl-logo-dark.png")));
+app.get("/ovl-logo.png", (req, res) => res.sendFile(path.join(__dirname, "public", "ovl-logo.png")));
 
 app.use(requireAuth);
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
