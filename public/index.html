@@ -629,6 +629,9 @@ table.log tr:last-child td{border-bottom:none}
         <details class="pdisc"><summary>Full profile</summary><div id="brDetail"></div></details>
         <div class="btweak">
           <div class="blabel" style="margin-bottom:10px">Choose a face</div>
+          <button type="button" class="btn small" id="genFace" style="margin-bottom:8px">✨ Generate a real-looking face with AI</button>
+          <div id="genFaceMsg" style="font-size:12.5px;color:var(--muted);margin-bottom:12px;display:none"></div>
+          <div class="blabel" style="font-size:12px;color:var(--muted);margin-bottom:8px">Or pick a stock photo</div>
           <div class="facegrid" id="faceGrid"></div>
           <button type="button" class="btn small secondary" id="useIllus" style="margin-top:10px">Use an illustration instead</button>
         </div>
@@ -904,6 +907,7 @@ function faceSprite(i, size){
   return `<span class="avatar facesprite" role="img" style="width:${size}px;height:${size}px;background-image:url('faces.jpg');background-size:${size*FACE_COLS}px ${size*FACE_ROWS}px;background-position:-${col*size}px -${row*size}px"></span>`;
 }
 function avatar(p, size){
+  if(p && p.faceImg) return '<img class="avatar pavatar" src="'+p.faceImg+'" alt="'+esc(p.name||"")+'" width="'+size+'" height="'+size+'" loading="lazy">';
   if(p && typeof p.face==="number" && p.face>=0) return faceSprite(p.face, size);
   if(p && p.photo) return '<img class="avatar pavatar" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" width="'+size+'" height="'+size+'" loading="lazy">';
   return avatarSVG(p, size);
@@ -1043,6 +1047,31 @@ function renderFaceGrid(){
     html+=`<button type="button" class="facetile${(BUILT&&BUILT.face===i)?" on":""}" data-i="${i}" style="width:${tile}px;height:${tile}px;background-image:url('faces.jpg');background-size:${tile*FACE_COLS}px ${tile*FACE_ROWS}px;background-position:-${col*tile}px -${row*tile}px"></button>`;
   }
   $("#faceGrid").innerHTML=html;
+}
+async function genFace(){
+  if(!BUILT) return;
+  const btn=$("#genFace"), msg=$("#genFaceMsg");
+  const body={
+    gender: (BUILT.voice&&BUILT.voice.gender)||"",
+    age: ($("#bAge")&&$("#bAge").value.trim())||"",
+    region: BUILT.region||"south",
+    factsFeelings: ($("#bFacts")&&$("#bFacts").value)||"",
+    vibe: BUILT.role||""
+  };
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='<span class="spinner light"></span>Creating a face...';
+  msg.style.display="block"; msg.style.color="var(--muted)"; msg.textContent="Generating a one-of-a-kind, fully fictional face. This takes a few seconds.";
+  try{
+    const r=await fetch("/api/generate-face",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok||!j.image){ msg.style.color="#b23b3b"; msg.textContent=j.error||"Couldn't generate a face — try again, or pick a stock photo below."; }
+    else{
+      BUILT.faceImg=j.image; delete BUILT.face;
+      $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on"));
+      renderBuiltAvatar();
+      msg.style.color="var(--muted)"; msg.textContent="Fresh AI face applied. Not a real person, nothing to license. Generate again for a different look.";
+    }
+  }catch(e){ msg.style.color="#b23b3b"; msg.textContent="Network error — try again."; }
+  btn.disabled=false; btn.innerHTML=old;
 }
 function showBuilt(){
   const p=BUILT; if(!p) return;
@@ -1896,8 +1925,9 @@ $("#bRegion").addEventListener("click", e=>{ const b=e.target.closest("button");
 $("#bGen").addEventListener("click", genPersona);
 $("#bSave").addEventListener("click", saveBuilt);
 $("#bRegen").addEventListener("click", ()=>{ $("#bStep").style.display="block"; $("#bResult").style.display="none"; });
-$("#faceGrid").addEventListener("click", e=>{ const t=e.target.closest(".facetile"); if(!t||!BUILT) return; BUILT.face=parseInt(t.dataset.i,10); $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); t.classList.add("on"); renderBuiltAvatar(); });
-$("#useIllus").addEventListener("click", ()=>{ if(!BUILT) return; delete BUILT.face; $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); renderBuiltAvatar(); });
+$("#genFace").addEventListener("click", genFace);
+$("#faceGrid").addEventListener("click", e=>{ const t=e.target.closest(".facetile"); if(!t||!BUILT) return; delete BUILT.faceImg; BUILT.face=parseInt(t.dataset.i,10); $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); t.classList.add("on"); renderBuiltAvatar(); });
+$("#useIllus").addEventListener("click", ()=>{ if(!BUILT) return; delete BUILT.face; delete BUILT.faceImg; $$("#faceGrid .facetile.on").forEach(x=>x.classList.remove("on")); renderBuiltAvatar(); });
 $("#regionSeg").addEventListener("click", e=>{
   const b=e.target.closest("button[data-region]"); if(!b) return;
   $$("#regionSeg button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
