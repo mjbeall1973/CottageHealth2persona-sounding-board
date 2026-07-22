@@ -525,6 +525,10 @@ app.post("/api/build-persona", async (req, res) => {
   const personality = pStr(b.personality, 60), factsFeelings = pStr(b.factsFeelings, 40);
   const working = pStr(b.working, 40), religion = pStr(b.religion, 60), infoSource = pStr(b.infoSource, 120);
   const kids = b.kids ? "yes" : "", grandkids = b.grandkids ? "yes" : "";
+  const ethnicity = pStr(b.ethnicity, 40);
+  const tenure = b.tenure === "new" ? "new to the area (recently moved here)" : b.tenure === "longtime" ? "a long-time resident with deep roots here" : "";
+  const relationship = b.relationship === "grateful" ? "grateful to Cottage because they or a family member were cared for here" : b.relationship === "neighbor" ? "just a neighbor with no direct personal tie to Cottage yet" : "";
+  const dialNote = dialToText(b.dial);
   const seedText = seed ? `Starting inspiration (create a DISTINCT new individual, do not copy verbatim): ${seed.name}, ${seed.role}. ${seed.blurb}` : "";
   const prompt = `You are designing a realistic fundraising donor persona for the Cottage Health Foundation in the Santa Barbara, California region (which spans Santa Barbara, San Luis Obispo, and Ventura counties).
 
@@ -542,11 +546,15 @@ ${factsFeelings ? `- Persuaded more by: ${factsFeelings}` : ""}
 ${kids ? `- Has children: yes` : ""}
 ${grandkids ? `- Has grandchildren: yes` : ""}
 ${working ? `- Work status: ${working}` : ""}
+${ethnicity ? `- Ethnicity / cultural background: ${ethnicity} (portray with dignity and specificity, never as a stereotype)` : ""}
+${tenure ? `- Time in the area: ${tenure}` : ""}
+${relationship ? `- Relationship to Cottage: ${relationship}` : ""}
 ${religion ? `- Faith / religious affiliation: ${religion}` : ""}
 ${infoSource ? `- Where they get their information: ${infoSource} (reflect this in the profile "media" field)` : ""}
+${dialNote ? `- Personality dial (let this strongly shape their voice, tone, motivations and objections): ${dialNote}` : ""}
 ${notes ? `- Extra detail to honor: ${notes}` : ""}
 
-Make them specific, believable, warm, and grounded in this region — a real individual with an inner life, NOT a caricature or a demographic stereotype. Avoid clichés about wealth, ethnicity, or age. Weave the family, faith, work, and temperament details in naturally where they'd shape how this person gives and responds.
+Make them specific, believable, warm, and grounded in this region — a real individual with an inner life, NOT a caricature or a demographic stereotype. Avoid clichés about wealth, ethnicity, or age. Weave the family, faith, work, temperament, and personality-dial details in naturally where they'd shape how this person gives and responds.
 
 Respond with ONLY minified JSON (no markdown, no commentary) using EXACTLY these keys:
 {"name":"<first name>","role":"<short descriptor, e.g. '58, vineyard owner & longtime donor'>","blurb":"<2 sentences on who they are and how they think about giving>","profile":{"car":"<what they drive>","shops":"<where they shop>","brands":"<brands they like>","personality":"<MBTI-style tag + 2-3 words>","media":"<where they get information>"},"motivations":["<short>","<short>","<short>","<short>"],"objections":["<short>","<short>","<short>","<short>"],"tone":"<one sentence on how to speak to them>","imgYes":["<short>","<short>","<short>"],"imgNo":["<short>","<short>","<short>"],"intro":"<3-4 sentence first-person 'let me introduce myself' in their own voice>","spoken":"<1-2 sentence casual first-person line, as if speaking out loud as a local from this region>","avatar":{"skin":"<hex e.g. #e0a875>","hair":"<hex>","style":"<one of: short, bob, long, bun>","clothes":"<hex>","glasses":<true or false>},"voice":{"gender":"<female or male>","rate":<number 0.9-1.08>,"pitch":<number 0.9-1.1>},"color":"<a hex accent color>"}`;
@@ -605,17 +613,41 @@ const FACE_REGION_FLAVOR = {
   valley: "who lives in the Santa Ynez Valley ranch and wine country of California",
   north: "who lives in the working agricultural communities of Santa Maria and Lompoc, California"
 };
+const DIAL_DEFS = {
+  warm: ["warm and openly caring", "reserved and emotionally private"],
+  agree: ["agreeable and eager to say yes", "a skeptical devil's advocate who pushes back and asks hard questions"],
+  formal: ["formal, proper and buttoned-up", "casual, relaxed and easygoing"],
+  concrete: ["concrete and literal, wants specifics and proof", "abstract and big-picture, drawn to ideas and vision"],
+  decisive: ["decisive and quick to commit", "exploratory, likes to weigh options before deciding"],
+  earnest: ["earnest, sincere and serious", "playful, witty and lighthearted"],
+  confident: ["confident and definite in what they think", "cautious and hedged, qualifies and second-guesses"]
+};
+function dialToText(dial) {
+  if (!dial || typeof dial !== "object") return "";
+  const parts = [];
+  for (const k in DIAL_DEFS) {
+    let v = parseInt(dial[k], 10);
+    if (isNaN(v) || Math.abs(v) < 3) continue;
+    const side = v < 0 ? DIAL_DEFS[k][0] : DIAL_DEFS[k][1];
+    const strength = Math.abs(v) >= 7 ? "very " : Math.abs(v) >= 4 ? "" : "somewhat ";
+    parts.push(strength + side);
+  }
+  return parts.join("; ");
+}
 function buildFacePrompt(b) {
   const gender = b.gender === "male" ? "man" : b.gender === "female" ? "woman" : "person";
   const age = pStr(b.age, 40);
   const agePhrase = age ? ("about " + age + " years old") : "middle-aged to older";
   const region = ["south", "valley", "north"].includes(b.region) ? b.region : "south";
+  const eth = pStr(b.ethnicity, 40);
+  const ethPhrase = eth ? (eth + " ") : "";
+  const tenurePhrase = b.tenure === "new" ? "" : b.tenure === "longtime" ? "with a settled, rooted local look, " : "";
   const vibe = pStr(b.vibe, 200);
   const lean = b.factsFeelings === "facts" ? "composed, thoughtful, reserved expression"
     : b.factsFeelings === "feelings" ? "warm, kind, gently smiling expression"
     : "natural, relaxed expression";
   const extra = vibe ? (" Context: " + vibe + ".") : "";
-  return `Candid, realistic documentary-style headshot photograph of an ordinary everyday ${agePhrase} ${gender} ${FACE_REGION_FLAVOR[region]}. ${lean}. A real regular person, NOT a fashion model or celebrity, natural imperfect skin texture and real pores, soft natural window light, simple softly blurred neutral background, head and shoulders, looking toward the camera, shot on an 85mm lens at f2.8, photojournalistic portrait, no makeup glamour.${extra} No text, no watermark, no logo.`;
+  return `Candid, realistic documentary-style headshot photograph of an ordinary everyday ${agePhrase} ${ethPhrase}${gender} ${FACE_REGION_FLAVOR[region]}. ${tenurePhrase}${lean}. A real regular person, NOT a fashion model or celebrity, natural imperfect skin texture and real pores, soft natural window light, simple softly blurred neutral background, head and shoulders, looking toward the camera, shot on an 85mm lens at f2.8, photojournalistic portrait, no makeup glamour.${extra} No text, no watermark, no logo.`;
 }
 app.post("/api/generate-face", async (req, res) => {
   if (!REPLICATE_TOKEN) return res.status(400).json({ error: "AI face generation isn't switched on yet. Add a REPLICATE_API_TOKEN in the server environment to enable it." });

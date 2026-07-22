@@ -24,7 +24,7 @@ const PERSONAS = [
       media: "Wall Street Journal, annual reports, the numbers, people he has trusted for years"
     },
     avatar: { skin: "#e8c9a0", hair: "#b8b8b8", style: "short", clothes: "#2b6cb0", glasses: false },
-    photo: "walter.jpg",
+    photo: "pf_walter.jpg",
     intro: "Walter. I built what I have over a long time, and I did it by paying attention to the numbers. I give, and I give seriously, but I want to know exactly where it goes and what it does. Don't sell me. Show me the facts, show me the result, and show me you run a tight ship. Do that, and I will be one of your steadiest supporters. Waste my time with fluff, and I am gone.",
     spoken: "Walter. I'll be blunt, because that's how I am. I've given to plenty of causes, and the ones that keep me are the ones that show their work. Don't tell me it's transformational. Tell me what it cost, what it did, and how you know. Numbers. Proof. A straight answer. That is what earns my check, and it is the only thing that does.",
     spokenRegions: {
@@ -51,7 +51,7 @@ const PERSONAS = [
       media: "The local society pages, NPR, handwritten notes, longtime friends"
     },
     avatar: { skin: "#f1c9a5", hair: "#dcdcdc", style: "short", clothes: "#7a4ea3", glasses: true },
-    photo: "eleanor.jpg",
+    photo: "pf_winnie.jpg",
     intro: "Hello. My name is Winnie. I've called this place home for as long as I can remember, and I've given to it with an open heart the whole while. What moves me isn't a number on a page. It's a real person, a true story, a moment that means something. I can tell in an instant whether someone is being sincere. So slow down, speak to me like a person, and let me feel why it matters. Do that, and you'll have not just my gift but my devotion.",
     spoken: "Oh, hello there, dear. I've been here longer than most, and I've given from the heart the whole time. Don't hand me a spreadsheet and expect me to feel something. Tell me about a real person. Let me feel it. I can always tell when someone means it, and that, more than anything, is what opens my heart and my checkbook.",
     spokenRegions: {
@@ -78,7 +78,7 @@ const PERSONAS = [
       media: "Local paper, KEYT news, Facebook community groups, the church bulletin"
     },
     avatar: { skin: "#f1c9a5", hair: "#9a8a76", style: "bob", clothes: "#2e8b57", glasses: false },
-    photo: "linda.jpg",
+    photo: "pf_linda.jpg",
     intro: "Hi, I'm Linda. I've lived here most of my life, and Cottage took care of my family when we needed it. I give every year — not because I'm wealthy, but because this is my community and these are my neighbors. I want to know my gift matters, even a small one. Talk to me like a friend, show me a real person whose life got better, and I'm all in.",
     spoken: "Hi hon, I'm Linda! Oh gosh, I've been around here a long time. This hospital took such good care of my family when we needed it — so yeah, I give every year. Not a ton, but whatever I can. I just wanna know it matters, y'know? Show me a real person, a real story. Talk to me like a neighbor, not a checkbook. That's really all I need.",
     spokenRegions: {
@@ -105,7 +105,7 @@ const PERSONAS = [
       media: "Medical journals, NPR, professional networks, trusted colleagues"
     },
     avatar: { skin: "#c68642", hair: "#8c8c8c", style: "short", clothes: "#2f9e9e", glasses: true },
-    photo: "clinician.jpg",
+    photo: "pf_rivera.jpg",
     intro: "I'm Dr. Rivera. I've spent my career on the front lines of patient care, right here in our community. What moves me is simple: resources that help us care for people better — the equipment, the training, the programs. Don't dress it up, and please don't use my colleagues as props. Tell me the real impact on patients and staff, and you'll have my respect and my voice.",
     spoken: "Dr. Rivera. Look, I'll keep it real with you — I'm on the floor every day, so I don't have a lot of patience for spin. What gets me? Stuff that actually helps us take care of people. The equipment, the training, the programs that move the needle for patients. Don't dress it up, and please don't use my staff as a photo op. Just tell me what it does for the people in those beds. Do that, and you've got me.",
     spokenRegions: {
@@ -132,7 +132,7 @@ const PERSONAS = [
       media: "Instagram, TikTok, podcasts, friends' recommendations"
     },
     avatar: { skin: "#d99a6c", hair: "#241f1b", style: "long", clothes: "#0a7ea4", glasses: false },
-    photo: "maya.jpg",
+    photo: "pf_maya.jpg",
     intro: "Hey, I'm Maya. I'm younger, I'm healthy, and honestly I'm not thinking about hospitals much — but I love this place. The beach, the people, our little corner of California. I'm not ready to write a big check, but invite me in — a volunteer day, an event, a way to belong — and keep it real. Make me feel part of something good, and I'll show up, and I'll bring my friends.",
     spoken: "Hey hey, I'm Maya! Okay so — real talk, I'm young, I'm healthy, I'm not really thinking about hospitals, ngl. But I love it here. Like, the beach, the people, our whole little corner of California. So don't hit me with a big guilt-trip ask, that's such a turn-off. Just invite me in — a volunteer thing, an event, whatever — keep it real and kinda fun, and yeah, I'll totally show up. Probably drag my friends along too.",
     spokenRegions: {
