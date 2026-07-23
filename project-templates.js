@@ -30,7 +30,26 @@ Their tie to the valley: They keep a residence about a mile from the hospital an
 
 Relationship goal: Appreciate their interest — do not persuade. Every moment should say "thank you for becoming a neighbor," not "here is why you should give."
 
+What they reward (see "Reading the Donors" below): transformative scale, hard evidence and honest numbers, science and excellence, and authentic stories over spin.
+
 Still to learn: Why did they choose this valley? How much time do they spend here? Will both attend? Can they see the hospital from their property?`
+  },
+  {
+    heading: "Reading the Donors — Values & Motivations",
+    kind: "narrative",
+    hint: "How these donors think and what they reward — use it to choose emphasis, never to flatter or say aloud.",
+    body:
+`Drawn from what these donors' own record of giving tells us about how they think. Each value is paired with what it means for this tour.
+
+• Place-based — "our own backyard." They give where they and their people have real roots. This IS the tour: "growth, not change," neighbors caring for neighbors. Their home a mile away is the reason, not a footnote.
+• Transformative scale, not incremental. They fund what changes a system for a generation. Frame the rebuild as transforming rural care — think big and whole, not patch-by-patch.
+• Evidence and disciplined return. Famously rigorous with numbers; they reward proof over sentiment. Have the pro forma and outcomes ready. The hospitalist story (2 more surgeries/week funds the program) will land hard — it mirrors how they think.
+• Science, innovation, and excellence. They invest in research and cutting-edge capability. Highlight clinical excellence, technology, physician caliber, and how the building enables better medicine.
+• Story and intrinsic value. They built iconic things by finding the one honest "gem" and telling it transparently. Find the hospital's true "ruby" and tell it through real stories. They can smell spin — honesty is the strategy.
+• Health as part of a whole. Their giving treats health, education, and economic mobility as one fabric. Position the hospital as community infrastructure tied to the valley's families, workforce, and future.
+• Rural and working-community access. Access to care for working rural communities is already a personal cause. Appreciate it; don't pitch it. Tie caregivers and patients to the working life of the valley.
+• Legacy and the next generation. They invest in what endures and in young people's futures. Lean into the closing moments; frame the gift as the valley's future for children and grandchildren.
+• Substance over spectacle; partners, not prospects. Private, and they value being treated as intelligent partners, not courted with flash. Authentic, low-production, no parade. Invite them to co-build.`
   },
   {
     heading: "The Ask (hold lightly, know it cold)",
@@ -283,4 +302,17 @@ function templateCatalog() {
   }));
 }
 
-module.exports = { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId };
+// A de-identified donor lens the AI can use to tune suggestions for tour projects.
+// Never surfaces names — only the values/motivations to design toward.
+const DONOR_LENS = `AUDIENCE LENS — design toward these donor values (never name anyone; never flatter or say this aloud):
+- Place-based giving: they invest close to home, where they and their people have roots; "growth, not change," neighbors caring for neighbors.
+- Transformative scale over incremental fixes; think generational impact, not repairs.
+- Rigorous with evidence and numbers: reward honest data, outcomes, and disciplined ROI (e.g., the hospitalist program paying for itself).
+- Value science, innovation, clinical excellence, and physician caliber.
+- Persuaded by authentic, well-told stories and a single honest "intrinsic gem," not spin or hype — they detect spin instantly.
+- See health, education, and economic mobility as one fabric; community infrastructure, not just a building.
+- Rural / working-community health access is already a personal cause — appreciate it, do not pitch it.
+- Motivated by legacy and the next generation (children, grandchildren, the valley's future).
+- Prefer substance over spectacle; want to be treated as intelligent partners, not courted with flash.`;
+
+module.exports = { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId, DONOR_LENS };

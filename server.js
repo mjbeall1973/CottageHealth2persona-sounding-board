@@ -14,7 +14,7 @@ const pdfParse = require("pdf-parse");
 
 const { PERSONAS } = require("./personas");
 const { BRAND_VOICE, PHOTOGRAPHY } = require("./brand-voice");
-const { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId } = require("./project-templates");
+const { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId, DONOR_LENS } = require("./project-templates");
 
 // ---------- config ----------
 const PORT = process.env.PORT || 3000;
@@ -981,6 +981,7 @@ app.post("/api/projects/:id/assist", async (req, res) => {
   const extra = (instruction || "").toString().slice(0, 600).trim();
 
   const voice = (BRAND_VOICE && (BRAND_VOICE.promptSummary || BRAND_VOICE.oneLine)) || "";
+  const donorLens = (proj.type === "hospital-tour" && DONOR_LENS) ? ("\n" + DONOR_LENS + "\n") : "";
   const projectContext = proj.sections.slice(0, 6)
     .map(s => `## ${s.heading}\n${(s.body || "").slice(0, 700)}`).join("\n\n").slice(0, 4000);
 
@@ -991,7 +992,7 @@ app.post("/api/projects/:id/assist", async (req, res) => {
   const prompt =
 `You are a senior donor-experience strategist helping a healthcare foundation design a high-stakes philanthropy TOUR. Write in the Foundation's voice: ${voice}
 Never use guilt, pressure, hype, or salesy language. Warm, community-centered, sincere. Never fabricate specific named people, gifts, or quotes; keep any patient/guest references de-identified.
-
+${donorLens}
 PROJECT: "${proj.title}"
 PROJECT CONTEXT (other sections, for grounding):
 ${projectContext}
