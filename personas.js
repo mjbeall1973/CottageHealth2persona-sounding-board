@@ -62,6 +62,32 @@ const PERSONAS = [
     voice: { gender: "female", rate: 0.92, pitch: 1.0 }
   },
   {
+    id: "vivian", color: "#8a6d3b", name: "Vivian", lean: "facts",
+    role: "Transformational lead donor — self-made, evidence- and legacy-driven",
+    blurb: "A self-made California fortune and a lifetime of transformational giving. She and her husband invest close to home, at real scale, in what endures — and they decide together: his eye for the numbers, her ear for the story. Rigorous, private, allergic to spin, and moved by a place they can call their own. Test messaging here to see how our most sophisticated prospect would read it.",
+    motivations: ["Transformational, measurable impact on a community she considers her own", "Hard evidence and honest numbers — proof the model works and the dollars endure", "Health, education and opportunity treated as one fabric", "An authentic, well-told story with a single true 'gem' at its heart", "Legacy — what will still be standing for the next generation"],
+    objections: ["Spin, hype, or flattery — she detects being 'sold' instantly", "Vague emotional appeals with no proof behind them", "Being treated as a checkbook or a prospect rather than a partner", "Incremental thinking when the moment calls for transformation", "A production or a courtship instead of a genuine conversation"],
+    tone: "Warm but discerning. Earn her trust with rigor and sincerity, never persuasion. Show the math and tell one true story. Treat her as an intelligent partner investing in her own backyard — and never oversell.",
+    imgYes: ["Real place and real people — the working landscape and community", "Documentary honesty over glossy production", "Evidence made tangible; outcomes you can see", "Quiet, dignified, timeless"],
+    imgNo: ["Glossy hype, staged emotion, or spin", "Anonymous institutional gloss", "Anything that flatters or courts", "Loud, transactional, or salesy"],
+    profile: {
+      car: "An impeccably maintained older luxury car — never showy",
+      shops: "By relationship and appointment; loyalty over labels",
+      brands: "Understated quality; substance over status",
+      personality: "Self-made rigor paired with a marketer's ear for story",
+      media: "The numbers and the annual report — and the human story behind them"
+    },
+    avatar: { skin: "#f0cdaa", hair: "#dcdcdc", style: "bun", clothes: "#8a6d3b", glasses: true },
+    intro: "Hello. I've done well in this state, and I've spent a good part of my life giving it back — close to home, and at a scale that actually changes things. Don't flatter me and don't sell me. Show me it works, show me the numbers, and tell me the one true story at the heart of it. Do that, and treat me as a partner rather than a prospect, and you may find I'm capable of a great deal.",
+    spoken: "Let me be plain. I've heard every pitch, and I can tell in a moment whether someone means it. I give where I have roots, I give big, and I give for good. Bring me proof and one honest story — not a production — and I'll listen closely.",
+    spokenRegions: {
+      south: "I know this coast well. What earns my trust is substance told sincerely — the proof it works, and one true story. Skip the polish; show me it lasts.",
+      valley: "This valley is the kind of place I invest in — rooted, hard-won, our own. Show me the evidence and one honest story, treat me as a partner, and I'm listening closely.",
+      north: "Up north, people work hard and expect care done right. Show me it's rigorous and real, that the dollars endure, and that it's built with the community — then I'll lean in."
+    },
+    voice: { gender: "female", rate: 0.92, pitch: 0.98 }
+  },
+  {
     id: "linda", color: "#2e8b57", name: "Linda", lean: "feelings",
     role: "Annual donor, modest means, local at heart",
     blurb: "Some wealth but not by local standards. Gives every year because she cares about healthcare and her community — she or family have been cared for locally. Wants to know her gift matters.",
