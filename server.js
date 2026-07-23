@@ -14,6 +14,7 @@ const pdfParse = require("pdf-parse");
 
 const { PERSONAS } = require("./personas");
 const { BRAND_VOICE, PHOTOGRAPHY } = require("./brand-voice");
+const { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId } = require("./project-templates");
 
 // ---------- config ----------
 const PORT = process.env.PORT || 3000;
@@ -74,6 +75,23 @@ const insertRun = db.prepare(`INSERT OR REPLACE INTO runs
 db.exec(`CREATE TABLE IF NOT EXISTS activity (user TEXT, day TEXT, seconds INTEGER, PRIMARY KEY (user, day));`);
 const upsertActivity = db.prepare(`INSERT INTO activity (user, day, seconds) VALUES (@user, @day, @seconds)
   ON CONFLICT(user, day) DO UPDATE SET seconds = seconds + @seconds`);
+
+// "My Projects": each user's working projects (a titled set of editable sections).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS projects (
+    id TEXT PRIMARY KEY,
+    user TEXT, type TEXT, title TEXT,
+    template_id TEXT, created TEXT, updated TEXT,
+    data_json TEXT
+  );
+`);
+const insertProject = db.prepare(`INSERT INTO projects (id, user, type, title, template_id, created, updated, data_json)
+  VALUES (@id, @user, @type, @title, @template_id, @created, @updated, @data_json)`);
+const updateProject = db.prepare(`UPDATE projects SET title=@title, data_json=@data_json, updated=@updated WHERE id=@id AND user=@user`);
+const getProjectRow = db.prepare(`SELECT * FROM projects WHERE id=? AND user=?`);
+const listProjectRows = db.prepare(`SELECT id, type, title, template_id, created, updated, data_json FROM projects WHERE user=? ORDER BY updated DESC`);
+const deleteProjectRow = db.prepare(`DELETE FROM projects WHERE id=? AND user=?`);
+
 const REPORT_TOKEN = process.env.REPORT_TOKEN || SESSION_SECRET;
 
 // ---------- app ----------
@@ -865,6 +883,133 @@ app.get("/api/my-history/:id", (req, res) => {
   try { results = JSON.parse(row.results_json || "{}"); } catch (e) {}
   try { personaIds = JSON.parse(row.persona_ids || "[]"); } catch (e) {}
   res.json({ run_id: row.run_id, ts: row.ts, atype: row.atype, source: row.source, context: row.context, copy: row.copy, image_note: row.image_note, avg_score: row.avg_score, personaIds, results });
+});
+
+// ---------- My Projects: a working space, not just a sounding board ----------
+const PROJ_TITLE_MAX = 120, PROJ_SECTION_MAX = 40, PROJ_BODY_MAX = 20000;
+
+function sanitizeSections(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, PROJ_SECTION_MAX).map(s => ({
+    id: (s && typeof s.id === "string" && s.id) ? String(s.id).slice(0, 40) : newId("sec"),
+    heading: String((s && s.heading) || "Untitled section").slice(0, 160),
+    kind: ["narrative", "stop", "opportunities"].includes(s && s.kind) ? s.kind : "narrative",
+    hint: String((s && s.hint) || "").slice(0, 400),
+    body: String((s && s.body) || "").slice(0, PROJ_BODY_MAX)
+  }));
+}
+function projectSummary(row) {
+  let data = {}; try { data = JSON.parse(row.data_json || "{}"); } catch (e) {}
+  const sections = Array.isArray(data.sections) ? data.sections : [];
+  const filled = sections.filter(s => (s.body || "").trim().length > 0).length;
+  return { id: row.id, type: row.type, title: row.title, templateId: row.template_id,
+    created: row.created, updated: row.updated, sectionCount: sections.length, filledCount: filled };
+}
+function fullProject(row) {
+  let data = {}; try { data = JSON.parse(row.data_json || "{}"); } catch (e) {}
+  return { id: row.id, type: row.type, title: row.title, templateId: row.template_id,
+    created: row.created, updated: row.updated, sections: Array.isArray(data.sections) ? data.sections : [] };
+}
+
+// list projects; auto-seed the Santa Ynez tour example the first time a user visits
+app.get("/api/projects", (req, res) => {
+  const user = req.userEmail || "user";
+  let rows = listProjectRows.all(user);
+  if (!rows.length) {
+    try {
+      const now = new Date().toISOString();
+      const built = buildFromTemplate("syvch-tour", "Santa Ynez Valley Hospital Tour");
+      insertProject.run({ id: newId("proj"), user, type: built.type, title: built.title,
+        template_id: built.templateId, created: now, updated: now,
+        data_json: JSON.stringify({ sections: built.sections }) });
+      rows = listProjectRows.all(user);
+    } catch (e) { /* non-fatal */ }
+  }
+  res.json({ user, projects: rows.map(projectSummary), templates: templateCatalog() });
+});
+
+app.get("/api/project-templates", (req, res) => res.json({ templates: templateCatalog() }));
+
+app.post("/api/projects", (req, res) => {
+  const user = req.userEmail || "user";
+  const { templateId, title } = req.body || {};
+  const tid = (typeof templateId === "string" && PROJECT_TEMPLATES[templateId]) ? templateId : "blank";
+  const built = buildFromTemplate(tid, (title || "").toString().slice(0, PROJ_TITLE_MAX).trim());
+  const now = new Date().toISOString();
+  const id = newId("proj");
+  insertProject.run({ id, user, type: built.type, title: built.title, template_id: built.templateId,
+    created: now, updated: now, data_json: JSON.stringify({ sections: built.sections }) });
+  res.json({ project: fullProject(getProjectRow.get(id, user)) });
+});
+
+app.get("/api/projects/:id", (req, res) => {
+  const user = req.userEmail || "user";
+  const row = getProjectRow.get(req.params.id, user);
+  if (!row) return res.status(404).json({ error: "That project isn't in your account." });
+  res.json({ project: fullProject(row) });
+});
+
+app.put("/api/projects/:id", (req, res) => {
+  const user = req.userEmail || "user";
+  const row = getProjectRow.get(req.params.id, user);
+  if (!row) return res.status(404).json({ error: "That project isn't in your account." });
+  const { title, sections } = req.body || {};
+  const newTitle = (title != null ? String(title).slice(0, PROJ_TITLE_MAX).trim() : row.title) || "Untitled project";
+  const newSections = sections != null ? sanitizeSections(sections) : (fullProject(row).sections);
+  const now = new Date().toISOString();
+  updateProject.run({ id: req.params.id, user, title: newTitle, updated: now,
+    data_json: JSON.stringify({ sections: newSections }) });
+  res.json({ project: fullProject(getProjectRow.get(req.params.id, user)) });
+});
+
+app.delete("/api/projects/:id", (req, res) => {
+  const user = req.userEmail || "user";
+  const info = deleteProjectRow.run(req.params.id, user);
+  if (!info.changes) return res.status(404).json({ error: "That project isn't in your account." });
+  res.json({ ok: true });
+});
+
+// AI assist for a project section — talking points/stats/stories or creative opportunities
+app.post("/api/projects/:id/assist", async (req, res) => {
+  const user = req.userEmail || "user";
+  const row = getProjectRow.get(req.params.id, user);
+  if (!row) return res.status(404).json({ error: "That project isn't in your account." });
+  const proj = fullProject(row);
+  const { action, sectionId, instruction } = req.body || {};
+  const act = ["talking-points", "opportunities"].includes(action) ? action : "talking-points";
+  const section = proj.sections.find(s => s.id === sectionId) || proj.sections[0] || { heading: proj.title, body: "" };
+  const extra = (instruction || "").toString().slice(0, 600).trim();
+
+  const voice = (BRAND_VOICE && (BRAND_VOICE.promptSummary || BRAND_VOICE.oneLine)) || "";
+  const projectContext = proj.sections.slice(0, 6)
+    .map(s => `## ${s.heading}\n${(s.body || "").slice(0, 700)}`).join("\n\n").slice(0, 4000);
+
+  const task = act === "talking-points"
+    ? `Generate specific, ready-to-use TALKING POINTS for this section — concrete talking points, DE-IDENTIFIED patient or staff stories (never invent or use real names of guests/patients), and any relevant statistics that would genuinely apply. Make them things a tour guide or clinician could actually say out loud. Return 4–7 short bullet points; where a line is meant to be spoken aloud, put it in quotes.`
+    : `Suggest creative, MEMORABLE ENGAGEMENT OPPORTUNITIES for this section — "unexpected moments," sensory beats, props, or interactions that would make this stop land emotionally and feel designed for the guests. Ground them in what's already in the project. Return 3–6 short, vivid bullet points.`;
+
+  const prompt =
+`You are a senior donor-experience strategist helping a healthcare foundation design a high-stakes philanthropy TOUR. Write in the Foundation's voice: ${voice}
+Never use guilt, pressure, hype, or salesy language. Warm, community-centered, sincere. Never fabricate specific named people, gifts, or quotes; keep any patient/guest references de-identified.
+
+PROJECT: "${proj.title}"
+PROJECT CONTEXT (other sections, for grounding):
+${projectContext}
+
+THE SECTION YOU'RE HELPING WITH — "${section.heading}":
+${(section.body || "(this section is still empty — build from the project context and the heading)").slice(0, 4000)}
+${extra ? `\nEXTRA DIRECTION FROM THE USER: ${extra}\n` : ""}
+TASK: ${task}
+Respond with ONLY the bullet list (use "• " for each bullet). No preamble, no closing, no headings.`;
+
+  try {
+    const msg = await anthropic.messages.create({ model: MODEL, max_tokens: 900, messages: [{ role: "user", content: prompt }] });
+    const text = (msg.content || []).map(b => b.text || "").join("").trim();
+    if (!text) return res.status(502).json({ error: "No suggestions came back — please try again." });
+    res.json({ action: act, sectionId: section.id, text });
+  } catch (e) {
+    res.status(500).json({ error: (e && e.message) || "Assist failed — please try again." });
+  }
 });
 
 // ---------- refine: follow-up conversation with the voice coach ----------
