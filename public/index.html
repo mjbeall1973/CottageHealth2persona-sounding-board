@@ -415,6 +415,7 @@ table.log tr:last-child td{border-bottom:none}
     <a class="ovlbrand" id="homeBrand" title="Home"><img src="ovl-logo.png" alt="our voice lab"></a>
     <nav class="topnav">
       <button class="tab" data-tab="brand">our voice</button>
+      <button class="tab" data-tab="projects">my projects</button>
       <button class="tab" data-tab="guidelines">brand guidelines</button>
       <button class="tab" data-tab="ref">personas</button>
       <button class="tab" data-tab="region">regions</button>
@@ -834,6 +835,84 @@ table.log tr:last-child td{border-bottom:none}
     </div>
     <p class="lead" style="font-size:13px;color:var(--muted);margin-top:14px">Set the audience region on Test Your Message to score copy through that local lens.</p>
   </section>
+  <style>
+    #projects .pjhead{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}
+    #projects .pjhead .one{font-size:24px;font-weight:800;color:var(--ink)}
+    #projects .pjhead .sum{font-size:14px;color:var(--muted);max-width:640px;margin-top:6px;line-height:1.5}
+    .pjbtn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .pjbtn:hover{border-color:var(--brand)}
+    .pjbtn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .pjbtn.tiny{padding:5px 10px;font-size:12.5px;border-radius:8px}
+    .pjbtn.ai{background:var(--teal);color:#fff;border-color:var(--teal)}
+    .pjbtn.ai:hover{filter:brightness(1.08)}
+    .pjbtn.danger:hover{border-color:var(--bad);color:var(--bad)}
+    .pjbtn[disabled]{opacity:.5;cursor:default}
+    .pjcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+    .pjcard{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:transform .08s,border-color .1s;display:flex;flex-direction:column;min-height:132px}
+    .pjcard:hover{border-color:var(--teal);transform:translateY(-2px)}
+    .pjcard .pjtype{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);font-weight:700}
+    .pjcard .pjname{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0 10px;line-height:1.3}
+    .pjcard .pjmeta{margin-top:auto;font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .pjprog{height:5px;border-radius:4px;background:var(--brand-soft);overflow:hidden;margin-top:10px}
+    .pjprog>i{display:block;height:100%;background:var(--teal)}
+    .pjcard.add{align-items:center;justify-content:center;text-align:center;border-style:dashed;color:var(--muted);cursor:pointer}
+    .pjcard.add:hover{color:var(--teal)}
+    .pjcard.add .plus{font-size:30px;line-height:1;margin-bottom:6px}
+    .pjtemplates{border:1px solid var(--line);border-radius:var(--radius);background:var(--brand-soft);padding:16px;margin-bottom:20px}
+    .pjtemplates h4{margin:0 0 12px;font-size:14px;color:var(--ink)}
+    .pjtpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+    .pjtpl{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer}
+    .pjtpl:hover{border-color:var(--teal)}
+    .pjtpl .n{font-weight:700;font-size:14px;color:var(--ink)}
+    .pjtpl .n .star{color:var(--accent)}
+    .pjtpl .b{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.45}
+    .pjwtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .pjlink{background:none;border:none;color:var(--teal);font-size:14px;font-weight:600;cursor:pointer;padding:4px 0}
+    .pjwactions{display:flex;align-items:center;gap:12px}
+    .pjsave{font-size:12.5px;color:var(--muted)}
+    .pjtitle{width:100%;font-size:26px;font-weight:800;color:var(--ink);border:none;border-bottom:2px solid transparent;padding:4px 2px;margin-bottom:8px;background:none}
+    .pjtitle:focus{outline:none;border-bottom-color:var(--teal)}
+    .pjsec{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+    .pjsec .sh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .pjsec .shname{font-size:16px;font-weight:700;color:var(--ink)}
+    .pjsec .shname.stop{color:var(--teal)}
+    .pjsec .hint{font-size:12.5px;color:var(--muted);font-style:italic;margin:3px 0 10px}
+    .pjta{width:100%;min-height:96px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14px;line-height:1.55;color:var(--ink);font-family:inherit;resize:vertical;background:#fdfdfe}
+    .pjta:focus{outline:none;border-color:var(--teal)}
+    .pjacts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+    .pjout{margin-top:12px;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:8px;background:var(--brand-soft);padding:12px 14px;display:none}
+    .pjout.show{display:block}
+    .pjout .oh{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);font-weight:700;margin-bottom:6px}
+    .pjout .otext{font-size:13.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap}
+    .pjout .obtns{display:flex;gap:8px;margin-top:10px}
+    .pjspin{font-size:12.5px;color:var(--muted)}
+    .pjempty{color:var(--muted);font-size:14px;padding:30px 0}
+  </style>
+  <section class="panel" id="projects">
+    <div id="pjList">
+      <div class="pjhead">
+        <div>
+          <div class="one">My Projects</div>
+          <div class="sum">A working space to build real things with AI &mdash; not just feedback. Start from a worked example or a blank template, then draft, pull talking points &amp; stories, and shape memorable moments. Everything you make is saved to your account.</div>
+        </div>
+        <button class="pjbtn primary" id="pjNewBtn">&#43;&nbsp; New project</button>
+      </div>
+      <div id="pjTemplates" class="pjtemplates" hidden></div>
+      <div id="pjCards" class="pjcards"><div class="pjempty">Loading your projects&hellip;</div></div>
+    </div>
+    <div id="pjWork" hidden>
+      <div class="pjwtop">
+        <button class="pjlink" id="pjBack">&#8592; All projects</button>
+        <div class="pjwactions">
+          <span id="pjSaveState" class="pjsave"></span>
+          <button class="pjbtn danger tiny" id="pjDelBtn">Delete</button>
+          <button class="pjbtn primary" id="pjSaveBtn">Save</button>
+        </div>
+      </div>
+      <input id="pjTitle" class="pjtitle" placeholder="Project title">
+      <div id="pjSections" class="pjsections"></div>
+    </div>
+  </section>
   <section class="panel" id="account">
     <details class="acctblock" open><summary>My setup</summary>
       <div id="setupBody"></div>
@@ -1198,9 +1277,151 @@ function activatePanel(name){
   stopSpeaking();
   if(name==="brand") renderBrand();
   if(name==="photo") renderPhoto();
+  if(name==="projects") renderProjects();
   if(name==="account"){ renderSetup(); renderHistory(); renderUsage(); }
 }
 $$(".tab").forEach(t=>t.addEventListener("click",()=>activatePanel(t.dataset.tab)));
+
+/* ===================== My Projects ===================== */
+var PJ = { list:[], templates:[], current:null, dirty:false, seeded:false };
+function cssq(s){ return String(s).replace(/"/g,'\\"'); }
+function pjTypeLabel(t){ return t==="hospital-tour"?"Tour":(t||"Project"); }
+function pjDate(s){ try{ return new Date(s).toLocaleDateString(undefined,{month:"short",day:"numeric"}); }catch(e){ return ""; } }
+
+async function renderProjects(){
+  $("#pjList").hidden=false; $("#pjWork").hidden=true; $("#pjTemplates").hidden=true;
+  var cards=$("#pjCards"); if(!PJ.seeded) cards.innerHTML='<div class="pjempty">Loading your projects&hellip;</div>';
+  try{
+    var d=await (await fetch("/api/projects")).json();
+    PJ.list=d.projects||[]; PJ.templates=d.templates||[]; PJ.seeded=true; pjRenderCards();
+  }catch(e){ cards.innerHTML='<div class="pjempty">Couldn&rsquo;t load your projects. Please try again.</div>'; }
+}
+
+function pjRenderCards(){
+  var items=PJ.list.map(function(p){
+    var pct=p.sectionCount? Math.round(100*p.filledCount/p.sectionCount):0;
+    return '<div class="pjcard" data-id="'+esc(p.id)+'">'
+      +'<div class="pjtype">'+esc(pjTypeLabel(p.type))+'</div>'
+      +'<div class="pjname">'+esc(p.title)+'</div>'
+      +'<div class="pjprog"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="pjmeta"><span>'+p.filledCount+' / '+p.sectionCount+' sections</span><span>'+esc(pjDate(p.updated))+'</span></div>'
+      +'</div>';
+  }).join("");
+  items+='<div class="pjcard add" id="pjAddCard"><div class="plus">+</div><div>New project</div></div>';
+  $("#pjCards").innerHTML=items;
+  $$("#pjCards .pjcard[data-id]").forEach(function(c){ c.addEventListener("click",function(){ pjOpen(c.dataset.id); }); });
+  var add=$("#pjAddCard"); if(add) add.addEventListener("click",pjToggleTemplates);
+}
+
+function pjToggleTemplates(){
+  var box=$("#pjTemplates");
+  if(!box.hidden){ box.hidden=true; return; }
+  box.innerHTML='<h4>Start a new project from a template</h4><div class="pjtpls">'+PJ.templates.map(function(t){
+    return '<div class="pjtpl" data-tpl="'+esc(t.id)+'"><div class="n">'+(t.featured?'<span class="star">&#9733;</span> ':'')+esc(t.name)+'</div><div class="b">'+esc(t.blurb||"")+'</div></div>';
+  }).join("")+'</div>';
+  box.hidden=false;
+  $$("#pjTemplates .pjtpl").forEach(function(el){ el.addEventListener("click",function(){ pjNew(el.dataset.tpl); }); });
+}
+
+async function pjNew(tplId){
+  var def=(tplId==="syvch-tour")?"Santa Ynez Valley Hospital Tour":(tplId==="hospital-tour"?"New Donor Tour":"Untitled project");
+  var name=prompt("Name this project:", def); if(name===null) return;
+  try{
+    var r=await fetch("/api/projects",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({templateId:tplId,title:name})});
+    var d=await r.json(); if(d.error) throw 0;
+    PJ.current=d.project; PJ.dirty=false; pjRenderWork();
+  }catch(e){ alert("Couldn&rsquo;t create the project. Please try again."); }
+}
+
+async function pjOpen(id){
+  try{
+    var d=await (await fetch("/api/projects/"+encodeURIComponent(id))).json();
+    if(d.error) throw 0; PJ.current=d.project; PJ.dirty=false; pjRenderWork();
+  }catch(e){ alert("Couldn't open that project."); }
+}
+
+function pjRenderWork(){
+  var p=PJ.current; if(!p) return;
+  $("#pjList").hidden=true; $("#pjTemplates").hidden=true; $("#pjWork").hidden=false;
+  $("#pjTitle").value=p.title||"";
+  $("#pjSections").innerHTML=p.sections.map(function(s){
+    return '<div class="pjsec">'
+      +'<div class="sh"><div class="shname'+(s.kind==="stop"?" stop":"")+'">'+esc(s.heading)+'</div></div>'
+      +(s.hint?'<div class="hint">'+esc(s.hint)+'</div>':'')
+      +'<textarea class="pjta" data-body="'+esc(s.id)+'" placeholder="Write here&hellip; or use the AI helpers below.">'+esc(s.body||"")+'</textarea>'
+      +'<div class="pjacts">'
+      +'<button class="pjbtn ai tiny" data-act="talking-points" data-sec="'+esc(s.id)+'">&#10022; Talking points, stats &amp; stories</button>'
+      +'<button class="pjbtn ai tiny" data-act="opportunities" data-sec="'+esc(s.id)+'">&#10022; Creative opportunities</button>'
+      +'<span class="pjspin" data-spin="'+esc(s.id)+'"></span>'
+      +'</div>'
+      +'<div class="pjout" data-out="'+esc(s.id)+'"><div class="oh"></div><div class="otext"></div><div class="obtns"></div></div>'
+      +'</div>';
+  }).join("");
+  $("#pjTitle").oninput=pjMarkDirty;
+  $$("#pjSections .pjta").forEach(function(t){ t.addEventListener("input",pjMarkDirty); });
+  $$("#pjSections .pjbtn.ai").forEach(function(b){ b.addEventListener("click",function(){ pjAssist(b.dataset.sec,b.dataset.act,b); }); });
+  pjSetSave("");
+}
+
+function pjMarkDirty(){ PJ.dirty=true; pjSetSave("Unsaved changes"); }
+function pjSetSave(t){ $("#pjSaveState").textContent=t; }
+
+function pjCollect(){
+  var sections=PJ.current.sections.map(function(s){
+    var ta=document.querySelector('#pjSections .pjta[data-body="'+cssq(s.id)+'"]');
+    return { id:s.id, heading:s.heading, kind:s.kind, hint:s.hint, body: ta? ta.value : (s.body||"") };
+  });
+  return { title:$("#pjTitle").value, sections:sections };
+}
+
+async function pjSave(silent){
+  var p=PJ.current; if(!p) return false;
+  pjSetSave("Saving&hellip;");
+  try{
+    var r=await fetch("/api/projects/"+encodeURIComponent(p.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(pjCollect())});
+    var d=await r.json(); if(d.error) throw 0;
+    PJ.current=d.project; PJ.dirty=false; pjSetSave("Saved ✓"); return true;
+  }catch(e){ pjSetSave("Save failed"); if(!silent) alert("Couldn't save. Please try again."); return false; }
+}
+
+async function pjAssist(secId, action, btn){
+  if(PJ.dirty){ var ok=await pjSave(true); if(!ok) return; }
+  var spin=document.querySelector('#pjSections .pjspin[data-spin="'+cssq(secId)+'"]');
+  var out=document.querySelector('#pjSections .pjout[data-out="'+cssq(secId)+'"]');
+  if(spin) spin.textContent="Thinking&hellip;"; if(btn) btn.disabled=true;
+  try{
+    var r=await fetch("/api/projects/"+encodeURIComponent(PJ.current.id)+"/assist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:action,sectionId:secId})});
+    var d=await r.json(); if(d.error) throw new Error(d.error);
+    out.querySelector(".oh").textContent = action==="opportunities"?"Creative opportunities":"Talking points, stats & stories";
+    out.querySelector(".otext").textContent = d.text;
+    var btns=out.querySelector(".obtns");
+    btns.innerHTML='<button class="pjbtn tiny" data-ap>Append to section</button><button class="pjbtn tiny" data-cp>Copy</button><button class="pjbtn tiny" data-dis>Dismiss</button>';
+    btns.querySelector("[data-ap]").onclick=function(){ pjAppend(secId,d.text); };
+    btns.querySelector("[data-cp]").onclick=function(){ try{navigator.clipboard.writeText(d.text);}catch(e){} this.textContent="Copied ✓"; };
+    btns.querySelector("[data-dis]").onclick=function(){ out.classList.remove("show"); };
+    out.classList.add("show");
+  }catch(e){ out.querySelector(".oh").textContent="Hmm"; out.querySelector(".otext").textContent=(e.message||"That didn't work — please try again."); out.querySelector(".obtns").innerHTML=""; out.classList.add("show"); }
+  if(spin) spin.textContent=""; if(btn) btn.disabled=false;
+}
+
+function pjAppend(secId, text){
+  var ta=document.querySelector('#pjSections .pjta[data-body="'+cssq(secId)+'"]');
+  if(!ta) return;
+  ta.value = (ta.value.trim()? ta.value.replace(/\s*$/,"")+"\n\n":"") + text;
+  pjMarkDirty(); ta.focus();
+}
+
+async function pjDelete(){
+  var p=PJ.current; if(!p) return;
+  if(!confirm('Delete "'+(p.title||"this project")+'"? This cannot be undone.')) return;
+  try{ await fetch("/api/projects/"+encodeURIComponent(p.id),{method:"DELETE"}); }catch(e){}
+  PJ.current=null; renderProjects();
+}
+
+$("#pjNewBtn").addEventListener("click",pjToggleTemplates);
+$("#pjBack").addEventListener("click",function(){ if(PJ.dirty && !confirm("You have unsaved changes. Leave without saving?")) return; PJ.current=null; renderProjects(); });
+$("#pjSaveBtn").addEventListener("click",function(){ pjSave(false); });
+$("#pjDelBtn").addEventListener("click",pjDelete);
 
 function renderPhoto(){
   if(!PHOTO){ $("#photoBody").innerHTML="<div class='empty'>Photography guidance unavailable.</div>"; return; }
