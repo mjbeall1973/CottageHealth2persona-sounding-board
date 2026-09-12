@@ -1,0 +1,51 @@
+import asyncio, sys
+from playwright.async_api import async_playwright
+
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium/chrome" if False else None)
+        pg = await b.new_page(viewport={"width": 1380, "height": 900})
+        errors = []
+        pg.on("pageerror", lambda e: errors.append(str(e)))
+        pg.on("console", lambda m: errors.append("console." + m.type + ": " + m.text) if m.type == "error" else None)
+        # login page
+        await pg.goto("http://localhost:3999/login.html")
+        await pg.screenshot(path="/tmp/shot-login.png")
+        await pg.fill("#email", "kate@sbch.org"); await pg.click("#newAcct")
+        await pg.wait_for_timeout(200)
+        await pg.screenshot(path="/tmp/shot-login2.png")
+        # app as admin
+        await pg.goto("http://localhost:3999/")
+        await pg.wait_for_timeout(1200)
+        vis = await pg.is_visible("#createTab")
+        print("create tab visible:", vis)
+        await pg.click("#createTab")
+        await pg.wait_for_timeout(500)
+        await pg.screenshot(path="/tmp/shot-create-empty.png")
+        pg.once("dialog", lambda d: asyncio.ensure_future(d.accept("Year-end appeal")))
+        await pg.click("#crNew")
+        await pg.wait_for_timeout(600)
+        await pg.fill("#crBrief", "Letter and email to lapsed Valley donors. Warm, plain, no urgency.")
+        await pg.select_option("#crRegion", "valley")
+        await pg.click("#crSettingsSave"); await pg.wait_for_timeout(300)
+        await pg.click("#crSettingsClose")
+        await pg.click("#crChips .chip >> nth=2")
+        await pg.wait_for_timeout(2500)
+        await pg.screenshot(path="/tmp/shot-create-thread.png", full_page=True)
+        await pg.click("button[data-act=save]")
+        await pg.wait_for_timeout(400)
+        await pg.click(".crasset")
+        await pg.wait_for_timeout(400)
+        await pg.screenshot(path="/tmp/shot-asset.png")
+        await pg.click("#caCurate")
+        await pg.wait_for_timeout(600)
+        copy = await pg.input_value("#copy")
+        print("curate copy starts:", copy[:60].replace("\n", " | "))
+        await pg.screenshot(path="/tmp/shot-curate.png")
+        # account panel: admin block
+        await pg.click("#acctLink"); await pg.wait_for_timeout(800)
+        await pg.click("#adminBlock summary"); await pg.wait_for_timeout(500)
+        await pg.screenshot(path="/tmp/shot-account.png", full_page=True)
+        print("errors:", errors)
+        await b.close()
+asyncio.run(main())
