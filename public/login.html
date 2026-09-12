@@ -10,10 +10,10 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:#f7f8fa;color:var(--ink);display:flex;min-height:100vh;align-items:center;justify-content:center;padding:20px}
   .box{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 24px rgba(20,30,45,.08);
-    padding:30px;max-width:420px;width:100%}
+    padding:30px;max-width:440px;width:100%}
   .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700}
-  h1{font-size:22px;margin:6px 0 2px;font-weight:400}
-  p.sub{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+  h1{font-size:20px;margin:6px 0 2px;font-weight:600}
+  p.sub{color:var(--muted);font-size:13.5px;margin:0 0 18px;line-height:1.5}
   label{display:block;font-size:13px;font-weight:600;margin:14px 0 5px}
   label .hint{font-weight:400;color:var(--muted)}
   input,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;background:#fff;color:var(--ink)}
@@ -22,109 +22,145 @@
   button.go{margin-top:20px;width:100%;background:var(--brand);color:#fff;border:none;border-radius:10px;
     padding:12px;font-size:15px;font-weight:600;cursor:pointer}
   button.go:hover{filter:brightness(1.08)}
+  button.go[disabled]{opacity:.6;cursor:default}
   .err{color:#b23b3b;font-size:13px;margin-top:12px;min-height:18px}
-  .forgot{display:block;background:none;border:none;color:var(--brand);font-size:12.5px;margin-top:14px;cursor:pointer;text-align:center;width:100%;padding:0}
-  .forgot:hover{text-decoration:underline}
+  .link{display:block;background:none;border:none;color:var(--brand);font-size:12.5px;margin-top:14px;cursor:pointer;text-align:center;width:100%;padding:0}
+  .link:hover{text-decoration:underline}
   .help{display:none;font-size:12.5px;color:var(--muted);background:#f7f8fa;border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px;line-height:1.55}
   .help a{color:var(--brand)}
   .foot{font-size:12px;color:var(--muted);margin-top:18px;text-align:center}
+  .step{display:none}.step.on{display:block}
+  .welcome{background:#e6f1f4;border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.5;margin-bottom:6px}
+  .row{display:flex;gap:10px}.row>div{flex:1}
 </style>
 </head>
 <body>
-  <form class="box" id="f">
+  <form class="box" id="f" autocomplete="on">
     <div style="text-align:center;margin:0 auto 6px">
       <span style="display:inline-block;background:#0b0b0c;border-radius:14px;padding:16px 22px"><img src="ovl-logo.png" alt="our voice lab" style="height:70px;width:auto;display:block"></span>
     </div>
     <div class="eyebrow" style="text-align:center">Custom edition for Cottage Health Foundation</div>
-    <p class="sub" style="text-align:center;margin-top:6px">A quick intro helps the tool tailor its feedback — and learn your voice over time.</p>
 
-    <label for="name">Your name <span class="hint">(tags your tests &amp; history)</span></label>
-    <input type="text" id="name" autocomplete="name" placeholder="e.g. Maria Lopez">
-
-    <label for="email">Your email</label>
-    <input type="email" id="email" autocomplete="email" placeholder="you@cottagehealth.org">
-
-    <label for="role">Your role</label>
-    <select id="role">
-      <option value="">Select…</option>
-      <option>Annual giving</option>
-      <option>Major gifts</option>
-      <option>Communications / Marketing</option>
-      <option>Donor relations / Stewardship</option>
-      <option>Events</option>
-      <option>Grants</option>
-      <option>Leadership / Executive</option>
-      <option>Volunteer</option>
-      <option>Other</option>
-    </select>
-
-    <label for="use">What will you mainly use it for?</label>
-    <select id="use">
-      <option value="">Select…</option>
-      <option>Storytelling</option>
-      <option>Content development</option>
-      <option>Donor relations</option>
-      <option>Appeals &amp; campaigns</option>
-      <option>Social &amp; digital</option>
-      <option>Grant writing</option>
-      <option>General messaging</option>
-    </select>
-    <div class="rec" id="rec"></div>
-
-    <label for="password">Shared team password</label>
-    <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
-
-    <button type="submit" class="go">Sign in</button>
-    <div class="err" id="err"></div>
-    <button type="button" class="forgot" id="forgot">Forgot your username or password?</button>
-    <div class="help" id="help">
-      <p style="margin:0 0 8px"><b>Username:</b> it&rsquo;s just a label you pick — there&rsquo;s nothing to recover. Sign in with your name and you&rsquo;ll see your own history.</p>
-      <p style="margin:0"><b>Password:</b> the team shares one password, set by your administrator. If you don&rsquo;t have it, <a href="mailto:mike@accordantphilanthropy.com?subject=Philanthropy%20Voice%20Guide%20access">email the administrator</a> to request access.</p>
+    <!-- STEP 1: sign in -->
+    <div class="step on" id="step1">
+      <p class="sub" style="text-align:center;margin-top:6px">Sign in with your email and password.</p>
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="username" placeholder="you@cottagehealth.org" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
+      <button type="submit" class="go" id="go1">Sign in</button>
+      <div class="err" id="err1"></div>
+      <button type="button" class="link" id="newAcct">First time here? Create your account</button>
+      <button type="button" class="link" id="forgot" style="margin-top:8px">Forgot your password?</button>
+      <div class="help" id="help">
+        <p style="margin:0 0 8px"><b>Forgot your password?</b> An administrator can reset it in a moment: you&rsquo;ll then set a new one the next time you sign in. <a id="helpMail" href="mailto:mike@accordantphilanthropy.com?subject=Our%20Voice%20Lab%20password%20reset">Email the administrator</a>.</p>
+        <p style="margin:0"><b>New here?</b> Create your account with the team access code from your administrator.</p>
+      </div>
     </div>
+
+    <!-- STEP 2: first-time setup -->
+    <div class="step" id="step2">
+      <div class="welcome" id="welcome"></div>
+      <label for="name">Your name <span class="hint">(how the tool greets you and tags your history)</span></label>
+      <input type="text" id="name" autocomplete="name" placeholder="e.g. Maria Lopez">
+      <div id="codeWrap">
+        <label for="code">Team access code <span class="hint">(from your administrator)</span></label>
+        <input type="text" id="code" autocomplete="off" placeholder="access code">
+      </div>
+      <label for="role">Your role</label>
+      <select id="role">
+        <option value="">Select…</option>
+        <option>Annual giving</option><option>Major gifts</option><option>Communications / Marketing</option>
+        <option>Donor relations / Stewardship</option><option>Events</option><option>Grants</option>
+        <option>Leadership / Executive</option><option>Volunteer</option><option>Other</option>
+      </select>
+      <label for="use">What will you mainly use it for?</label>
+      <select id="use">
+        <option value="">Select…</option>
+        <option>Storytelling</option><option>Content development</option><option>Donor relations</option>
+        <option>Appeals &amp; campaigns</option><option>Social &amp; digital</option><option>Grant writing</option><option>General messaging</option>
+      </select>
+      <div class="rec" id="rec"></div>
+      <div class="row">
+        <div><label for="pw1">Password <span class="hint">(8+ chars)</span></label><input type="password" id="pw1" autocomplete="new-password"></div>
+        <div><label for="pw2">Confirm</label><input type="password" id="pw2" autocomplete="new-password"></div>
+      </div>
+      <button type="submit" class="go" id="go2">Create my account</button>
+      <div class="err" id="err2"></div>
+      <button type="button" class="link" id="back">&larr; Back to sign in</button>
+    </div>
+
     <div class="foot">Prepared by Michael Beall</div>
   </form>
 <script>
+  var $=function(s){return document.querySelector(s);};
+  var MODE="signin"; // signin | setup (invited, no code) | new (needs code)
   function recommendLean(use){
     if(["Storytelling","Content development","Social & digital"].includes(use)) return "creative";
     if(["Grant writing"].includes(use)) return "technical";
     return "balanced";
   }
   var leanLabel={creative:"a more creative, narrative lean",balanced:"a balanced lean",technical:"a more technical, precise lean"};
-  var useSel=document.getElementById("use"), rec=document.getElementById("rec");
-  useSel.addEventListener("change",function(){
-    var u=useSel.value; if(!u){ rec.style.display="none"; return; }
-    var l=recommendLean(u);
-    rec.textContent="Based on "+u.toLowerCase()+", we'll start you with "+leanLabel[l]+". You can change this anytime in My setup.";
+  $("#use").addEventListener("change",function(){
+    var u=this.value, rec=$("#rec"); if(!u){ rec.style.display="none"; return; }
+    rec.textContent="Based on "+u.toLowerCase()+", we'll start you with "+leanLabel[recommendLean(u)]+". You can change this anytime in My setup.";
     rec.style.display="block";
   });
-  document.getElementById("forgot").addEventListener("click",function(){
-    var h=document.getElementById("help"); h.style.display=(h.style.display==="block")?"none":"block";
+  $("#forgot").addEventListener("click",function(){ var h=$("#help"); h.style.display=(h.style.display==="block")?"none":"block"; });
+  function show(step){ $("#step1").classList.toggle("on",step===1); $("#step2").classList.toggle("on",step===2); $("#err1").textContent=""; $("#err2").textContent=""; }
+  function toSetup(mode, name){
+    MODE=mode;
+    var email=$("#email").value.trim();
+    $("#codeWrap").style.display = mode==="new" ? "block" : "none";
+    if(name) $("#name").value=name;
+    $("#welcome").innerHTML = mode==="setup"
+      ? "<b>Welcome"+(name?", "+name:"")+"!</b> You&rsquo;ve been added to Our Voice Lab as <b>"+email.replace(/</g,"&lt;")+"</b>. Tell us a little about you and choose a password. You&rsquo;ll only do this once."
+      : "<b>Create your account</b> for <b>"+email.replace(/</g,"&lt;")+"</b>. You&rsquo;ll need the team access code from your administrator. You&rsquo;ll only do this once.";
+    show(2); setTimeout(function(){ $("#name").focus(); },50);
+  }
+  $("#newAcct").addEventListener("click",function(){
+    var email=$("#email").value.trim();
+    if(!/^\S+@\S+\.\S+$/.test(email)){ $("#err1").textContent="Enter your email first, then create your account."; $("#email").focus(); return; }
+    toSetup("new","");
   });
-  var f=document.getElementById("f");
-  f.addEventListener("submit", async function(e){
-    e.preventDefault();
-    document.getElementById("err").textContent="";
-    var name=document.getElementById("name").value.trim();
-    var email=document.getElementById("email").value.trim();
-    var role=document.getElementById("role").value;
-    var use=document.getElementById("use").value;
-    var password=document.getElementById("password").value;
-    if(!name){ document.getElementById("err").textContent="Please enter your name."; return; }
+  $("#back").addEventListener("click",function(){ MODE="signin"; show(1); });
+
+  async function post(url, body){
+    var r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    var j={}; try{ j=await r.json(); }catch(e){}
+    return {r:r,j:j};
+  }
+  async function signIn(){
+    var email=$("#email").value.trim(), password=$("#password").value;
+    var err=$("#err1"); err.textContent="";
+    if(!/^\S+@\S+\.\S+$/.test(email)){ err.textContent="Enter a valid email address."; return; }
+    var b=$("#go1"); b.disabled=true;
     try{
-      var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ email:name, password })});
-      if(r.ok){
-        try{
-          var prof={ name:name, email:email, role:role, use:use, lean:recommendLean(use), ts:Date.now() };
-          localStorage.setItem("pvg_profile", JSON.stringify(prof));
-        }catch(e){}
-        window.location.href="/";
-      } else {
-        var j=await r.json().catch(function(){return {};});
-        document.getElementById("err").textContent=j.error||"Sign in failed.";
-      }
-    }catch(err){ document.getElementById("err").textContent="Network error — try again."; }
-  });
+      var x=await post("/api/login",{email:email,password:password});
+      if(x.r.ok){ window.location.href="/"; return; }
+      if(x.j.code==="setup"){ toSetup("setup", x.j.name||""); }
+      else if(x.j.code==="unknown"){ toSetup("new",""); }
+      else err.textContent=x.j.error||"Sign in failed.";
+    }catch(e){ err.textContent="Network error — try again."; }
+    b.disabled=false;
+  }
+  async function register(){
+    var err=$("#err2"); err.textContent="";
+    var name=$("#name").value.trim(), pw1=$("#pw1").value, pw2=$("#pw2").value;
+    if(!name){ err.textContent="Please enter your name."; return; }
+    if(pw1.length<8){ err.textContent="Choose a password of at least 8 characters."; return; }
+    if(pw1!==pw2){ err.textContent="Those passwords don't match."; return; }
+    if(MODE==="new" && !$("#code").value.trim()){ err.textContent="Enter the team access code."; return; }
+    var b=$("#go2"); b.disabled=true;
+    try{
+      var x=await post("/api/register",{ email:$("#email").value.trim(), password:pw1, name:name, role:$("#role").value, use:$("#use").value,
+        lean:recommendLean($("#use").value), accessCode:$("#code").value.trim() });
+      if(x.r.ok){ window.location.href="/"; return; }
+      err.textContent=x.j.error||"Couldn't create the account.";
+    }catch(e){ err.textContent="Network error — try again."; }
+    b.disabled=false;
+  }
+  $("#f").addEventListener("submit", function(e){ e.preventDefault(); if($("#step2").classList.contains("on")) register(); else signIn(); });
 </script>
 </body>
 </html>

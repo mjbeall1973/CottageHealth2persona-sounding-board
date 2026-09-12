@@ -407,6 +407,112 @@ table.log tr:last-child td{border-bottom:none}
 .histscore{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:24px;border-radius:7px;color:#fff;font-weight:800;font-size:13px;padding:0 7px}
 .histprev{font-size:13px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .reopenbtn{white-space:nowrap}
+/* ===== Create workspace ===== */
+[hidden]{display:none!important}
+.crwrap{display:flex;gap:16px;align-items:flex-start;min-height:70vh}
+.crside{width:250px;flex:none;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;position:sticky;top:8px}
+.crsidehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.crlist{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.critem{border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;background:#fff}
+.critem:hover{border-color:#c5ccd6}
+.critem.on{border-color:var(--teal);background:#eef6f8}
+.critem b{display:block;font-size:13.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.critem .crmeta{font-size:11.5px;color:var(--muted);margin-top:2px}
+.crhint{font-size:12px;color:var(--muted);line-height:1.5;margin:12px 0 0}
+.crmain{flex:1;min-width:0}
+.crempty{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px;text-align:center}
+.crempty .one{font-size:22px}
+.crempty .sum{max-width:560px;margin:8px auto 0}
+.crtop{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.crtitle{flex:1;min-width:200px;border:1px solid transparent;border-radius:10px;padding:8px 10px;font:inherit;font-size:20px;font-weight:600;color:var(--ink);background:transparent}
+.crtitle:hover,.crtitle:focus{border-color:var(--line);background:#fff;outline:none}
+.crtopact{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.crmenu{position:relative}
+.crmenudrop{display:none;position:absolute;right:0;top:110%;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);z-index:20;min-width:170px;padding:6px}
+.crmenudrop a{display:block;padding:8px 10px;font-size:13px;cursor:pointer;border-radius:7px;color:var(--ink)}
+.crmenudrop a:hover{background:#eef1f5}
+.crmenu.open .crmenudrop{display:block}
+.crsettings{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.crsetgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.crcheck{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:400;padding:10px 0}
+.crpersonas{display:flex;flex-wrap:wrap;gap:8px}
+.crpersonas label{display:flex;align-items:center;gap:6px;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer;background:#fff}
+.crpersonas label.on{border-color:var(--teal);background:#eef6f8}
+.crbody{display:flex;gap:14px;align-items:flex-start}
+.crchatcol{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:62vh}
+.crthread{flex:1;overflow:auto;padding:18px 18px 6px;max-height:64vh}
+.crmsg{margin:0 0 16px;display:flex;flex-direction:column}
+.crmsg.user{align-items:flex-end}
+.crbubble{max-width:92%;border-radius:14px;padding:12px 16px;font-size:14.5px;line-height:1.55}
+.crmsg.user .crbubble{background:#eef1f5;color:var(--ink);white-space:pre-wrap}
+.crmsg.assistant .crbubble{background:#fff;border:1px solid var(--line);max-width:100%;width:100%}
+.crbubble p{margin:0 0 10px}.crbubble p:last-child{margin-bottom:0}
+.crbubble h1{font-size:20px;margin:6px 0 10px}.crbubble h2{font-size:17px;margin:14px 0 8px;color:var(--teal)}.crbubble h3{font-size:15px;margin:12px 0 6px}
+.crbubble ul,.crbubble ol{margin:0 0 10px 20px;padding:0}.crbubble li{margin-bottom:4px}
+.crbubble blockquote{margin:8px 0;padding:6px 12px;border-left:3px solid var(--teal);color:var(--muted);background:#f7f8fa}
+.crbubble code{background:#f1f3f6;padding:1px 5px;border-radius:5px;font-size:13px}
+.crbubble pre{background:#f1f3f6;padding:10px;border-radius:8px;overflow:auto;font-size:13px}
+.crbubble table{border-collapse:collapse;margin:8px 0;font-size:13.5px}.crbubble td,.crbubble th{border:1px solid var(--line);padding:5px 8px}
+.crbubble a{color:var(--teal)}
+.crbubble hr{border:none;border-top:1px solid var(--line);margin:12px 0}
+.crattachtag{display:inline-block;font-size:11.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:0 4px 6px 0}
+.crmsgact{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.crmsgact button{background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--muted)}
+.crmsgact button:hover{border-color:var(--teal);color:var(--teal)}
+.crmsg .crtime{font-size:11px;color:var(--muted);margin-top:4px}
+.crtyping{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);animation:crpulse 1s infinite}
+@keyframes crpulse{0%,100%{opacity:.25}50%{opacity:1}}
+.crcomposer{border-top:1px solid var(--line);padding:12px 14px 14px}
+.crcomposer textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:14.5px;resize:vertical;min-height:64px}
+.crcomposer textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #e6f1f4}
+.crcomprow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.crcomprow .btn.small{margin-top:0}
+#crChips{margin-top:10px}#crChips .chip{cursor:pointer}#crChips .chip:hover{background:#e6f1f4;color:var(--teal)}
+.crcomprow #crSend{margin-left:auto;min-width:90px}
+.crattach{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.crattach span{font-size:12px;background:#eef6f8;border:1px solid #cfe1e6;border-radius:999px;padding:3px 10px;display:inline-flex;gap:6px;align-items:center}
+.crattach span b{cursor:pointer;font-weight:700;color:var(--muted)}
+.crrail{width:260px;flex:none;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.crrailh{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.crrailempty{font-size:12.5px;color:var(--muted);line-height:1.5}
+.crfile{display:flex;align-items:center;gap:8px;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-bottom:6px;background:#fff}
+.crfile .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crfile .k{font-size:11px;color:var(--muted)}
+.crfile button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px}
+.crfile button:hover{color:var(--bad)}
+.crasset{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:6px;cursor:pointer;background:#fff}
+.crasset:hover{border-color:var(--teal)}
+.crasset b{display:block;font-size:13px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crasset .k{font-size:11px;color:var(--muted)}
+.crmodal{position:fixed;inset:0;background:rgba(20,30,45,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+.crmodalbox{background:#fff;border-radius:16px;width:min(900px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.crmodaltop{display:flex;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.crmodaltop select{flex:none;width:auto;border:1px solid var(--line);border-radius:8px;padding:7px;font:inherit;font-size:13px}
+.crmodalbody{flex:1;overflow:auto;padding:18px 22px}
+.crmodalbody textarea{width:100%;min-height:50vh;border:1px solid var(--line);border-radius:10px;padding:12px;font:13.5px/1.5 "SF Mono",Menlo,Consolas,monospace}
+.crmodalview{font-size:14.5px;line-height:1.6}
+.crmodalview h1{font-size:24px;margin:0 0 12px}.crmodalview h2{font-size:18px;color:var(--teal);margin:18px 0 8px}.crmodalview h3{font-size:15.5px;margin:14px 0 6px}
+.crmodalview ul,.crmodalview ol{margin:0 0 10px 22px}.crmodalview p{margin:0 0 10px}.crmodalview blockquote{border-left:3px solid var(--teal);padding:6px 12px;color:var(--muted);margin:8px 0;background:#f7f8fa}
+.crmodalact{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)}
+.crmodalact .btn.small{margin-top:0}
+.crsep{width:1px;height:22px;background:var(--line);margin:0 4px}
+.pwgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.pwgrid input,.admadd input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;background:#fff;color:var(--ink)}.pwgrid input:focus,.admadd input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #e6f1f4}
+.admtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.admtable th,.admtable td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.admtable th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.admtable select{border:1px solid var(--line);border-radius:7px;padding:4px 6px;font:inherit;font-size:12.5px}
+.admtable .tierpill{display:inline-block;font-size:11px;border-radius:999px;padding:2px 8px;background:#eef1f5;color:var(--muted)}
+.admtable .tierpill.admin{background:#e6f1f4;color:var(--teal);font-weight:700}
+.admtable .mini{background:none;border:1px solid var(--line);border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--muted);margin-right:4px}
+.admtable .mini:hover{border-color:var(--teal);color:var(--teal)}
+.admtable .mini.danger:hover{border-color:var(--bad);color:var(--bad)}
+.admadd{display:grid;grid-template-columns:2fr 2fr 1fr auto;gap:8px;align-items:end;margin-top:10px}
+.admadd .btn.small{margin-top:0}
+.admcode{font-size:13px;background:#f7f8fa;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+.admcode code{background:#fff;border:1px solid var(--line);padding:1px 6px;border-radius:6px}
+@media (max-width:1000px){.crwrap{flex-direction:column}.crside{width:auto;position:static}.crbody{flex-direction:column}.crrail{width:auto}.crsetgrid{grid-template-columns:1fr}.pwgrid{grid-template-columns:1fr}.admadd{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -414,6 +520,7 @@ table.log tr:last-child td{border-bottom:none}
   <div class="topbar">
     <a class="ovlbrand" id="homeBrand" title="Home"><img src="ovl-logo.png" alt="our voice lab"></a>
     <nav class="topnav">
+      <button class="tab" data-tab="create" id="createTab" hidden>create</button>
       <button class="tab" data-tab="brand">our voice</button>
       <button class="tab" data-tab="projects">my projects</button>
       <button class="tab" data-tab="guidelines">brand guidelines</button>
@@ -475,12 +582,12 @@ table.log tr:last-child td{border-bottom:none}
         </div>
 
         <div class="field">
-          <label class="fld" for="copy">Your content <span class="hint">&mdash; paste or type below, or use the buttons to dictate, add a link, or upload a file</span></label>
+          <label class="fld" for="copy">Your content <span class="hint">&mdash; paste or type below, or use the buttons to dictate, add a link, or upload a Word, PowerPoint, Excel, PDF, text or image file</span></label>
           <div class="inputtools">
-            <button type="button" class="btn small secondary" id="fileBtn">📎 Upload PDF or image</button>
+            <button type="button" class="btn small secondary" id="fileBtn">📎 Upload a file (Word, PowerPoint, PDF, image…)</button>
             <button type="button" class="btn small secondary" id="urlToggle">🔗 From a link</button>
             <button type="button" class="btn small secondary recbtn" id="dictate" title="Dictate with your microphone"><span class="micdot"></span>🎤 Dictate</button>
-            <input type="file" id="assetFile" accept="application/pdf,image/png,image/jpeg,image/gif,image/webp" hidden>
+            <input type="file" id="assetFile" accept=".pdf,.docx,.pptx,.xlsx,.odt,.odp,.ods,.txt,.md,.csv,.tsv,.json,.html,.htm,.rtf,image/*" hidden>
           </div>
           <div class="srcpanel" id="src-url">
             <div class="inline">
@@ -913,6 +1020,104 @@ table.log tr:last-child td{border-bottom:none}
       <div id="pjSections" class="pjsections"></div>
     </div>
   </section>
+  <!-- CREATE (administrative tier) -->
+  <section class="panel" id="create">
+    <div class="crwrap">
+      <aside class="crside">
+        <div class="crsidehead"><div class="one" style="font-size:20px">Create</div><button class="pjbtn primary tiny" id="crNew">&#43; New project</button></div>
+        <div id="crProjects" class="crlist"><div class="pjempty">Loading&hellip;</div></div>
+        <p class="crhint">Your writing room. The Foundation&rsquo;s voice, personas, regions, word banks and photography principles are already loaded, so go straight to the work: brainstorm, drop in files, ask for research, draft, and save what you like as assets you can export.</p>
+      </aside>
+      <div class="crmain">
+        <div id="crEmpty" class="crempty">
+          <div class="one">Start a project or pick one on the left.</div>
+          <div class="sum">A project is a running conversation with a writer who already knows Cottage&rsquo;s voice. Give it a working title and, if you have one, a brief. You can change both later.</div>
+          <button class="pjbtn primary" id="crNew2" style="margin-top:14px">&#43; New project</button>
+        </div>
+        <div id="crWork" hidden>
+          <div class="crtop">
+            <input id="crTitle" class="crtitle" placeholder="Project title">
+            <div class="crtopact">
+              <button class="pjbtn tiny" id="crSettingsBtn">Brief &amp; settings</button>
+              <div class="crmenu"><button class="pjbtn tiny" id="crExportAll">Export all assets &#9662;</button>
+                <div class="crmenudrop" id="crExportAllDrop"><a data-f="docx">Word (.docx)</a><a data-f="pptx">PowerPoint (.pptx)</a><a data-f="md">Markdown (.md)</a></div></div>
+              <button class="pjbtn danger tiny" id="crDelete">Delete</button>
+            </div>
+          </div>
+          <div id="crSettings" class="crsettings" hidden>
+            <div class="field"><label class="fld" for="crBrief">Project brief <span class="hint">&mdash; what you&rsquo;re making, for whom, and what good looks like. The writer reads this on every turn.</span></label>
+              <textarea id="crBrief" rows="4" placeholder="e.g. Year-end appeal package for lapsed mid-level donors in the Valley: letter, email, and two social posts. Warm, plain, no urgency mechanics. Feature the new Santa Ynez ER."></textarea></div>
+            <div class="crsetgrid">
+              <div class="field"><label class="fld" for="crRegion">Audience region</label>
+                <select id="crRegion"><option value="all">All regions (writer chooses)</option><option value="south">South County &mdash; Santa Barbara</option><option value="valley">The Valley &mdash; Santa Ynez</option><option value="north">North County &mdash; Santa Maria &amp; Lompoc</option></select></div>
+              <div class="field"><label class="fld" for="crAtype">Main deliverable <span class="hint">(optional)</span></label>
+                <input id="crAtype" list="crAtypes" placeholder="e.g. Case statement, appeal letter, board deck"><datalist id="crAtypes"><option>Appeal letter</option><option>Email series</option><option>Case statement</option><option>Board / donor presentation</option><option>Campaign brochure</option><option>Social media set</option><option>Newsletter article</option><option>Event invitation</option><option>Stewardship report</option><option>Talking points</option></datalist></div>
+              <div class="field"><label class="fld">Research</label><label class="crcheck"><input type="checkbox" id="crResearch" checked> Let the writer search the web for facts and cite sources</label></div>
+            </div>
+            <div class="field"><label class="fld">Personas in the room <span class="hint">&mdash; leave all unchecked to keep everyone; check some to focus</span></label><div id="crPersonas" class="crpersonas"></div></div>
+            <div class="toolbar"><button class="btn small" id="crSettingsSave">Save brief &amp; settings</button><button class="btn small secondary" id="crSettingsClose">Close</button><span class="hint" id="crSettingsMsg"></span></div>
+          </div>
+          <div class="crbody">
+            <div class="crchatcol">
+              <div id="crThread" class="crthread"></div>
+              <div class="crcomposer">
+                <div id="crAttach" class="crattach"></div>
+                <textarea id="crInput" rows="3" placeholder="Tell the writer what you're working on, ask a question, paste something to react to, or drop in files…"></textarea>
+                <div class="crcomprow">
+                  <button type="button" class="btn small secondary" id="crFileBtn">&#128206; Add files</button>
+                  <input type="file" id="crFile" multiple hidden accept=".pdf,.docx,.pptx,.xlsx,.odt,.odp,.ods,.txt,.md,.csv,.tsv,.json,.html,.htm,.rtf,image/*">
+                  <button type="button" class="btn small secondary recbtn" id="crDictate"><span class="micdot"></span>&#127908; Dictate</button>
+                  <span class="hint" id="crStatus"></span>
+                  <button type="button" class="btn small" id="crSend">Send</button>
+                </div>
+                <div class="chips" id="crChips">
+                  <span class="chip" data-q="Let's brainstorm. Ask me three sharp questions about this project before we write anything.">Brainstorm with me</span>
+                  <span class="chip" data-q="Read the files I've uploaded and give me a tight summary of what's usable, what's missing, and what you'd cut.">Summarize my files</span>
+                  <span class="chip" data-q="Draft a first version of the main deliverable for this project. Title it, write it in full, and note anything I need to verify.">Draft the deliverable</span>
+                  <span class="chip" data-q="Give me three different angles or leads for this piece, each two or three sentences, and tell me which persona each would land with.">Three angles</span>
+                  <span class="chip" data-q="Research the latest facts I should know for this project and give me a short, cited brief.">Research brief</span>
+                  <span class="chip" data-q="Turn what we've settled on into a slide deck outline: one '## ' heading per slide with three to five bullets each.">Deck outline</span>
+                </div>
+              </div>
+            </div>
+            <aside class="crrail">
+              <div class="crrailh">Files <span class="hint" id="crFileCount"></span></div>
+              <div id="crFiles" class="crfiles"><div class="crrailempty">Nothing yet. Add Word, PowerPoint, PDF, Excel, text or images.</div></div>
+              <div class="crrailh" style="margin-top:16px">Saved assets</div>
+              <div id="crAssets" class="crassets"><div class="crrailempty">Save any reply as an asset, then export it.</div></div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="crmodal" id="crAssetModal" hidden>
+      <div class="crmodalbox">
+        <div class="crmodaltop">
+          <input id="caTitle" class="crtitle" placeholder="Asset title">
+          <select id="caKind"><option value="draft">Draft</option><option value="letter">Letter / email</option><option value="deck">Presentation</option><option value="case">Case / narrative</option><option value="social">Social</option><option value="notes">Notes / research</option></select>
+          <button class="pjbtn tiny" id="caClose">Close</button>
+        </div>
+        <div class="crmodalbody">
+          <div class="crmodalview" id="caView"></div>
+          <textarea id="caEdit" hidden></textarea>
+        </div>
+        <div class="crmodalact">
+          <button class="btn small secondary" id="caEditBtn">Edit</button>
+          <button class="btn small" id="caSave" hidden>Save changes</button>
+          <span class="crsep"></span>
+          <button class="btn small secondary" id="caDocx">&#8595; Word</button>
+          <button class="btn small secondary" id="caPptx">&#8595; PowerPoint</button>
+          <button class="btn small secondary" id="caMd">&#8595; Markdown</button>
+          <button class="btn small secondary" id="caCopy">Copy text</button>
+          <button class="btn small secondary" id="caCurate">Test in Curate</button>
+          <span class="crsep"></span>
+          <button class="pjbtn danger tiny" id="caDelete">Delete</button>
+          <span class="hint" id="caMsg"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="account">
     <details class="acctblock" open><summary>My setup</summary>
       <div id="setupBody"></div>
@@ -922,7 +1127,10 @@ table.log tr:last-child td{border-bottom:none}
       <div class="toolbar"><button class="btn small secondary" id="histRefresh">Refresh</button></div>
       <div id="histList"></div>
     </details>
-    <details class="acctblock"><summary>Usage log</summary>
+    <details class="acctblock" id="adminBlock" hidden><summary>Team &amp; access</summary>
+      <div id="adminBody"></div>
+    </details>
+    <details class="acctblock" id="usageBlock" hidden><summary>Usage log</summary>
       <div class="note">Every evaluation across <b>all users</b>. Export CSV for the full dataset.</div>
       <div class="stats" id="stats"></div>
       <div class="chartcard" id="personaChart" style="display:none"><h3>Average fit score by persona</h3><div id="personaBars"></div></div>
@@ -938,7 +1146,7 @@ table.log tr:last-child td{border-bottom:none}
 
   <details class="about">
     <summary>About this tool</summary>
-    <p>This tool role-plays six fictional Santa Barbara&ndash;area donor personas built from Cottage Health Foundation audience research and the Foundation&rsquo;s Voice of Philanthropy work. When you paste copy, pull a web page, or upload a PDF or image, each persona reacts in character and gives it a fit score. Every reaction is filtered through the same source material: the Foundation&rsquo;s brand-voice calibration (the workshop sliders), the Tier&nbsp;1 and Tier&nbsp;2 word banks, the words-and-phrases-to-avoid list, and the photography principles. That&rsquo;s why it rewards on-voice language, flags off-voice language, and looks for warmth, hope, local connection, and donor empowerment &mdash; it&rsquo;s measuring your draft against a defined, consistent voice rather than one person&rsquo;s opinion.</p>
+    <p>This tool role-plays six fictional Santa Barbara&ndash;area donor personas built from Cottage Health Foundation audience research and the Foundation&rsquo;s Voice of Philanthropy work. When you paste copy, pull a web page, or upload a Word, PowerPoint, PDF or image file, each persona reacts in character and gives it a fit score. Every reaction is filtered through the same source material: the Foundation&rsquo;s brand-voice calibration (the workshop sliders), the Tier&nbsp;1 and Tier&nbsp;2 word banks, the words-and-phrases-to-avoid list, and the photography principles. That&rsquo;s why it rewards on-voice language, flags off-voice language, and looks for warmth, hope, local connection, and donor empowerment &mdash; it&rsquo;s measuring your draft against a defined, consistent voice rather than one person&rsquo;s opinion.</p>
     <p>It&rsquo;s built for <b>evaluation and curation, not creation</b> &mdash; a fast gut-check to pressure-test and refine messaging before it goes out, not a replacement for writing or for real conversations with donors. The personas are AI role-play and their feedback is directional, so the tool <b>isn&rsquo;t perfect and will sometimes get things wrong</b>. Treat its scores and suggestions as a thoughtful second opinion, then use your own judgment.</p>
     <p style="margin-bottom:8px"><b>How it weighs things.</b> Not every signal counts equally. The score and the order in which fixes are surfaced follow this priority, set with the Foundation &mdash; most important first:</p>
     <ol class="aboutcrit">
@@ -997,12 +1205,13 @@ table.log tr:last-child td{border-bottom:none}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script>
 let PERSONAS = [], BRAND_VOICE = null, LAST = null;
-var PROFILE = null, LEARN = null;
+var PROFILE = null, LEARN = null, ME = {};
 var BASE_PERSONAS = [], CUSTOM = [], BUILT = null, LEANS = {};
 function leanOf(id){ return LEANS[id] || ((PERSONAS.find(function(p){return p.id===id;})||{}).lean) || "feelings"; }
-function customKey(){ return "pvg_custom_"+((PROFILE&&PROFILE.name)||"anon"); }
+function customKey(){ return "pvg_custom_"+((ME&&ME.email)||(PROFILE&&PROFILE.name)||"anon"); }
 function loadCustom(){ try{ CUSTOM=JSON.parse(localStorage.getItem(customKey())||"[]"); }catch(e){ CUSTOM=[]; } if(!Array.isArray(CUSTOM)) CUSTOM=[]; }
 function saveCustom(){ try{ localStorage.setItem(customKey(),JSON.stringify(CUSTOM)); }catch(e){} }
 if(window.pdfjsLib){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){} }
@@ -1049,9 +1258,14 @@ async function boot(){
   try{ cfg = await (await fetch("/api/config")).json(); }
   catch(e){ document.body.innerHTML="<p style='padding:40px;font-family:sans-serif'>Couldn't load the tool. Please refresh.</p>"; return; }
   BASE_PERSONAS = (cfg.personas||[]).slice(); BRAND_VOICE = cfg.brandVoice; PHOTO = cfg.photography;
-  loadProfile(cfg.user); loadLearn(); loadCustom();
+  ME = cfg.user || {};
+  loadProfile(ME); loadLearn(); loadCustom();
   PERSONAS = BASE_PERSONAS.concat(CUSTOM);
-  $("#whoName").textContent = (PROFILE && PROFILE.name) || cfg.user || "";
+  $("#whoName").textContent = (PROFILE && PROFILE.name) || ME.email || "";
+  if(ME.isAdmin){
+    $("#createTab").hidden=false; $("#adminBlock").hidden=false; $("#usageBlock").hidden=false;
+    if(location.hash==="#create") activatePanel("create");
+  }
   buildToggles(); buildRef();
 }
 
@@ -1274,11 +1488,13 @@ function activatePanel(name){
   $$(".panel").forEach(x=>x.classList.remove("active"));
   var btn=document.querySelector('.tab[data-tab="'+name+'"]'); if(btn) btn.classList.add("active");
   var p=$("#"+name); if(p) p.classList.add("active");
+  var hero=$("#hero"); if(hero) hero.style.display = (name==="create") ? "none" : "";
   stopSpeaking();
   if(name==="brand") renderBrand();
   if(name==="photo") renderPhoto();
   if(name==="projects") renderProjects();
-  if(name==="account"){ renderSetup(); renderHistory(); renderUsage(); }
+  if(name==="account"){ renderSetup(); renderHistory(); if(ME.isAdmin){ renderUsage(); renderAdmin(); } }
+  if(name==="create"){ if(!ME.isAdmin){ activatePanel("eval"); return; } CR.open(); }
 }
 $$(".tab").forEach(t=>t.addEventListener("click",()=>activatePanel(t.dataset.tab)));
 
@@ -1611,7 +1827,8 @@ $("#fileBtn").addEventListener("click", ()=>$("#assetFile").click());
 $("#assetFile").addEventListener("change", e=>{
   const f=e.target.files&&e.target.files[0]; if(!f) return;
   if(f.type==="application/pdf" || /\.pdf$/i.test(f.name)) processPdfFile(f);
-  else handleImageFile(f);
+  else if(/^image\//.test(f.type)) handleImageFile(f);
+  else processOtherFile(f);
   e.target.value="";
 });
 
@@ -1662,6 +1879,31 @@ async function processPdfFile(f){
     if(imgs.length){ $("#imgThumb").src="data:image/jpeg;base64,"+imgs[0].data; $("#imgPreview").style.display="block"; }
     srcNote(note,"ok",`Read ${maxPages} page${maxPages>1?"s":""}${pdf.numPages>maxPages?` (of ${pdf.numPages}; first ${maxPages} used)`:""}: ${text.length.toLocaleString()} chars of copy + ${imgs.length} page image${imgs.length>1?"s":""}. The personas will judge the copy and the design together.`);
   }catch(e){ srcNote(note,"err","Couldn't read that PDF — "+esc((e&&e.message)||"error")); }
+  btn.disabled=false; btn.textContent=old;
+}
+
+/* any other file (Word, PowerPoint, Excel, text…) — the server extracts the text */
+async function processOtherFile(f){
+  const note=$("#fileNote");
+  const btn=$("#fileBtn"); btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spinner"></span> Reading file…';
+  srcNote(note,"work","Reading "+esc(f.name)+"…");
+  try{
+    const fd=new FormData(); fd.append("file",f);
+    const r=await fetch("/api/extract-file",{method:"POST",body:fd});
+    const j=await r.json();
+    if(!r.ok){ srcNote(note,"err",esc(j.error||"Couldn't read that file.")); }
+    else if(j.kind==="image" && j.image){
+      UPLOADED={data:j.image.data, mediaType:j.image.mediaType}; PDF_IMAGES=null;
+      $("#imgThumb").src="data:"+j.image.mediaType+";base64,"+j.image.data; $("#imgPreview").style.display="block";
+      $("#copy").dataset.source="image";
+      srcNote(note,"ok","Image attached — the personas will react to what they see.");
+    } else {
+      clearImage();
+      $("#copy").value=j.copy||""; $("#copy").dataset.source=(j.kind||"file");
+      if(j.thin) srcNote(note,"err","That file had little readable text. Paste the copy instead, or upload a PDF/image of it.");
+      else srcNote(note,"ok",`Pulled ${(j.copy||"").length.toLocaleString()} characters from <b>${esc(j.sourceLabel||f.name)}</b>${j.pages?` (${j.pages} pages)`:""}${j.truncated?" (trimmed to fit)":""}. Review the copy box, then get reactions.`);
+    }
+  }catch(e){ srcNote(note,"err","Network error — try again."); }
   btn.disabled=false; btn.textContent=old;
 }
 
@@ -2020,9 +2262,7 @@ async function renderHistory(){
   }).join("");
 }
 function reopenRun(j){
-  $$(".tab").forEach(x=>x.classList.remove("active")); $$(".panel").forEach(x=>x.classList.remove("active"));
-  document.querySelector('.tab[data-tab="eval"]').classList.add("active"); $("#eval").classList.add("active");
-  stopSpeaking();
+  activatePanel("eval");
   $("#copy").value=j.copy||""; $("#context").value=j.context||"";
   if(j.atype){ try{ $("#atype").value=j.atype; }catch(e){} }
   $("#copy").dataset.source=j.source||"paste";
@@ -2066,14 +2306,20 @@ function recommendLean(use){
   return "balanced";
 }
 function leanWord(l){ return l==="creative"?"creative":(l==="technical"?"technical":"balanced"); }
-function loadProfile(fallbackName){
-  try{ PROFILE=JSON.parse(localStorage.getItem("pvg_profile")||"null"); }catch(e){ PROFILE=null; }
-  if(!PROFILE) PROFILE={ name:(fallbackName||"you"), email:"", role:"", use:"", lean:"balanced" };
-  if(!PROFILE.name) PROFILE.name=fallbackName||"you";
-  if(!PROFILE.lean) PROFILE.lean="balanced";
+function loadProfile(me){
+  me=me||{};
+  PROFILE={ name:me.name||(me.email||"you").split("@")[0], email:me.email||"", role:me.role||"", use:me.use||"", lean:me.lean||"balanced", tier:me.tier||"curate" };
+  try{ localStorage.removeItem("pvg_profile"); }catch(e){}
 }
-function saveProfile(){ try{ localStorage.setItem("pvg_profile",JSON.stringify(PROFILE)); }catch(e){} }
-function learnKey(){ return "pvg_learn_"+((PROFILE&&PROFILE.name)?PROFILE.name.toLowerCase():"you"); }
+var _saveT=null;
+function saveProfile(){
+  clearTimeout(_saveT);
+  _saveT=setTimeout(function(){
+    fetch("/api/me",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:PROFILE.name,role:PROFILE.role,use:PROFILE.use,lean:PROFILE.lean})})
+      .then(function(r){ return r.json(); }).then(function(j){ if(j&&j.user){ ME=j.user; $("#whoName").textContent=ME.name||ME.email; } }).catch(function(){});
+  },400);
+}
+function learnKey(){ return "pvg_learn_"+((ME&&ME.email)||(PROFILE&&PROFILE.name)||"you").toLowerCase(); }
 function loadLearn(){
   try{ LEARN=JSON.parse(localStorage.getItem(learnKey())||"null"); }catch(e){ LEARN=null; }
   if(!LEARN) LEARN={ runs:0, sumScore:0, dim:{}, avoid:{} };
@@ -2136,7 +2382,8 @@ function renderSetup(){
    '<div class="bvhead"><div class="one">Make it yours, '+esc(PROFILE.name)+'.</div>'+
      '<div class="sum">Tell the tool a little about you and how you like to work. It tailors its feedback and learns your voice as you go.</div></div>'+
    '<div class="card" style="margin-bottom:14px">'+
-     '<div class="field"><label class="fld" for="suEmail">Email</label><input type="email" id="suEmail" value="'+esc(PROFILE.email||"")+'" placeholder="you@cottagehealth.org"></div>'+
+     '<div class="field"><label class="fld" for="suName">Your name</label><input type="text" id="suName" value="'+esc(PROFILE.name||"")+'"></div>'+
+     '<div class="field"><label class="fld">Email <span class="hint">— your sign-in; '+(ME.isAdmin?'administrator access':'standard access')+'</span></label><div style="padding:6px 2px;color:var(--muted)">'+esc(PROFILE.email||"")+'</div></div>'+
      '<div class="field"><label class="fld" for="suRole">Your role</label><select id="suRole">'+roleOpts+'</select></div>'+
      '<div class="field"><label class="fld" for="suUse">Primary use</label><select id="suUse">'+useOpts+'</select></div>'+
      '<div class="field"><label class="fld">Feedback lean <span class="hint">— your dial; it reframes suggestions but never overrides the Critical voice criteria</span></label>'+
@@ -2145,8 +2392,24 @@ function renderSetup(){
      '</div>'+
    '</div>'+
    '<div class="bvhead"><div class="one">Your voice profile</div><div class="sum">What the tool is learning about your writing — it gets sharper every time you use it.</div></div>'+
-   '<div class="card">'+vp+'</div>';
-  $("#suEmail").addEventListener("input",function(){ PROFILE.email=this.value; saveProfile(); });
+   '<div class="card">'+vp+'</div>'+
+   '<div class="bvhead" style="margin-top:14px"><div class="one">Change your password</div></div>'+
+   '<div class="card"><div class="pwgrid">'+
+     '<div class="field"><label class="fld" for="pwCur">Current password</label><input type="password" id="pwCur" autocomplete="current-password"></div>'+
+     '<div class="field"><label class="fld" for="pwNew">New password</label><input type="password" id="pwNew" autocomplete="new-password"></div>'+
+     '<div class="field"><label class="fld" for="pwNew2">Confirm new password</label><input type="password" id="pwNew2" autocomplete="new-password"></div>'+
+   '</div><button class="btn small" id="pwChange">Update password</button> <span class="hint" id="pwMsg"></span></div>';
+  $("#suName").addEventListener("input",function(){ PROFILE.name=this.value; saveProfile(); });
+  $("#pwChange").addEventListener("click", async function(){
+    var cur=$("#pwCur").value, n1=$("#pwNew").value, n2=$("#pwNew2").value, m=$("#pwMsg");
+    if(n1.length<8){ m.textContent="New password needs at least 8 characters."; return; }
+    if(n1!==n2){ m.textContent="New passwords don't match."; return; }
+    m.textContent="Saving…";
+    try{ var r=await fetch("/api/me/password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({current:cur,next:n1})});
+      var j=await r.json().catch(function(){return {};});
+      if(r.ok){ m.textContent="Password updated."; $("#pwCur").value=$("#pwNew").value=$("#pwNew2").value=""; } else m.textContent=j.error||"Couldn't update.";
+    }catch(e){ m.textContent="Network error."; }
+  });
   $("#suRole").addEventListener("change",function(){ PROFILE.role=this.value; saveProfile(); });
   $("#suUse").addEventListener("change",function(){ PROFILE.use=this.value; if(!PROFILE._leanTouched) PROFILE.lean=recommendLean(this.value); saveProfile(); renderSetup(); });
   $("#leanSeg").addEventListener("click",function(e){ var b=e.target.closest("button[data-lean]"); if(!b) return; PROFILE.lean=b.dataset.lean; PROFILE._leanTouched=true; saveProfile(); $$("#leanSeg button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); });
@@ -2249,6 +2512,342 @@ setInterval(pingActivity, 30000);
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") pingActivity(); });
 boot();
 pingActivity();
+</script>
+<script>
+/* ===================== Create workspace (administrative tier) ===================== */
+function mdToHtml(md){
+  var html="";
+  var plain=function(t){ return String(t||"").split(/\n{2,}/).map(function(p){ return "<p>"+esc(p).replace(/\n/g,"<br>")+"</p>"; }).join(""); };
+  try{ html = window.marked ? marked.parse(String(md||""), {breaks:false, gfm:true}) : plain(md); }catch(e){ html=plain(md); }
+  // light sanitizer: no scripts, no inline handlers, no javascript: links
+  var t=document.createElement("template"); t.innerHTML=html;
+  Array.prototype.forEach.call(t.content.querySelectorAll("script,style,iframe,object,embed"), function(n){ n.remove(); });
+  Array.prototype.forEach.call(t.content.querySelectorAll("*"), function(el){
+    Array.prototype.slice.call(el.attributes).forEach(function(a){
+      if(/^on/i.test(a.name)) el.removeAttribute(a.name);
+      if((a.name==="href"||a.name==="src") && /^\s*javascript:/i.test(a.value)) el.removeAttribute(a.name);
+    });
+    if(el.tagName==="A"){ el.setAttribute("target","_blank"); el.setAttribute("rel","noopener"); }
+  });
+  return t.innerHTML;
+}
+function crWhen(s){ try{ var d=new Date(s); return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+function download(url){ var a=document.createElement("a"); a.href=url; a.download=""; document.body.appendChild(a); a.click(); a.remove(); }
+
+var CR = {
+  projects:[], personas:[], current:null, messages:[], files:[], assets:[], pending:[], busy:false, loaded:false, asset:null,
+  async open(){
+    await CR.loadList();
+    if(!CR.current && CR.projects.length && !CR.loaded){ CR.loaded=true; }
+  },
+  async loadList(){
+    try{
+      var d=await (await fetch("/api/create/projects")).json();
+      CR.projects=d.projects||[]; CR.personas=d.personas||[];
+    }catch(e){ CR.projects=[]; }
+    CR.renderList();
+  },
+  renderList(){
+    var box=$("#crProjects");
+    if(!CR.projects.length){ box.innerHTML='<div class="pjempty">No projects yet.</div>'; return; }
+    box.innerHTML=CR.projects.map(function(p){
+      return '<div class="critem'+(CR.current&&CR.current.id===p.id?' on':'')+'" data-id="'+esc(p.id)+'"><b>'+esc(p.title)+'</b><div class="crmeta">'+
+        (p.messages||0)+' msg · '+(p.assets||0)+' asset'+((p.assets||0)===1?'':'s')+' · '+pjDate(p.updated)+'</div></div>';
+    }).join("");
+  },
+  async newProject(){
+    var title=prompt("Working title for this project?","");
+    if(title===null) return;
+    title=(title||"").trim()||"Untitled project";
+    var r=await fetch("/api/create/projects",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:title})});
+    var j=await r.json(); if(!r.ok){ alert(j.error||"Couldn't create the project."); return; }
+    await CR.loadList(); await CR.openProject(j.project.id);
+    $("#crSettings").hidden=false; $("#crBrief").focus();
+  },
+  async openProject(id){
+    var r=await fetch("/api/create/projects/"+encodeURIComponent(id)); if(!r.ok){ alert("Couldn't open that project."); return; }
+    var d=await r.json();
+    CR.current=d.project; CR.messages=d.messages||[]; CR.files=d.files||[]; CR.assets=d.assets||[]; CR.pending=[];
+    $("#crEmpty").hidden=true; $("#crWork").hidden=false; $("#crSettings").hidden=true;
+    $("#crTitle").value=CR.current.title;
+    $("#crBrief").value=CR.current.brief||"";
+    var s=CR.current.settings||{};
+    $("#crRegion").value=s.region||"all"; $("#crAtype").value=s.atype||""; $("#crResearch").checked=s.research!==false;
+    $("#crPersonas").innerHTML=CR.personas.map(function(p){ var on=(s.personas||[]).includes(p.id); return '<label class="'+(on?'on':'')+'"><input type="checkbox" value="'+esc(p.id)+'" '+(on?'checked':'')+' hidden><span style="width:9px;height:9px;border-radius:50%;background:'+esc(p.color)+';display:inline-block"></span>'+esc(p.name)+'</label>'; }).join("");
+    CR.renderList(); CR.renderThread(); CR.renderFiles(); CR.renderAssets(); CR.renderPending();
+    $("#crInput").focus();
+  },
+  renderThread(){
+    var box=$("#crThread");
+    if(!CR.messages.length){
+      box.innerHTML='<div class="crmsg assistant"><div class="crbubble"><p><b>Ready when you are.</b> I already know the Foundation’s voice, the six personas, the three regions and the word banks'+(CR.current.brief?', and I’ve read your brief':'')+'. Tell me what you’re working on, drop in anything I should read, or hit one of the prompts below.</p></div></div>';
+      return;
+    }
+    box.innerHTML=CR.messages.map(function(m,i){
+      if(m.role==="user"){
+        var tags=(m.attachments||[]).map(function(a){ return '<span class="crattachtag">📎 '+esc(a)+'</span>'; }).join("");
+        return '<div class="crmsg user">'+(tags?'<div>'+tags+'</div>':'')+'<div class="crbubble">'+esc(m.text)+'</div><div class="crtime">'+crWhen(m.ts)+'</div></div>';
+      }
+      return '<div class="crmsg assistant" data-i="'+i+'"><div class="crbubble">'+mdToHtml(m.text)+'</div>'+
+        '<div class="crmsgact"><button data-act="save" data-i="'+i+'">⭐ Save as asset</button><button data-act="copy" data-i="'+i+'">Copy</button><button data-act="curate" data-i="'+i+'">Test in Curate</button><span class="crtime">'+crWhen(m.ts)+'</span></div></div>';
+    }).join("");
+    box.scrollTop=box.scrollHeight;
+  },
+  renderFiles(){
+    $("#crFileCount").textContent=CR.files.length?CR.files.length+"":"";
+    var box=$("#crFiles");
+    if(!CR.files.length){ box.innerHTML='<div class="crrailempty">Nothing yet. Add Word, PowerPoint, PDF, Excel, text or images. The writer reads every file on every turn.</div>'; return; }
+    box.innerHTML=CR.files.map(function(f){
+      return '<div class="crfile" title="'+esc(f.name)+'"><div class="n">'+esc(f.name)+'<div class="k">'+esc(f.kind||"")+(f.is_image?'':' · '+(f.chars||0).toLocaleString()+' chars')+'</div></div>'+
+        (f.is_image?'<button data-attach="'+esc(f.id)+'" title="Attach this image to your next message">📎</button>':'')+
+        '<button data-del="'+esc(f.id)+'" title="Remove">✕</button></div>';
+    }).join("");
+  },
+  renderAssets(){
+    var box=$("#crAssets");
+    if(!CR.assets.length){ box.innerHTML='<div class="crrailempty">Save any reply as an asset, then export it as Word, PowerPoint or Markdown.</div>'; return; }
+    box.innerHTML=CR.assets.map(function(a){ return '<div class="crasset" data-id="'+esc(a.id)+'"><b>'+esc(a.title)+'</b><div class="k">'+esc(a.kind||"draft")+' · '+pjDate(a.updated)+'</div></div>'; }).join("");
+  },
+  renderPending(){
+    $("#crAttach").innerHTML=CR.pending.map(function(id){ var f=CR.files.find(function(x){return x.id===id;}); return f?'<span>🖼 '+esc(f.name)+' <b data-unattach="'+esc(id)+'">✕</b></span>':''; }).join("");
+  },
+  async saveSettings(){
+    var personas=$$("#crPersonas input:checked").map(function(c){return c.value;});
+    var body={ title:$("#crTitle").value.trim()||"Untitled project", brief:$("#crBrief").value.trim(),
+      settings:{ region:$("#crRegion").value, atype:$("#crAtype").value.trim(), research:$("#crResearch").checked, personas:personas } };
+    $("#crSettingsMsg").textContent="Saving…";
+    var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    var j=await r.json();
+    if(r.ok){ CR.current=j.project; $("#crSettingsMsg").textContent="Saved."; setTimeout(function(){$("#crSettingsMsg").textContent="";},1500); CR.loadList(); }
+    else $("#crSettingsMsg").textContent=j.error||"Couldn't save.";
+  },
+  async saveTitle(){
+    if(!CR.current) return;
+    var t=$("#crTitle").value.trim()||"Untitled project"; if(t===CR.current.title) return;
+    var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:t})});
+    if(r.ok){ CR.current.title=t; CR.loadList(); }
+  },
+  async upload(files){
+    if(!files||!files.length||!CR.current) return;
+    var fd=new FormData(); Array.prototype.forEach.call(files,function(f){ fd.append("files",f); });
+    $("#crStatus").textContent="Reading "+files.length+" file"+(files.length>1?"s":"")+"…";
+    try{
+      var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id)+"/files",{method:"POST",body:fd});
+      var j=await r.json();
+      if(!r.ok){ $("#crStatus").textContent=j.error||"Upload failed."; return; }
+      CR.files=j.files||CR.files;
+      (j.added||[]).forEach(function(a){ if(a.is_image && CR.pending.indexOf(a.id)<0) CR.pending.push(a.id); });
+      var msg=(j.added||[]).length+" added";
+      if((j.failed||[]).length) msg+="; couldn't read: "+j.failed.map(function(f){return f.name+" ("+f.error+")";}).join(", ");
+      var warn=(j.added||[]).filter(function(a){return a.warning;}).map(function(a){return a.name+": "+a.warning;});
+      if(warn.length) msg+="; "+warn.join("; ");
+      $("#crStatus").textContent=msg;
+      CR.renderFiles(); CR.renderPending(); CR.loadList();
+    }catch(e){ $("#crStatus").textContent="Network error — try again."; }
+  },
+  async removeFile(id){
+    if(!confirm("Remove this file from the project?")) return;
+    var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id)+"/files/"+encodeURIComponent(id),{method:"DELETE"});
+    var j=await r.json(); if(r.ok){ CR.files=j.files||[]; CR.pending=CR.pending.filter(function(x){return x!==id;}); CR.renderFiles(); CR.renderPending(); }
+  },
+  async send(text){
+    if(CR.busy||!CR.current) return;
+    text=(text!=null?text:$("#crInput").value).trim();
+    if(!text && !CR.pending.length){ $("#crInput").focus(); return; }
+    CR.busy=true; $("#crSend").disabled=true; $("#crInput").value="";
+    var attachNames=CR.pending.map(function(id){ var f=CR.files.find(function(x){return x.id===id;}); return f?f.name:""; }).filter(Boolean);
+    CR.messages.push({role:"user",text:text,attachments:attachNames,ts:new Date().toISOString()});
+    var fileIds=CR.pending.slice(); CR.pending=[]; CR.renderPending();
+    CR.renderThread();
+    var box=$("#crThread");
+    var live=document.createElement("div"); live.className="crmsg assistant"; live.innerHTML='<div class="crbubble"><span class="crtyping"></span> <span class="hint" id="crLiveStatus">Thinking…</span></div>';
+    box.appendChild(live); box.scrollTop=box.scrollHeight;
+    var bubble=live.querySelector(".crbubble"); var acc="";
+    try{
+      var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id)+"/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,fileIds:fileIds})});
+      if(!r.ok){ var je=await r.json().catch(function(){return {};}); throw new Error(je.error||"Request failed."); }
+      var reader=r.body.getReader(), dec=new TextDecoder(), buf="", finalText=null, errText=null;
+      while(true){
+        var chunk=await reader.read(); if(chunk.done) break;
+        buf+=dec.decode(chunk.value,{stream:true});
+        var parts=buf.split("\n\n"); buf=parts.pop();
+        parts.forEach(function(block){
+          var ev="message", data="";
+          block.split("\n").forEach(function(line){ if(line.startsWith("event:")) ev=line.slice(6).trim(); else if(line.startsWith("data:")) data+=line.slice(5).trim(); });
+          if(!data) return;
+          var d; try{ d=JSON.parse(data); }catch(e){ return; }
+          if(ev==="delta"){ acc+=d.text||""; bubble.innerHTML=mdToHtml(acc)+'<span class="crtyping"></span>'; box.scrollTop=box.scrollHeight; }
+          else if(ev==="status"){ var st=bubble.querySelector("#crLiveStatus"); if(st) st.textContent=d.text||""; else bubble.insertAdjacentHTML("beforeend",'<div class="hint">'+esc(d.text||"")+'</div>'); }
+          else if(ev==="done"){ finalText=d.text||acc; }
+          else if(ev==="error"){ errText=d.error||"Something went wrong."; }
+        });
+      }
+      if(errText && !finalText){ throw new Error(errText); }
+      CR.messages.push({role:"assistant",text:finalText||acc,ts:new Date().toISOString()});
+      live.remove(); CR.renderThread(); CR.loadList();
+    }catch(e){
+      live.remove();
+      if(acc){ CR.messages.push({role:"assistant",text:acc+"\n\n*(reply was cut off: "+(e.message||"error")+")*",ts:new Date().toISOString()}); CR.renderThread(); }
+      else { CR.messages.pop(); CR.renderThread(); alert(e.message||"The writer didn't respond. Please try again."); $("#crInput").value=text; }
+    }
+    CR.busy=false; $("#crSend").disabled=false; $("#crInput").focus();
+  },
+  async saveAsset(text, title){
+    var r=await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id)+"/assets",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content:text,title:title||""})});
+    var j=await r.json(); if(!r.ok){ alert(j.error||"Couldn't save."); return; }
+    CR.assets=j.assets||[]; CR.renderAssets(); CR.loadList();
+    return j.asset;
+  },
+  async openAsset(id){
+    var r=await fetch("/api/create/assets/"+encodeURIComponent(id)); var j=await r.json(); if(!r.ok){ alert(j.error||"Couldn't open."); return; }
+    CR.asset=j.asset;
+    $("#caTitle").value=CR.asset.title; $("#caKind").value=CR.asset.kind||"draft";
+    $("#caView").innerHTML=mdToHtml(CR.asset.content); $("#caEdit").value=CR.asset.content;
+    $("#caView").hidden=false; $("#caEdit").hidden=true; $("#caSave").hidden=true; $("#caEditBtn").textContent="Edit"; $("#caMsg").textContent="";
+    $("#crAssetModal").hidden=false;
+  },
+  async updateAsset(){
+    var body={ title:$("#caTitle").value.trim(), kind:$("#caKind").value, content:$("#caEdit").hidden?CR.asset.content:$("#caEdit").value };
+    $("#caMsg").textContent="Saving…";
+    var r=await fetch("/api/create/assets/"+encodeURIComponent(CR.asset.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    var j=await r.json(); if(!r.ok){ $("#caMsg").textContent=j.error||"Couldn't save."; return; }
+    CR.asset.title=body.title||CR.asset.title; CR.asset.kind=body.kind; CR.asset.content=body.content;
+    $("#caView").innerHTML=mdToHtml(CR.asset.content); $("#caView").hidden=false; $("#caEdit").hidden=true; $("#caSave").hidden=true; $("#caEditBtn").textContent="Edit";
+    CR.assets=j.assets||CR.assets; CR.renderAssets(); $("#caMsg").textContent="Saved."; setTimeout(function(){$("#caMsg").textContent="";},1500);
+  },
+  async deleteAsset(){
+    if(!confirm("Delete this asset?")) return;
+    var r=await fetch("/api/create/assets/"+encodeURIComponent(CR.asset.id),{method:"DELETE"}); var j=await r.json();
+    if(r.ok){ CR.assets=j.assets||[]; CR.renderAssets(); $("#crAssetModal").hidden=true; CR.loadList(); }
+  },
+  async deleteProject(){
+    if(!CR.current || !confirm("Delete “"+CR.current.title+"” and everything in it? This can't be undone.")) return;
+    await fetch("/api/create/projects/"+encodeURIComponent(CR.current.id),{method:"DELETE"});
+    CR.current=null; $("#crWork").hidden=true; $("#crEmpty").hidden=false; CR.loadList();
+  },
+  toCurate(text){
+    // strip the markdown title line and hand the copy to Test Your Message
+    var t=String(text||"").replace(/^#\s+.*\n+/, "").replace(/\*\*Sources\*\*[\s\S]*$/,"").trim();
+    $("#copy").value=t; $("#copy").dataset.source="create"; clearImage();
+    if(CR.current && CR.current.settings && CR.current.settings.region) $("#evalRegion").value=CR.current.settings.region;
+    $("#crAssetModal").hidden=true;
+    activatePanel("eval"); window.scrollTo({top:0,behavior:"smooth"});
+    srcNote($("#fileNote"),"ok","Loaded from your Create project. Pick personas, then get reactions.");
+  }
+};
+
+/* wiring */
+$("#crNew").addEventListener("click", CR.newProject);
+$("#crNew2").addEventListener("click", CR.newProject);
+$("#crProjects").addEventListener("click", function(e){ var it=e.target.closest(".critem"); if(it) CR.openProject(it.dataset.id); });
+$("#crSettingsBtn").addEventListener("click", function(){ $("#crSettings").hidden=!$("#crSettings").hidden; });
+$("#crSettingsClose").addEventListener("click", function(){ $("#crSettings").hidden=true; });
+$("#crSettingsSave").addEventListener("click", CR.saveSettings);
+$("#crPersonas").addEventListener("click", function(e){ var l=e.target.closest("label"); if(!l) return; setTimeout(function(){ l.classList.toggle("on", l.querySelector("input").checked); },0); });
+$("#crTitle").addEventListener("change", CR.saveTitle);
+$("#crTitle").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); this.blur(); } });
+$("#crDelete").addEventListener("click", CR.deleteProject);
+$("#crExportAll").addEventListener("click", function(e){ e.stopPropagation(); this.parentNode.classList.toggle("open"); });
+$("#crExportAllDrop").addEventListener("click", function(e){ var a=e.target.closest("a[data-f]"); if(!a||!CR.current) return; this.parentNode.classList.remove("open");
+  if(!CR.assets.length){ alert("Save at least one asset first."); return; }
+  download("/api/create/projects/"+encodeURIComponent(CR.current.id)+"/export?format="+a.dataset.f); });
+document.addEventListener("click", function(){ $$(".crmenu.open").forEach(function(m){ m.classList.remove("open"); }); });
+$("#crFileBtn").addEventListener("click", function(){ $("#crFile").click(); });
+$("#crFile").addEventListener("change", function(e){ CR.upload(e.target.files); e.target.value=""; });
+$("#crFiles").addEventListener("click", function(e){
+  var d=e.target.closest("button[data-del]"); if(d){ CR.removeFile(d.dataset.del); return; }
+  var a=e.target.closest("button[data-attach]"); if(a){ if(CR.pending.indexOf(a.dataset.attach)<0) CR.pending.push(a.dataset.attach); CR.renderPending(); }
+});
+$("#crAttach").addEventListener("click", function(e){ var b=e.target.closest("b[data-unattach]"); if(b){ CR.pending=CR.pending.filter(function(x){return x!==b.dataset.unattach;}); CR.renderPending(); } });
+$("#crSend").addEventListener("click", function(){ CR.send(); });
+$("#crInput").addEventListener("keydown", function(e){ if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); CR.send(); } });
+$("#crChips").addEventListener("click", function(e){ var c=e.target.closest("[data-q]"); if(c) CR.send(c.getAttribute("data-q")); });
+$("#crThread").addEventListener("click", async function(e){
+  var b=e.target.closest("button[data-act]"); if(!b) return;
+  var m=CR.messages[parseInt(b.dataset.i,10)]; if(!m) return;
+  if(b.dataset.act==="copy"){ try{ await navigator.clipboard.writeText(m.text); b.textContent="Copied"; setTimeout(function(){b.textContent="Copy";},1200); }catch(err){} }
+  else if(b.dataset.act==="save"){ var a=await CR.saveAsset(m.text); if(a){ b.textContent="Saved ✓"; setTimeout(function(){b.innerHTML="⭐ Save as asset";},1500); } }
+  else if(b.dataset.act==="curate"){ CR.toCurate(m.text); }
+});
+$("#crAssets").addEventListener("click", function(e){ var a=e.target.closest(".crasset"); if(a) CR.openAsset(a.dataset.id); });
+$("#caClose").addEventListener("click", function(){ $("#crAssetModal").hidden=true; });
+$("#crAssetModal").addEventListener("click", function(e){ if(e.target.id==="crAssetModal") $("#crAssetModal").hidden=true; });
+$("#caEditBtn").addEventListener("click", function(){
+  var editing=!$("#caEdit").hidden;
+  if(editing){ $("#caEdit").hidden=true; $("#caView").hidden=false; $("#caSave").hidden=true; this.textContent="Edit"; }
+  else { $("#caEdit").value=CR.asset.content; $("#caEdit").hidden=false; $("#caView").hidden=true; $("#caSave").hidden=false; this.textContent="Cancel"; }
+});
+$("#caSave").addEventListener("click", CR.updateAsset);
+$("#caTitle").addEventListener("change", function(){ if(CR.asset && $("#caEdit").hidden) CR.updateAsset(); });
+$("#caKind").addEventListener("change", function(){ if(CR.asset && $("#caEdit").hidden) CR.updateAsset(); });
+$("#caDocx").addEventListener("click", function(){ download("/api/create/assets/"+encodeURIComponent(CR.asset.id)+"/export?format=docx"); });
+$("#caPptx").addEventListener("click", function(){ download("/api/create/assets/"+encodeURIComponent(CR.asset.id)+"/export?format=pptx"); });
+$("#caMd").addEventListener("click", function(){ download("/api/create/assets/"+encodeURIComponent(CR.asset.id)+"/export?format=md"); });
+$("#caCopy").addEventListener("click", async function(){ try{ await navigator.clipboard.writeText(CR.asset.content); $("#caMsg").textContent="Copied."; setTimeout(function(){$("#caMsg").textContent="";},1200); }catch(e){} });
+$("#caCurate").addEventListener("click", function(){ CR.toCurate(CR.asset.content); });
+$("#caDelete").addEventListener("click", CR.deleteAsset);
+// drag & drop files onto the thread
+(function(){
+  var col=document.querySelector(".crchatcol"); if(!col) return;
+  ["dragenter","dragover"].forEach(function(ev){ col.addEventListener(ev,function(e){ e.preventDefault(); col.style.outline="2px dashed #0a5b73"; }); });
+  ["dragleave","drop"].forEach(function(ev){ col.addEventListener(ev,function(e){ e.preventDefault(); col.style.outline=""; }); });
+  col.addEventListener("drop",function(e){ if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length) CR.upload(e.dataTransfer.files); });
+})();
+// dictation into the Create composer
+(function(){
+  var b=$("#crDictate"); var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!b) return; if(!SR){ b.style.display="none"; return; }
+  var rec=null, on=false, base="", fin="";
+  b.addEventListener("click",function(){
+    if(on){ try{ rec.stop(); }catch(e){} return; }
+    rec=new SR(); rec.lang="en-US"; rec.continuous=true; rec.interimResults=true;
+    base=$("#crInput").value; fin="";
+    rec.onstart=function(){ on=true; b.classList.add("recording"); b.innerHTML='<span class="micdot"></span>◼ Stop'; };
+    rec.onend=function(){ on=false; b.classList.remove("recording"); b.innerHTML='<span class="micdot"></span>🎤 Dictate'; };
+    rec.onerror=function(){ };
+    rec.onresult=function(ev){ var interim=""; for(var i=ev.resultIndex;i<ev.results.length;i++){ var r=ev.results[i]; if(r.isFinal) fin+=r[0].transcript; else interim+=r[0].transcript; }
+      var spoken=(fin+interim).replace(/\s+/g," ").trimStart(); $("#crInput").value=base+((base&&!/\s$/.test(base))?" ":"")+spoken; };
+    try{ rec.start(); }catch(e){}
+  });
+})();
+
+/* ===================== Team & access (administrators) ===================== */
+async function renderAdmin(){
+  var box=$("#adminBody"); box.innerHTML='<div class="empty">Loading…</div>';
+  var d; try{ d=await (await fetch("/api/admin/users")).json(); }catch(e){ box.innerHTML='<div class="empty">Couldn’t load the team list.</div>'; return; }
+  var rows=(d.users||[]).map(function(u){
+    var status=u.hasPassword?('Active'+(u.lastLogin?' · last sign-in '+pjDate(u.lastLogin):'')):'<i>Invited — hasn’t signed in yet</i>';
+    return '<tr><td><b>'+esc(u.name||"")+'</b><div class="hint">'+esc(u.email)+'</div></td>'+
+      '<td><span class="tierpill '+(u.tier==="admin"?'admin':'')+'">'+(u.tier==="admin"?'Administrator':'Standard')+'</span></td>'+
+      '<td class="hint">'+esc(u.role||"")+'</td><td>'+(u.evaluations||0)+'</td><td class="hint">'+status+'</td>'+
+      '<td style="white-space:nowrap">'+(u.email!==ME.email?
+        '<button class="mini" data-tier="'+esc(u.email)+'" data-to="'+(u.tier==="admin"?'curate':'admin')+'">'+(u.tier==="admin"?'Make standard':'Make admin')+'</button>'+
+        '<button class="mini" data-reset="'+esc(u.email)+'">Reset password</button>'+
+        '<button class="mini danger" data-remove="'+esc(u.email)+'">Remove</button>':'<span class="hint">you</span>')+'</td></tr>';
+  }).join("");
+  box.innerHTML=
+    '<div class="note"><b>Administrators</b> get everything plus the Create workspace and this page. <b>Standard</b> users get Test Your Message, personas, regions, photography, templates and My Projects.</div>'+
+    '<table class="admtable"><thead><tr><th>Person</th><th>Access</th><th>Role</th><th>Tests</th><th>Status</th><th></th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No users yet.</td></tr>')+'</tbody></table>'+
+    '<div class="bvhead" style="margin-top:18px"><div class="one" style="font-size:17px">Add someone</div><div class="sum">They’ll set their own password and profile the first time they sign in with this email. No access code needed.</div></div>'+
+    '<div class="admadd"><div class="field" style="margin:0"><label class="fld">Email</label><input id="admEmail" type="email" placeholder="name@cottagehealth.org"></div>'+
+    '<div class="field" style="margin:0"><label class="fld">Name <span class="hint">(optional)</span></label><input id="admName" type="text"></div>'+
+    '<div class="field" style="margin:0"><label class="fld">Access</label><select id="admTier"><option value="curate">Standard</option><option value="admin">Administrator</option></select></div>'+
+    '<button class="btn small" id="admAdd">Add</button></div><div class="hint" id="admMsg" style="margin-top:6px"></div>'+
+    '<div class="admcode"><b>Self sign-up:</b> anyone can also create a standard account with the team access code <code>'+esc(d.accessCode||"")+'</code> (the <code>LOGIN_PASSWORD</code> setting on the server). Share it only with people who should have access.</div>';
+  $("#admAdd").addEventListener("click", async function(){
+    var m=$("#admMsg"); m.textContent="Adding…";
+    var r=await fetch("/api/admin/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("#admEmail").value,name:$("#admName").value,tier:$("#admTier").value})});
+    var j=await r.json().catch(function(){return {};});
+    if(r.ok){ renderAdmin(); } else m.textContent=j.error||"Couldn't add.";
+  });
+}
+$("#adminBody").addEventListener("click", async function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.tier){ var r=await fetch("/api/admin/users/"+encodeURIComponent(b.dataset.tier),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({tier:b.dataset.to})}); if(r.ok) renderAdmin(); else alert((await r.json()).error||"Couldn't change access."); }
+    else if(b.dataset.reset){ if(!confirm("Reset the password for "+b.dataset.reset+"? They'll choose a new one the next time they sign in.")) return; var r2=await fetch("/api/admin/users/"+encodeURIComponent(b.dataset.reset)+"/reset",{method:"POST"}); if(r2.ok){ alert("Done. Let them know to sign in with their email; the tool will ask them to set a new password."); renderAdmin(); } }
+    else if(b.dataset.remove){ if(!confirm("Remove "+b.dataset.remove+"? Their history stays in the usage log, but they won't be able to sign in.")) return; var r3=await fetch("/api/admin/users/"+encodeURIComponent(b.dataset.remove),{method:"DELETE"}); if(r3.ok) renderAdmin(); }
+});
+
 </script>
 <script>
 /* ---- Hero: rotating daily inspiration over a local backdrop ---- */
