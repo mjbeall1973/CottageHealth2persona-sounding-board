@@ -1,7 +1,7 @@
-// server.js — Persona Sounding Board (hosted version)
-// Serves the tool, gates it behind a shared password, calls the Anthropic API to
-// generate persona reactions, can pull copy from a URL or a PDF, and logs every
-// evaluation to a central SQLite database so usage can be tracked across the team.
+// server.js — Our Voice Lab (hosted version)
+// Serves the tool behind email + password sign-in with two tiers (standard / administrator),
+// calls the Anthropic API for persona reactions (Curate) and the writing workspace (Create),
+// reads copy from URLs and uploaded files, and logs usage to a SQLite database.
 
 require("dotenv").config();
 const path = require("path");
@@ -15,11 +15,17 @@ const pdfParse = require("pdf-parse");
 const { PERSONAS } = require("./personas");
 const { BRAND_VOICE, PHOTOGRAPHY } = require("./brand-voice");
 const { PROJECT_TEMPLATES, buildFromTemplate, templateCatalog, newId, DONOR_LENS } = require("./project-templates");
+const { extractFile, ACCEPT } = require("./extract");
 
 // ---------- config ----------
 const PORT = process.env.PORT || 3000;
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+// the Create workspace uses a stronger model for real writing and research
+const MODEL_CREATE = process.env.ANTHROPIC_MODEL_CREATE || "claude-sonnet-4-5";
+// LOGIN_PASSWORD is now the team ACCESS CODE a new person enters once to create their account
 const LOGIN_PASSWORD = process.env.LOGIN_PASSWORD || "cottage2026";
+// administrators (comma-separated emails) get the Create workspace and team management
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "mike@accordantphilanthropy.com,mike@beallcreative.com,k1greene@sbch.org").split(",");
 const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, "evaluations.db");
 const MAX_SOURCE_CHARS = 16000; // cap text pulled from URLs/PDFs before sending to the model
@@ -100,49 +106,9 @@ app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: true }));
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
-// ---------- auth (shared-password sign-in) ----------
-function sign(value) {
-  return crypto.createHmac("sha256", SESSION_SECRET).update(value).digest("hex");
-}
-function makeToken(email) {
-  const payload = Buffer.from(email || "user").toString("base64url");
-  return payload + "." + sign(payload);
-}
-function verifyToken(token) {
-  if (!token || token.indexOf(".") < 0) return null;
-  const [payload, sig] = token.split(".");
-  if (sign(payload) !== sig) return null;
-  try { return Buffer.from(payload, "base64url").toString("utf8"); } catch (e) { return null; }
-}
-function getCookie(req, name) {
-  const raw = req.headers.cookie || "";
-  const hit = raw.split(";").map(s => s.trim()).find(s => s.startsWith(name + "="));
-  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
-}
-function requireAuth(req, res, next) {
-  const email = verifyToken(getCookie(req, "pb_auth"));
-  if (!email) {
-    if (req.path.startsWith("/api/")) return res.status(401).json({ error: "Not signed in." });
-    return res.redirect("/login.html");
-  }
-  req.userEmail = email;
-  next();
-}
-
-app.post("/api/login", (req, res) => {
-  const { email, password } = req.body || {};
-  if (!password || password !== LOGIN_PASSWORD) {
-    return res.status(401).json({ error: "Incorrect password." });
-  }
-  const token = makeToken((email || "").trim() || "user");
-  res.setHeader("Set-Cookie",
-    `pb_auth=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${60 * 60 * 24 * 30}`);
-  res.json({ ok: true });
-});
-app.post("/api/logout", (req, res) => {
-  res.setHeader("Set-Cookie", "pb_auth=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0");
-  res.json({ ok: true });
-});
+// ---------- auth (email + password, two tiers) ----------
+const auth = require("./auth")({ db, app, SESSION_SECRET, LOGIN_PASSWORD, ADMIN_EMAILS });
+const { requireAuth, requireAdmin } = auth;
 
 // login page + its assets must be reachable without auth
 app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
@@ -161,7 +127,8 @@ function ownerRows() {
   return rows.map(r => ({ ...r, feedback: fb[r.user] || 0, active_minutes: Math.round((act[r.user] || 0) / 60) }));
 }
 function ownerAuthed(req) {
-  if (verifyToken(getCookie(req, "pb_auth"))) return true;
+  const u = auth.currentUser(req);
+  if (u && u.tier === "admin") return true;
   return req.query && req.query.token && req.query.token === REPORT_TOKEN;
 }
 app.get("/api/owner-report.csv", (req, res) => {
@@ -214,7 +181,7 @@ app.post("/api/ping", (req, res) => {
 
 // ---------- config for the frontend ----------
 app.get("/api/config", (req, res) => {
-  res.json({ personas: PERSONAS, brandVoice: BRAND_VOICE, photography: PHOTOGRAPHY, user: req.userEmail });
+  res.json({ personas: PERSONAS, brandVoice: BRAND_VOICE, photography: PHOTOGRAPHY, user: auth.publicUser(req.user), uploadAccept: ACCEPT });
 });
 
 // ---------- source extraction: URL ----------
@@ -339,6 +306,21 @@ app.post("/api/extract-pdf", upload.single("file"), async (req, res) => {
     });
   } catch (e) {
     res.status(422).json({ error: "Couldn't read that PDF: " + ((e && e.message) || "parse failed") });
+  }
+});
+
+// ---------- source extraction: any file (Word, PowerPoint, Excel, PDF, text, images) ----------
+app.post("/api/extract-file", upload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file uploaded." });
+  try {
+    const ex = await extractFile({ buffer: req.file.buffer, originalname: req.file.originalname, mimetype: req.file.mimetype });
+    if (ex.image) return res.json({ kind: "image", sourceLabel: `Image: ${req.file.originalname}`, image: ex.image });
+    let text = ex.text || "";
+    const truncated = text.length > MAX_SOURCE_CHARS;
+    text = text.slice(0, MAX_SOURCE_CHARS);
+    res.json({ kind: ex.kind, sourceLabel: `${ex.label}: ${req.file.originalname}`, pages: ex.pages || null, copy: text, truncated, thin: text.length < 40, image: ex.warning || "" });
+  } catch (e) {
+    res.status(422).json({ error: (e && e.message) || "Couldn't read that file." });
   }
 });
 
@@ -1048,7 +1030,7 @@ HOW THE ROOM REACTED: ${String(ctx.summary || "(not provided)").slice(0, 1500)}.
 });
 
 // ---------- usage stats ----------
-app.get("/api/stats", (req, res) => {
+app.get("/api/stats", requireAdmin, (req, res) => {
   const totalRuns = db.prepare("SELECT COUNT(DISTINCT run_id) n FROM evaluations").get().n;
   const users = db.prepare("SELECT COUNT(DISTINCT user) n FROM evaluations").get().n;
   const overall = db.prepare("SELECT AVG(score) a FROM evaluations WHERE score IS NOT NULL").get().a;
@@ -1087,12 +1069,12 @@ app.post("/api/feedback", (req, res) => {
 });
 
 // ---------- owner stats (in-tool table) ----------
-app.get("/api/owner-stats", (req, res) => {
+app.get("/api/owner-stats", requireAdmin, (req, res) => {
   res.json({ users: ownerRows() });
 });
 
 // ---------- CSV export ----------
-app.get("/api/export.csv", (req, res) => {
+app.get("/api/export.csv", requireAdmin, (req, res) => {
   const rows = db.prepare("SELECT * FROM evaluations ORDER BY ts DESC").all();
   const head = ["timestamp", "run_id", "user", "asset_type", "source", "persona", "persona_score", "verdict", "fix", "copy_preview", "image_preview"];
   const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
@@ -1103,7 +1085,11 @@ app.get("/api/export.csv", (req, res) => {
   res.send(lines.join("\n"));
 });
 
+// ---------- Create workspace (administrative tier) ----------
+require("./create")({ app, db, upload, anthropic, MODEL_CREATE, requireAuth, requireAdmin,
+  voice: { BRAND_VOICE, PHOTOGRAPHY, PERSONAS, REGION_NOTES, NEUROGIVING, COPY_STYLE, HUMAN_VOICE, TIER1_WORDS, TIER2_WORDS, DO_NOT_USE } });
+
 app.listen(PORT, () => {
   console.log(`Persona Sounding Board running on http://localhost:${PORT}`);
-  console.log(`Model: ${MODEL} · DB: ${DB_PATH}`);
+  console.log(`Curate model: ${MODEL} · Create model: ${MODEL_CREATE} · DB: ${DB_PATH}`);
 });

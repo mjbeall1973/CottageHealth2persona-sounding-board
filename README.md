@@ -1,4 +1,58 @@
-# Persona Sounding Board — Hosted Version
+# Our Voice Lab — Cottage Health Foundation edition (v3)
+
+A hosted web app with two tiers of users:
+
+- **Standard (curate):** Test Your Message against six Santa Barbara-area donor personas, the brand voice, regions, photography principles, templates, and My Projects. This is the original tool.
+- **Administrator (create):** everything above **plus the Create workspace** (a project-based writing room with a senior-writer AI that already knows the voice, personas, regions and word banks; drop in files, ask for research, brainstorm, draft, save assets, export to Word / PowerPoint / Markdown) **and Team & access** (add people, set their access level, reset passwords).
+
+Sign-in is **email + password**. The first time someone signs in they set a password and answer three profile questions once; after that the tool recognizes them on any device. New people can create their own standard account with the team access code, or an administrator can add them directly (no code needed).
+
+Uploads accept **Word, PowerPoint, Excel, PDF, text, Markdown, CSV, HTML and images** in both Curate and Create.
+
+---
+
+## Files
+
+| File | What it does |
+| --- | --- |
+| `server.js` | Express server: Curate evaluation, URL/file extraction, projects, history, usage log |
+| `auth.js` | Accounts, tiers, sign-in, first-time setup, Team & access API |
+| `create.js` | The Create workspace: projects, files, streaming chat with web research, assets, export |
+| `extract.js` | Turns uploaded files (docx/pptx/xlsx/pdf/text/images) into text |
+| `exporters.js` | Markdown → Word (.docx) and PowerPoint (.pptx) |
+| `personas.js`, `brand-voice.js`, `project-templates.js` | The Foundation's content (single source of truth) |
+| `public/index.html` | The app |
+| `public/login.html` | Sign-in and first-time setup |
+| `.env.example` | Settings template — copy to `.env` locally, or set as Render environment variables |
+| `mock-server.js`, `test-*.sh`, `ui-test.py` | Developer checks; not used in production |
+
+## Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Required |
+| `ANTHROPIC_MODEL` | Curate model (default `claude-haiku-4-5-20251001`) |
+| `ANTHROPIC_MODEL_CREATE` | Create workspace model (default `claude-sonnet-4-5`) |
+| `LOGIN_PASSWORD` | Team **access code** a new person enters once to create a standard account |
+| `ADMIN_EMAILS` | Comma-separated administrator emails (seeded/promoted at startup) |
+| `SESSION_SECRET` | Long random string used to sign sign-in cookies |
+| `DB_PATH` | SQLite file. On Render set to a path on the persistent disk, e.g. `/var/data/ovl.db` |
+| `REPLICATE_API_TOKEN` | Optional, AI faces for custom personas |
+
+## Deploying on Render (persistent data)
+
+The database holds accounts, passwords, history and Create projects, so it must survive deploys:
+
+1. Upgrade the web service to the **Starter** plan (free instances have no disks and sleep when idle).
+2. **Disks → Add disk:** name `data`, mount path `/var/data`, 1 GB.
+3. **Environment:** set `DB_PATH=/var/data/ovl.db`, `SESSION_SECRET` (any long random string), `ADMIN_EMAILS`, `LOGIN_PASSWORD`, and optionally `ANTHROPIC_MODEL_CREATE`.
+4. Deploy. Administrators sign in with their email; the tool asks them to set a password the first time.
+
+Build command: `npm install` · Start command: `npm start` · Node 18+.
+
+---
+
+## Original notes
 
 A web app version of the Cottage Health Foundation Persona Sounding Board. Paste copy, **pull copy straight from a web page URL**, or **upload a PDF** — then get reactions and fit scores from six Santa Barbara–area personas. It runs on your own server, calls the Anthropic API to generate the reactions, and records every evaluation across all users in a central database so you can track usage and improve the tool.
 

@@ -1,8 +1,8 @@
 {
-  "name": "persona-sounding-board",
-  "version": "2.0.0",
+  "name": "our-voice-lab",
+  "version": "3.0.0",
   "private": true,
-  "description": "Cottage Health Foundation Persona Sounding Board — hosted version with URL and PDF intake.",
+  "description": "Our Voice Lab — Cottage Health Foundation edition. Curate (persona sounding board) + Create (AI writing workspace for administrators).",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -12,11 +12,14 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1",
+    "@anthropic-ai/sdk": "^0.125.0",
     "better-sqlite3": "^11.5.0",
+    "docx": "^9.7.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
-    "pdf-parse": "^1.1.1"
+    "officeparser": "^7.8.0",
+    "pdf-parse": "^1.1.1",
+    "pptxgenjs": "^4.0.1"
   }
 }
